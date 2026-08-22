@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2回: 数えて、選んで、つなげる</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reset.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/theme/white.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/gruvbox-dark-hard.min.css">
+<link rel="stylesheet" href="../assets/slides.css">
+</head>
+<body>
+
+<!--
+  スライドの中身は slides.md にある。編集するのはそちらだけでよい。
+  区切り: 横スライドは「---」、縦スライドは「--」を単独行で置く。
+  ローカルで見るときは、リポジトリの直下で python3 -m http.server を動かすこと
+  (file:// で開くと slides.md を読み込めない)。
+-->
+
+<div class="reveal">
+  <div class="slides">
+    <section data-markdown="slides.md"
+             data-separator="^\r?\n---\r?\n"
+             data-separator-vertical="^\r?\n--\r?\n"
+             data-charset="utf-8">
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/plugin/markdown/markdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/plugin/highlight/highlight.min.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'none',
+    backgroundTransition: 'none',
+    fragments: false,        // 段階表示は使わない。全部まとめて出す
+    width: 1200,
+    height: 700,
+    margin: 0.06,
+    plugins: [ RevealMarkdown, RevealHighlight ],
+  });
+  Reveal.configure({ pdfSeparateFragments: false });
+</script>
+</body>
+</html>
