@@ -4,8 +4,6 @@
 学部2・3年生向けの Python 演習資料。スライド (reveal.js) と課題ノートブック
 (Jupyter/Colab) からなる。
 
-公開ページ: https://3tty0n.github.io/2026_scripting_python/
-
 * 構成
 
 | 回     | テーマ                         | スライド      | 課題                        |
