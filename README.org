@@ -40,6 +40,15 @@ sh tools/sync-gists.sh
 #+end_src
 
 Colab が使えないときは JupyterLite (=lite/=、第3回A は対象外)。
+手元で試すときは:
+
+#+begin_src sh
+sh tools/build-jupyter-lite.sh
+python3 -m http.server 8000
+#+end_src
+
+http://127.0.0.1:8000/lite/lab/index.html
+
 提出は kibaco。=grade.html= へのアップロードは提出ではない。
 
 * 採点
