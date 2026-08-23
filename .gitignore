@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+server/progress.db
+autograde.py.download
+# 演習中にノートブックが作るファイル
+sample.txt
+alice.txt
+app.log
+out.txt
+scores.csv
+
+# JupyterLite (CI で組み立てる)
+lite/
+_lite_contents/
+.jupyterlite.doit.db
+
+.playwright-mcp/
