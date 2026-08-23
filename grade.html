@@ -57,7 +57,7 @@
 </style></head><body><div class="wrap">
 
 <p class="kicker">Scripting Languages</p>
-<h1>課題の提出と採点</h1>
+<h1>課題の提出前自己採点</h1>
 <p class="sub">.ipynb をアップロードすると、この場で採点して結果を出します。何度でもやり直せます。</p>
 <div class="kibaco">
   <strong>このページは提出ではありません。</strong>
@@ -101,11 +101,6 @@
   <a class="kibaco-link" href="#" target="_blank" rel="noopener">kibaco を開く</a>
 </div>
 
-<div class="id">
-  提出者ID<br><strong id="sid">-</strong><br>
-  <span class="note">このブラウザで提出するかぎり同じIDが使われます。
-  別の端末から出すときは、このIDを控えて先生に伝えてください。</span>
-</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.js"></script>
@@ -338,7 +333,7 @@ function show(d, task, secs){
           + d.facts.map(f => '・' + f).join('<br>') + '</div>';
   }
   if(d.cell_errors && d.cell_errors.length){
-    html += '<div class="err">実行中に出たエラー (参考)\n' 
+    html += '<div class="err">実行中に出たエラー (参考)\n'
           + d.cell_errors.slice(0,6).join('\n') + '</div>';
   }
   html += `<p class="note">採点にかかった時間 ${secs} 秒</p>`;
