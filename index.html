@@ -3,98 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>スクリプト言語演習 (Python)</title>
+<title>スクリプト言語演習 (TMU)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --ink: #14140f; --paper: #faf8f4; --rule: #c4bcab; --muted: #4f4a40;
-    --accent: #a02b0c; --accent-bg: #f7ded2;
-    --teal: #0a544c; --teal-bg: #d5e8e5;
-    --sand: #6d5410; --sand-bg: #f6e9c6;
-    --mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
-  }
-  * { box-sizing: border-box; }
-  body {
-    font-family: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-    color: var(--ink); background: var(--paper);
-    margin: 0; line-height: 1.75; -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 96px; }
-
-  /* ---- ヘッダ ---- */
-  header { border-bottom: 3px solid var(--ink); margin-bottom: 48px; padding: 56px 0 28px; }
-  .kicker {
-    font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.18em;
-    text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
-  }
-  h1 { font-size: 2.4rem; margin: 0 0 8px; letter-spacing: -0.02em; line-height: 1.25; }
-  .sub { color: var(--muted); margin: 0; font-size: 0.98rem; }
-
-  h2 {
-    font-size: 1.05rem; margin: 56px 0 20px; letter-spacing: 0.02em;
-    display: flex; align-items: baseline; gap: 14px;
-  }
-  h2 .n { font-family: var(--mono); color: var(--accent); font-size: 0.85rem; }
-  h2 .bar { flex: 1; height: 1px; background: var(--rule); }
-
-  /* ---- カード: 角丸なし・影なし ---- */
-  .card { border: 2px solid var(--ink); padding: 22px 26px; margin: 0 0 20px; background: #fff; }
-  .card + .card { margin-top: -2px; }        /* 罫線を重ねる */
-  .card h3 { margin: 0 0 6px; font-size: 1.12rem; letter-spacing: -0.01em; }
-  .card p { margin: 0 0 16px; color: var(--muted); font-size: 0.93rem; }
-  .card.variant { border-left: 8px solid var(--accent); }
-  .card.variant.b { border-left-color: var(--teal); }
-
-  .links { display: flex; flex-wrap: wrap; gap: 0; }
-  .links a {
-    font-family: var(--mono); font-size: 0.8rem; font-weight: 600;
-    text-decoration: none; color: var(--ink);
-    padding: 7px 15px; border: 1px solid var(--ink); margin: 0 -1px -1px 0;
-    transition: none;
-  }
-  .links a:hover { background: var(--ink); color: var(--paper); }
-  .links a.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .links a.primary:hover { background: var(--ink); border-color: var(--ink); }
-
-  .tag {
-    font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
-    padding: 3px 9px; margin-left: 10px; vertical-align: 3px;
-    background: var(--accent); color: #fff;
-  }
-  .tag.b { background: var(--teal); }
-
-  /* ---- 通しテーマの図 ---- */
-  .arc { display: flex; align-items: stretch; gap: 0; margin: 0 0 8px; flex-wrap: wrap; }
-  .arc .step { flex: 1; min-width: 190px; border: 2px solid var(--ink); padding: 16px 18px; margin: 0 -2px -2px 0; }
-  .arc .step .lbl { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); }
-  .arc .step .txt { font-size: 0.88rem; line-height: 1.5; margin-top: 4px; }
-  .arc .step:nth-child(1) { background: var(--sand-bg); }
-  .arc .step:nth-child(2) { background: var(--teal-bg); }
-  .arc .step:nth-child(3) { background: var(--accent-bg); }
-
-  .callout { background: var(--ink); color: var(--paper); padding: 18px 22px; margin: 24px 0 0; font-size: 0.92rem; }
-  .callout strong { color: #ffb59c; }
-
-  .note { color: var(--muted); font-size: 0.88rem; }
-  ul { padding-left: 1.2em; }
-  li { margin-bottom: 0.3em; font-size: 0.94rem; }
-  code { font-family: var(--mono); font-size: 0.86em; background: #eae5db; padding: 0.1em 0.35em; }
-  a { color: var(--accent); }
-  footer {
-    margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--rule);
-    color: var(--muted); font-size: 0.85rem;
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
 
 <header>
   <p class="kicker">Scripting Languages &middot; 2026</p>
-  <h1>スクリプト言語演習 (Python)</h1>
-  <p class="sub">学部2・3年生向け 全3回</p>
+  <h1>スクリプト言語演習 (CS, EECS) 2026</h1>
+  <p class="sub">Python 演習 全3回</p>
+  <p class="sub">担当: 伊澤 侑祐 (情報科学科、助教、yizawa _at_ tmu.ac.jp)</p>
 </header>
 
 <p class="note">
@@ -103,15 +25,9 @@
 <code>ファイル → ドライブにコピーを保存</code> で自分の控えを作ってから書き始めてください。
 書き終えたら <code>ファイル → .ipynb をダウンロード</code> で保存して提出します。
 </p>
-<p class="note">
-Colab を使わない方法もあります。<strong>「ブラウザで開く」</strong>を押すと、
-このページの中で Jupyter が立ち上がります (JupyterLite)。
-書いた内容はそのブラウザにだけ残るので、提出前に <code>File → Download</code> で
-.ipynb を保存してください。第3回A はモデルを動かすので Colab のみです。
-</p>
 
 <h2><span class="n">01</span> Python の関数とデコレータ <span class="bar"></span></h2>
-<div class="card">
+7M<div class="card">
   <h3>Python の関数とデコレータ</h3>
   <p>
     Python の基礎をさらいます。Python らしい記法 (Pythonic) や動的言語としての特
@@ -121,7 +37,6 @@ Colab を使わない方法もあります。<strong>「ブラウザで開く」
     <a class="primary" href="https://colab.research.google.com/gist/3tty0n/c3f350eac43bfaceee52c4e46211acf8/01_basics.ipynb">Colab で開く</a>
     <a href="01-basics/index.html">スライド</a>
     <a href="exercises/01_basics.ipynb" download>.ipynb を保存</a>
-    <a href="lite/notebooks/index.html?path=01_basics.ipynb">ブラウザで開く</a>
   </div>
 </div>
 
@@ -136,7 +51,6 @@ Colab を使わない方法もあります。<strong>「ブラウザで開く」
     <a class="primary" href="https://colab.research.google.com/gist/3tty0n/b22ee21987175a8a41d05effd8a58deb/02_text.ipynb">Colab で開く</a>
     <a href="02-text/index.html">スライド</a>
     <a href="exercises/02_text.ipynb" download>.ipynb を保存</a>
-    <a href="lite/notebooks/index.html?path=02_text.ipynb">ブラウザで開く</a>
   </div>
 </div>
 
@@ -174,7 +88,6 @@ Colab を使わない方法もあります。<strong>「ブラウザで開く」
     <a class="primary" href="https://colab.research.google.com/gist/3tty0n/97852f1114d1b445a903b5a641f07ce7/03b_forth.ipynb">Colab で開く</a>
     <a href="03b-forth/index.html">スライド</a>
     <a href="exercises/03b_forth.ipynb" download>.ipynb を保存</a>
-    <a href="lite/notebooks/index.html?path=03b_forth.ipynb">ブラウザで開く</a>
   </div>
 </div>
 
@@ -207,9 +120,19 @@ Colab を使わない方法もあります。<strong>「ブラウザで開く」
   採点ページは出来具合いを確かめるための場所で、そこに置いても提出したことにはなりません。
 </div>
 
-<footer>
-  資料一式: <a href="https://github.com/3tty0n/2026_scripting_python">github.com/3tty0n/2026_scripting_python</a>
-</footer>
+<details class="alt">
+  <summary>どうしても Colab を使いたくない人向け</summary>
+  <p class="note">
+    下のリンクから、このページの中で Jupyter が立ち上がります (JupyterLite)。
+    書いた内容はそのブラウザにだけ残るので、提出前に <code>File → Download</code> で
+    .ipynb を保存してください。第3回A はモデルを動かすので Colab のみです。
+  </p>
+  <div class="links">
+    <a href="lite/notebooks/index.html?path=01_basics.ipynb">第1回</a>
+    <a href="lite/notebooks/index.html?path=02_text.ipynb">第2回</a>
+    <a href="lite/notebooks/index.html?path=03b_forth.ipynb">第3回B</a>
+  </div>
+</details>
 
 </div>
 </body>
