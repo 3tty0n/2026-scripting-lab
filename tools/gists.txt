@@ -1,0 +1,6 @@
+# 課題ノートブックと公開 Gist の対応。
+# 「Colab で開く」リンクはここの ID を指す。行の形は <ファイル名> <gist id>。
+01_basics.ipynb c3f350eac43bfaceee52c4e46211acf8
+02_text.ipynb b22ee21987175a8a41d05effd8a58deb
+03a_llm.ipynb 1c0f3cf4d3f4fb2f30354677156e75ea
+03b_forth.ipynb 97852f1114d1b445a903b5a641f07ce7
