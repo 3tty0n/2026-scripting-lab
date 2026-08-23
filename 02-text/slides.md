@@ -1,83 +1,59 @@
 <!-- .slide: class="title-slide" -->
 
-<p class="kicker">Scripting Languages / 02</p>
+Scripting Languages / 02
+<!-- .element: class="kicker" -->
 
-# 数えて、選んで、<br>つなげる
+# テキスト処理と文章生成
 
 ### スクリプト言語演習 第2回
 
 ---
 
-## 今日作るもの
+## 今日のゴール: 文章をまねる生成器を作る
 
-<p class="lead">テキストを読み込んで、<strong>そのテキストらしい文章を自動生成する</strong>プログラム。</p>
+手元の文章を読み込み、**その文章らしい新しい一文**を作る。
+<!-- .element: class="lead" -->
 
-<div class="flow-container">
-  <div class="flow-row">
-    <div class="flow-box source">文章<span class="flow-label">元になるテキスト</span></div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="flow-box process">刻む<span class="flow-label">トークンに分割</span></div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="flow-box process">数える<span class="flow-label">次に来る語の統計</span></div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="flow-box output">生成<span class="flow-label">1語ずつ選んで伸ばす</span></div>
-  </div>
-</div>
+![文章をまねる生成器の流れ](../assets/diagrams/flow-text-generation.svg)
 
-<div class="key-box">
-手法の名前は<strong>マルコフ連鎖</strong>。統計を取って、そこから確率的に選ぶだけの古典的な方法。
-必要なのは辞書とループ、それだけ。
-</div>
+結論: <strong>状態・表・ループ</strong>があれば、文章を作るプログラムが書ける。
+マルコフ連鎖は、その考え方を使う最初の例だ。
+<!-- .element: class="key-box" -->
 
 ---
 
-## 前回からのつながり
+## 第1回の道具をそのまま使える
 
-| 第1回で作ったもの | 今日の使い道 |
+| 第1回で作ったもの | 今回の使い道 |
 |---|---|
-| `split` で文字列を分ける | トークン化の土台 |
-| 辞書 | 「単語 → 次に来た語の回数」の表 |
-| ディスパッチテーブル `COMMANDS` | 逆ポーランド電卓の中身に流用 |
-| 登録デコレータ `@command` | ワード表 `@word` として再登場 |
+| `split` で文字列を分ける | 単語に分ける出発点 |
+| 辞書 | 「単語 → 次の語の回数」を記録する |
+| ディスパッチテーブル | 「記号 → 実行する操作」を登録する |
+| 登録デコレータ | 操作をあとから追加する |
 
 ---
 
-## 刻む
+## 文字列を単語に分ける
 
 ```python
 import re
 
 text = "Hello, world! It's a nice day."
 
-text.split()                        # ['Hello,', 'world!', ...] 記号が残る
+text.split()                        # 記号が残る
 re.findall(r"[a-z']+", text.lower())
 # ['hello', 'world', "it's", 'a', 'nice', 'day']
 ```
 
-<div class="lexer-container">
-  <div class="lexer-row">
-    <div class="lexer-input">"3 4 + 2 *"</div>
-    <div class="big-arrow">&#8594;</div>
-    <div class="lexer-process"><div class="title">split()</div></div>
-    <div class="big-arrow">&#8594;</div>
-    <div class="lexer-output">
-      <div class="lexer-token">3</div>
-      <div class="lexer-token">4</div>
-      <div class="lexer-token">+</div>
-      <div class="lexer-token">2</div>
-      <div class="lexer-token">*</div>
-    </div>
-  </div>
-</div>
+![入力をトークンに分ける流れ](../assets/diagrams/lexer-rpn.svg)
 
-<div class="key-box">
-文字列を意味のある単位 (<strong>トークン</strong>) に切り分ける作業が<strong>字句解析</strong>。
-テキスト処理も言語処理系も、入口は同じ。
-</div>
+結論: 文字列は、意味のある単位である<strong>トークン</strong>に分けてから扱う。
+この作業を<strong>字句解析</strong>と呼ぶ。文章生成でも電卓でも、まずここから始まる。
+<!-- .element: class="key-box" -->
 
 ---
 
-## 数える
+## 隣り合う単語を数えると、次の候補が分かる
 
 ```python
 from collections import Counter, defaultdict
@@ -86,54 +62,55 @@ Counter(words)["the"]       # 3
 Counter(words).most_common(2)
 ```
 
-隣り合うペアを数えれば、「次に何が来たか」の表。
+「この語の次に何が来たか」は、隣り合う2語を数えると分かる。
 
 ```python
-following = defaultdict(Counter)      # 無いキーは自動で空 Counter
+following = defaultdict(Counter)      # 空の Counter を作る
 
-for a, b in zip(words, words[1:]):    # zip で隣り合う2語の組
+for a, b in zip(words, words[1:]):    # 隣り合う2語を順に取り出す
     following[a][b] += 1
 ```
 
-<div class="key-box">
-この3行が今日の主役。
-<code>Counter</code> は無いキーを引くと 0 を返すので、初期化を書く手間も不要。
-</div>
+結論: この3行で「単語 → 次の語の回数」の表ができる。
+<code>Counter</code> は初めて出る語の回数も 0 から数え始める。
+<!-- .element: class="key-box" -->
+
+---
+<!-- .slide: class="chapter" -->
+
+設計図
+<!-- .element: class="num" -->
+
+## 状態を表とループで更新する
 
 ---
 
-<!-- .slide: class="chapter" -->
+### 文章生成も電卓も、次の状態を作る
 
-<span class="num">01</span>
+| 機械 | 状態 | 表に入れるもの | ループで行うこと |
+|---|---|---|---|
+| 文章生成 | 今の単語 | 次に来た語と回数 | 次の語を選ぶ |
+| 電卓 | 数のスタック | 記号と操作の関数 | 1トークンを実行する |
 
-## マルコフ連鎖で生成する
+結論: <strong>状態を持つ → 表から次の処理を選ぶ → 状態を更新する</strong>。
+この同じ形を、まず文章生成で使い、次に電卓でも使う。
+<!-- .element: class="key-box" -->
 
---
+---
 
-### 考え方
+### 状態を1語にすると、文章が続く
 
-<p class="lead">「今の単語」だけを見て「次の単語」を決め、それを繰り返す。</p>
+今の単語だけを見て次の単語を決める。これを繰り返す。
+<!-- .element: class="lead" -->
 
-<div class="eval-loop-container">
-  <div class="eval-main-flow">
-    <div class="eval-box read">今の単語</div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="eval-box get">次の語の<br>回数表を引く</div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="eval-box eval">回数に応じて<br>1つ選ぶ</div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="eval-box read">つなげる</div>
-  </div>
-  <div class="loop-arrow"></div>
-</div>
+![今の単語を更新する生成ループ](../assets/diagrams/eval-markov.svg)
 
-<div class="highlight-box">
-覚えているのは直前の1語だけ。それでも元の文章の「くせ」はかなり再現される。
-</div>
+結論: 覚えるのは直前の1語だけでも、元の文章らしい<strong>くせ</strong>は残る。
+<!-- .element: class="highlight-box" -->
 
---
+---
 
-### 表を作る
+### 表は「次に来る語の回数」を持つ
 
 ```python
 def build_table(tokens):
@@ -150,105 +127,104 @@ table = build_table(text.lower().replace(".", "").split())
 table["i"]     -> Counter({'like': 2, 'love': 1})
 table["like"]  -> Counter({'cats': 1, 'dogs': 1})
 ```
-<!-- .element: class="output" -->
 
-<div class="key-box">
-<code>table["i"]</code> が表しているのは
-<strong>「i の次は 2/3 の確率で like、1/3 で love」</strong>という確率分布。
-</div>
+結論: <code>table&#91;"i"&#93;</code> は「i の次に何が来るか」の確率を表す。
+ここでは、<strong>like が 2/3、love が 1/3</strong> になる。
+<!-- .element: class="key-box" -->
 
---
+---
 
-### 回数に応じて1つ選ぶ
+### 回数を重みにして、次の語を選ぶ
 
 ```python
 import random
 
 def pick_next(counter):
     words = list(counter.keys())
-    weights = list(counter.values())      # 回数をそのまま重みに
+    weights = list(counter.values())      # 回数を重みにする
     return random.choices(words, weights=weights)[0]
 
 pick_next(table["i"])    # 'like' が出やすく、'love' がたまに出る
 ```
 
-<div class="warn-box">
-<code>random.choice</code> (単数形) は等確率。重み付きは <code>random.choices</code> (複数形) のほうで、
-しかも<strong>返るのはリスト</strong>。末尾の <code>[0]</code> を落とす人が毎年いる。
-</div>
+注意: <code>random.choice</code> は等確率で選ぶ。
+回数に応じて選ぶには <code>random.choices</code> を使う。返り値は<strong>リスト</strong>なので、
+末尾の <code>&#91;0&#93;</code> を付ける。
+<!-- .element: class="warn-box" -->
 
---
+---
 
-### ループで文章にする
+### 状態を更新すると、文章が続く
 
 ```python
 def generate(table, start, n=30):
     word = start
     result = [word]
     for _ in range(n):
-        if word not in table:      # 次が無い語に行き着いたら終わり
+        if word not in table:      # 次の語がなければ終える
             break
         word = pick_next(table[word])
         result.append(word)
     return " ".join(result)
 ```
 
-<div class="key-box">
-<strong>予測 → 選ぶ → つなげる。</strong>
-これが文章生成の基本形。表の中身が何であれ、外側のループはこの形。
-</div>
+結論: <strong>予測する → 選ぶ → つなげる</strong>を繰り返すと、文章ができる。
+今の語が<strong>状態</strong>、<code>table</code> が<strong>表</strong>、<code>for</code> が
+状態を更新する<strong>ループ</strong>だ。
+<!-- .element: class="key-box" -->
 
---
+---
 
-### 温度: どれくらい冒険するか
+### 温度で文章の意外さを調整する
 
-重みを `1/T` 乗してから引く。
+温度 `T` を使うと、よく出る語を選ぶ度合いを変えられる。
+重みを `1/T` 乗してから次の語を選ぶ。
 
 ```python
 weights = [c ** (1 / temperature) for c in counter.values()]
 ```
 
-| 温度 | 重み `(3, 1)` が | ふるまい |
+| 温度 | 重み `(3, 1)` | 出力の傾向 |
 |---|---|---|
-| `0.1` | `(59049, 1)` | ほぼ最頻語だけ。安全で単調 |
+| `0.1` | `(59049, 1)` | 最頻語に偏る。安定するが単調 |
 | `1.0` | `(3, 1)` | 元の統計どおり |
-| `5.0` | `(1.25, 1)` | ほぼ等確率。多様だが破綻しやすい |
+| `5.0` | `(1.25, 1)` | ほぼ等確率。多様だが崩れやすい |
 
-<div class="key-box">
-確率分布を尖らせるか平らにするかのつまみ。
-確率から1つ選ぶ仕組みには、たいていこの<strong>温度</strong>が付いてくる。
-</div>
-
---
-
-### この方式の限界
-
-直前2語をキーにすれば質は上がる。ただし。
-
-| 見る語数 | 出力の質 | 問題 |
-|---|---|---|
-| 1語 (bigram) | 単語のつながりだけそれらしい | すぐ意味が壊れる |
-| 2語 (trigram) | かなり自然になる | 元の文章の丸写しが増える |
-| 5語 | ほぼ丸写し | 組み合わせが表に無くなる |
-
-<div class="key-box">
-<strong>長い文脈を見たい。でも表が持てない。</strong>
-語数を1つ増やすたびに、表に必要な組み合わせは語彙数の倍。ここが数え上げ方式の壁。
-</div>
+結論: 温度は、確率の偏りを強くしたり弱くしたりする調整つまみだ。
+<!-- .element: class="key-box" -->
 
 ---
 
+### 文脈を増やすほど、表は大きくなる
+
+直前の2語を見ると出力は自然になる。ただし、必要な表は急に大きくなる。
+
+| 見る語数 | 出力の傾向 | 問題 |
+|---|---|---|
+| 1語 (bigram) | 単語のつながりは自然 | 文の意味は崩れやすい |
+| 2語 (trigram) | かなり自然になる | 元の文章を写しやすい |
+| 5語 | ほぼ丸写し | 組み合わせが表に無くなる |
+
+結論: 長い文脈を使うほど、表に必要な組み合わせが増える。
+これが、数え上げだけで文章を作る方法の限界だ。
+<!-- .element: class="key-box" -->
+
+---
 <!-- .slide: class="chapter" -->
 
-<span class="num">02</span>
+もう一つの状態
+<!-- .element: class="num" -->
 
-## スタックとディスパッチ
+## 複数の値はスタックに覚えさせる
 
---
+文章生成では、今の単語だけを覚えていた。計算では途中の値をいくつも覚えたい。
+そこで、最後に入れた値から使う<strong>スタック</strong>を状態にする。
 
-### 逆ポーランド記法
+---
 
-`3 4 +` という並びを左から処理する。最後に入れたものから取り出す (LIFO)。
+### 逆ポーランド記法では、式を左から読む
+
+`3 4 +` を左から読み、最後に入れた値から取り出す (LIFO)。
 
 | 読んだもの | やること | スタック |
 |---|---|---|
@@ -256,17 +232,21 @@ weights = [c ** (1 / temperature) for c in counter.values()]
 | `4` | 数なので push | `[3, 4]` |
 | `+` | 2つ pop して足し、結果を push | `[7]` |
 
-Python ではリストがそのままスタック。`append` が push、`pop` が pop。
+結論: Python ではリストをそのままスタックとして使える。
+`append` が push、`pop` が pop になる。
 <!-- .element: class="note" -->
 
-<div class="warn-box">
-<code>10 3 -</code> は <code>7</code>。先に pop されるのは <code>3</code> のほう。
-<code>a - b</code> の順を取り違えると符号が反転する。ここは実際やると必ず1回間違える。
-</div>
+注意: <code>10 3 -</code> の結果は <code>7</code>。先に pop されるのは <code>3</code> だ。
+引き算と割り算では、取り出す順序を逆にしない。
+<!-- .element: class="warn-box" -->
 
---
+---
 
-### 第1回のコマンド表を持ってくる
+### 表に関数を入れると、操作を追加できる
+
+結論: 表の値を関数にすると、記号ごとの操作を後から足せる。
+「単語 → 次の候補」だった表を「記号 → スタックを更新する関数」に替え、
+第1回の登録デコレータを <code>@word</code> として使う。
 
 ```python
 WORDS = {}
@@ -287,94 +267,70 @@ def _(stack):
     stack.append(stack[-1])
 ```
 
---
+---
 
-### 評価するのは 6 行
+### 評価ループは、6行のまま増やせる
 
 ```python
 def evaluate(stack, text):
-    for token in text.split():       # 字句解析
+    for token in text.split():       # トークンに分ける
         if token in WORDS:
-            WORDS[token](stack)      # ディスパッチ
+            WORDS[token](stack)      # 表から関数を選ぶ
         else:
             stack.append(int(token))
 ```
 
-<div class="flow-container">
-  <div class="flow-row">
-    <div class="flow-box source">"3 4 + 2 *"</div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="flow-box process">split<span class="flow-label">字句解析</span></div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="flow-box process">for token<span class="flow-label">ディスパッチループ</span></div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="flow-box output">[14]<span class="flow-label">スタック</span></div>
-  </div>
-</div>
+![スタックを更新する処理の流れ](../assets/diagrams/flow-rpn-loop.svg)
 
-<div class="key-box">
-<code>if</code> の連鎖がどこにも無い。ワードを何種類足しても、この6行は不変。
-</div>
+結論: 操作を増やしても、評価ループは変わらない。
+文章生成と同じく、まず表から取り出す。候補を選ぶ代わりに、
+<strong>関数を呼んでスタックを更新する</strong>。
+<!-- .element: class="key-box" -->
 
 ---
 
-## 演習課題
+## 同じ骨格で2つの機械が動く
 
-| # | 課題 | ねらい |
+| | 文章を作る機械 | 計算する機械 |
 |---|---|---|
-| 1 | ファイルを読んでトークン列にする | ファイル入出力、正規表現 |
-| 2 | 「次に来た語」の表を作る | defaultdict, Counter, zip |
-| 3 | マルコフ連鎖で文章を生成する | 重み付き抽選、生成ループ |
-| 4 | ワード表方式で逆ポーランド電卓 | 字句解析 + ディスパッチ |
+| 状態 | 今の単語 | 数のスタック |
+| 表 | 次の語の回数 | 記号と操作 |
+| 更新 | 確率に従って選ぶ | 関数を実行する |
 
-発展: 温度を付けて 0.2 / 1.0 / 3.0 を比べる / trigram にして bigram と比べる
-
-`exercises/02_text.ipynb`。課題3 の出力は各自まったく違うものが出る。面白い文が出たら見せること。
-<!-- .element: class="note" -->
+結論: <strong>辞書とループ</strong>があれば、確率的な生成器も小さな言語も作れる。
+表の中身を替えるだけで、同じ骨格が別の機械になる。
+<!-- .element: class="key-box" -->
 
 ---
-
-## まとめ
-
-- **刻む** → **数える** → **選ぶ** → **つなげる** で文章生成
-- **温度** — 分布を尖らせるか平らにするかのつまみ
-- **スタック + ワード表** — 逆ポーランド式が動く処理系のできあがり
-
-<div class="key-box">
-どちらも中身は<strong>辞書とループ</strong>。
-統計を辞書に持つか、関数を辞書に持つか、それだけの違い。
-</div>
-
----
-
 <!-- .slide: class="chapter" -->
 
-<span class="num">付録</span>
+付録
+<!-- .element: class="num" -->
 
-## 課題で使う道具
+## 課題で使う道具: ファイル・正規表現・スタック
 
---
+---
 
-### ファイルを読む
+### `with` を使うと、ファイルを安全に読める
 
 ```python
 with open("data.txt", encoding="utf-8") as f:
-    text = f.read()          # 全体を1つの文字列として
+    text = f.read()          # ファイル全体を文字列として読む
 
 with open("data.txt", encoding="utf-8") as f:
-    for line in f:           # 1行ずつ (大きくても安全)
+    for line in f:           # 1行ずつ読む（大きなファイル向け）
         line = line.strip()
         if not line or line.startswith("#"):
             continue
 ```
 
-`with` を使えば、途中で例外が飛んでも必ず閉じる。
-日本語を扱うなら `encoding="utf-8"` は必須。省略すると Windows で文字化け。
+結論: `with` を使えば、途中で例外が起きてもファイルを閉じられる。
+日本語を扱うときは `encoding="utf-8"` を指定する。省略すると環境によっては文字化けする。
 <!-- .element: class="note" -->
 
---
+---
 
-### 正規表現
+### 正規表現は、文字列から必要な部分を取り出す
 
 | 記法 | 意味 |
 |---|---|
@@ -385,22 +341,23 @@ with open("data.txt", encoding="utf-8") as f:
 | `( )` | グループ。取り出したい部分を囲む |
 
 ```python
-re.findall(r"[a-z']+", text)     # 全部取り出す
+re.findall(r"[a-z']+", text)     # すべて取り出す
 re.sub(r"\d+", "N", text)        # 置き換える
 m = re.match(r"(\d{4})-(\d{2})", s)
 if m: year, month = m.groups()   # マッチしないと None が返る
 ```
 
-パターンは `r"..."` で書く。`split` で足りる場面では `split` を優先。
+結論: 正規表現のパターンは `r"..."` で書く。
+`split` で足りるなら、まず `split` を使う。
 <!-- .element: class="note" -->
 
---
+---
 
-### 並べ替えとスタック操作
+### 並べ替えとスタック操作は、課題で使う
 
 ```python
 sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
-# 回数の多い順、同数なら辞書順
+# 回数が多い順。同じ回数なら辞書順
 ```
 
 | ワード | 動作 | スタックの変化 |
@@ -410,3 +367,41 @@ sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
 | `SWAP` | 上2つを入れ替え | (a b → b a) |
 | `OVER` | 2番目を上にコピー | (a b → a b a) |
 | `ROT` | 3番目を一番上へ | (a b c → b c a) |
+
+---
+<!-- .slide: class="chapter" -->
+
+課題
+<!-- .element: class="num" -->
+
+## 課題では小さな機械を段階的に作る
+
+---
+
+## 前の課題の結果を次の課題で使う
+
+結論: 1問ずつ動かして確かめれば、最後まで自力で進められる。
+前の課題の出力が、次の課題の入力になる。
+
+| # | 課題 | ねらい |
+|---|---|---|
+| 1 | 文章をトークンに分ける | ファイル入出力、正規表現 |
+| 2 | 「次に来る語」の表を作る | `defaultdict`、`Counter`、`zip` |
+| 3 | 表を使って新しい一文を作る | 重み付き抽選、生成ループ |
+| 4 | 表の値を操作に替え、電卓を動かす | スタック、ディスパッチ |
+
+発展: 温度を変えて文章の意外さを比べる / 直前2語を見る生成器にする
+
+---
+
+## 進め方
+
+- ページの「Colab で開く」から課題を開き、「ドライブにコピーを保存」しておく
+- 最初に準備セルを実行する
+- 各課題の `TODO` を埋めたら、直下の確認セルを実行する
+- 確認セルは変更せず、出力を残したままノートブックを保存する
+- `score()` で全問を確認してから提出する
+
+結論: 課題1〜3で「語を状態にする機械」が完成する。
+課題4では同じ骨格のまま状態をスタックに替える。面白い出力や自作ワードを共有しよう。
+<!-- .element: class="key-box" -->

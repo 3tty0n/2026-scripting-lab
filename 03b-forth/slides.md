@@ -1,14 +1,42 @@
 <!-- .slide: class="title-slide" -->
 
-<p class="kicker">Scripting Languages / 03-B</p>
+Scripting Languages / 03-B
+<!-- .element: class="kicker" -->
 
-# Forth インタプリタ<br>実装演習
+# Forth インタプリタの実装
 
 ### スクリプト言語演習 第3回 (B)
 
 ---
 
-## 第1回・第2回で作ったもの
+## 今日作るもの
+
+第2回の逆ポーランド電卓に、<strong><code>: 名前 ... ;</code> による
+ユーザ定義ワード</strong>を足す。
+実行中に語彙を増やせれば、電卓が言語になる。
+<!-- .element: class="key-box" -->
+
+---
+
+## Forth とは
+
+1970年頃、Charles Mooreが電波望遠鏡の制御用に開発した。処理系が小さく、組み込み機器や Open Firmware で長く使われてきた。
+<!-- .element: class="note" -->
+
+| 特徴 | 内容 |
+|---|---|
+| 逆ポーランド記法 | `3 4 +` のように演算子を後ろに書く |
+| スタック指向 | 引数も返り値もすべてスタック経由 |
+| 文法がほぼない | 空白区切りの「ワード」が並んでいるだけ |
+| 拡張が前提 | 組み込みワードとユーザ定義ワードに区別がない |
+
+構文解析はほぼ要らない。今日の実装は<strong>字句解析とディスパッチだけ</strong>。
+処理系を自分で書く題材として、かなり小さい。
+<!-- .element: class="key-box" -->
+
+---
+
+## 第2回の電卓を土台にする
 
 | 回 | 作ったもの | 今日の役割 |
 |---|---|---|
@@ -17,37 +45,13 @@
 | 第2回 | `split` によるトークン化 | 字句解析 |
 | 第2回 | ワード表方式の逆ポーランド電卓 | 今日の出発点 |
 
-<div class="key-box">
-Forth が電卓と決定的に違うのは、
-<strong><code>: 名前 ... ;</code> でユーザが実行中に語彙を増やせる</strong>点。
-ここができて、はじめて「言語」。
-</div>
-
----
-
-## Forth とは
-
-1970年頃に Charles Moore が電波望遠鏡の制御用に開発。処理系が極端に小さく、
-組み込み機器や Open Firmware で長く使われてきた言語。
-<!-- .element: class="note" -->
-
-| 特徴 | 内容 |
-|---|---|
-| 逆ポーランド記法 | `3 4 +` のように演算子を後ろに書く |
-| スタック指向 | 引数も返り値もすべてスタック経由 |
-| 文法が無い | 空白区切りの「ワード」が並んでいるだけ |
-| 拡張が前提 | 組み込みワードとユーザ定義ワードに区別がない |
-
-<div class="key-box">
-構文解析が不要。だから今日の実装は<strong>字句解析とディスパッチだけ</strong>。
-処理系を自分で書く練習として、おそらく最短の題材。
-</div>
+まずは第2回と同じ電卓を、スタックとワード表で組み立て直す。
 
 ---
 
 ## スタックで計算する
 
-`3 4 + 2 *` を左から処理する。括弧も優先順位も要らない。
+`3 4 + 2 *` を左から処理する。括弧も優先順位も必要ない。
 
 | 読んだもの | スタック |
 |---|---|
@@ -57,48 +61,24 @@ Forth が電卓と決定的に違うのは、
 | `2` | `[7, 2]` |
 | `*` | `[14]` |
 
-<div class="warn-box">
 <code>10 3 -</code> は <code>7</code>。先に pop されるのは <code>3</code> のほう。
-<code>b - a</code> と書くと符号が反転する。ここは必ず1回間違えるところ。
-</div>
+<code>b - a</code> と書くと符号が反転する。ここは実装でよく間違える。
+<!-- .element: class="warn-box" -->
 
 ---
 
 ## ディスパッチループ
 
-<div class="eval-loop-container">
-  <div class="eval-main-flow">
-    <div class="eval-box read">トークンを<br>1つ読む</div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="eval-box get">辞書を引く</div>
-    <div class="flow-arrow">&#8594;</div>
-    <div class="eval-box eval">スタックを<br>操作する</div>
-  </div>
-  <div class="eval-branches">
-    <div class="eval-branch">
-      <div class="condition">数値だった</div>
-      <div class="action">スタックに push</div>
-    </div>
-    <div class="eval-branch">
-      <div class="condition">ワードだった</div>
-      <div class="action">対応する関数を呼ぶ</div>
-    </div>
-    <div class="eval-branch">
-      <div class="condition">知らない</div>
-      <div class="action">エラー</div>
-    </div>
-  </div>
-  <div class="loop-arrow"></div>
-</div>
+![Forthのディスパッチループ](../assets/diagrams/forth-dispatch.svg)
 
 ---
 
-## ワードを並べる
+## ワードを辞書に登録する
 
 ```python
 import operator
 
-def binop(f):                        # 2引数関数をワードに変える
+def binop(f):                        # 2引数関数をワードにする
     def run(stack):
         b, a = stack.pop(), stack.pop()
         stack.append(f(a, b))
@@ -128,7 +108,7 @@ def forth_eval(stack, code):
             raise ValueError(f"知らないワード: {token}")
 ```
 
-ここまでは第2回の電卓と同じ。Forth らしくなるのは次の `: ... ;` から。
+ここまでは第2回の電卓と同じ。Forthらしさが出るのは、次の `: ... ;` から。
 <!-- .element: class="note" -->
 
 ---
@@ -143,14 +123,14 @@ def forth_eval(stack, code):
 : QUADRUPLE DOUBLE DOUBLE ;
 5 QUADRUPLE .        ( 20 を出力 )
 ```
-<!-- .element: class="output" -->
 
-<div class="key-box">
-<code>:</code> から <code>;</code> までのトークン列を辞書に保存し、その名前が出てきたら中身を評価。
-定義済みのワードを本体から呼べるので、<code>QUADRUPLE</code> は <code>DOUBLE</code> を利用可能。
-</div>
+<code>:</code> から <code>;</code> までのトークン列を辞書に保存する。
+名前が出てきたら、その列を評価する。
+定義したワードは別のワードからも呼べるので、<code>QUADRUPLE</code> は
+<code>DOUBLE</code> を利用できる。
+<!-- .element: class="key-box" -->
 
-組み込みワードとユーザ定義ワードの扱いに差が無い。ここが Forth の気持ちよさ。
+組み込みワードとユーザ定義ワードの扱いに差がない。ここがForthの面白さだ。
 <!-- .element: class="note" -->
 
 ---
@@ -162,19 +142,39 @@ WORDS["SQUARE"] = lambda s: s.append(s.pop() ** 2)
 # この行が動いた瞬間から SQUARE が使えるようになる
 ```
 
-<div class="highlight-box">
-Python の辞書は実行中に書き換え可能。Forth の <code>: SQUARE DUP * ;</code> がやっているのも、
-まさにこれ。ユーザが書いた定義を、走っている最中に辞書へ登録するだけ。
-</div>
+Pythonの辞書は実行中に書き換えられる。Forthの <code>: SQUARE DUP * ;</code> も同じで、
+ユーザ定義を実行中に辞書へ登録しているだけだ。
+<!-- .element: class="highlight-box" -->
 
-<div class="key-box">
-Python 自身も内部はスタックマシン。
-<code>dis</code> モジュールでバイトコードを覗けば、今日書くものによく似た命令列。
-</div>
+Python自身も内部ではスタックマシンを使う。
+<code>dis</code> でバイトコードを見ると、今日書く処理に似た命令列が現れる。
+<!-- .element: class="key-box" -->
 
 ---
 
-## 演習課題
+## まとめ
+
+- **インタプリタ**: 字句解析 → ディスパッチループ → 結果
+- **Forth のプログラム**: 逆ポーランド記法で並んだワードの列
+- **Forth の処理系**: スタックと辞書でできている
+- **動的言語**: 実行中に辞書を書き換えて、言語自体を伸ばせる
+
+発展課題の <code>IF ... THEN</code> まで実装できれば、小さいながらも言語処理系になる。
+<!-- .element: class="key-box" -->
+
+---
+<!-- .slide: class="chapter" -->
+
+課題
+<!-- .element: class="num" -->
+
+## 小さな言語を完成させる
+
+---
+
+## 取り組む課題
+
+スタックと辞書を使い、電卓からForthインタプリタへ段階的に広げる。
 
 | # | 課題 |
 |---|---|
@@ -185,18 +185,15 @@ Python 自身も内部はスタックマシン。
 
 発展: 比較演算子 `< > =` / `IF ... ELSE ... THEN` による条件分岐
 
-課題3 が山場。`exercises/03b_forth.ipynb` の課題0 に第2回のスタック操作を写してから開始。
-<!-- .element: class="note" -->
-
 ---
 
-## まとめ
+## 進め方
 
-- **インタプリタ**: 字句解析 → ディスパッチループ → 結果
-- **Forth のプログラム**: 逆ポーランド記法で並んだワードの列
-- **Forth の処理系**: スタックと辞書、それだけ
-- **動的言語**: 実行中に辞書を書き換えて、言語自体を伸ばせる
+- ページの「Colab で開く」から課題を開き、「ドライブにコピーを保存」しておく
+- 課題0に第2回のスタック操作コードを移す
+- 課題1から順に `TODO` を埋め、確認セルを実行する
+- 確認セルは変更せず、最後に `score()` を実行して提出する
 
-<div class="key-box">
-発展課題の <code>IF ... THEN</code> まで書けたら、小さいながら本物の言語処理系。
-</div>
+課題3の `: 名前 ... ;` が山場。定義したワードを辞書に登録し、
+組み込みワードと同じ評価ループで実行できれば完成に近い。
+<!-- .element: class="key-box" -->

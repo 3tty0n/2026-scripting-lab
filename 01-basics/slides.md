@@ -1,8 +1,9 @@
 <!-- .slide: class="title-slide" -->
 
-<p class="kicker">Scripting Languages / 01</p>
+Scripting Languages / 01
+<!-- .element: class="kicker" -->
 
-# 関数が値であること
+# Python の関数とデコレータ
 
 ### スクリプト言語演習 第1回
 
@@ -10,7 +11,8 @@
 
 ## 今日やること
 
-<p class="lead">Python では<strong>関数も、ただの値</strong>。</p>
+Pythonでは**関数もただの値**。
+<!-- .element: class="lead" -->
 
 ```python
 def square(x):
@@ -22,20 +24,19 @@ f(5)                # 25
 square.__name__     # 'square'   名前も取り出せる
 ```
 
-<div class="key-box">
-関数は実行時に作られるただのオブジェクト。
-変数に入る。リストに入る。<strong>辞書に入る</strong>。引数にも返り値にもなる。
-ここから何ができるか、今日は3つ。
-</div>
+関数は実行時に作られるオブジェクト。
+変数にも、リストにも、<strong>辞書にも入る</strong>。引数にも返り値にもなる。
+今日は、この性質を使った例を3つ見る。
+<!-- .element: class="key-box" -->
 
 ---
 
-## 前提だけ確認
+## 前提を確認
 
 ```python
 n, name, flag = 42, "Alice", True   # 型宣言は不要
 x = 10
-x = "文字列"        # 別の型を入れ直せる。型を持つのは値のほう
+x = "文字列"        # 別の型も代入できる。型を持つのは値
 
 xs = [3, 1, 4]      # リスト: 書き換え可能
 xs.append(9); xs.pop()
@@ -45,44 +46,37 @@ d.get("z", 0)       # 無いキーでも落ちない
 [x**2 for x in range(5) if x % 2 == 0]   # 内包表記
 ```
 
-<div class="warn-box">
-ブロックは <code>{ }</code> ではなく<strong>字下げ</strong>。スペース4個で統一。
-</div>
+ブロックは <code>{ }</code> ではなく<strong>字下げ</strong>で表す。スペース4個でそろえる。
+<!-- .element: class="warn-box" -->
 
-細かい文法は末尾の付録。詰まったらそちらを参照。
+細かい文法は末尾の付録にまとめてある。必要になったら参照。
 <!-- .element: class="note" -->
 
 ---
-
 <!-- .slide: class="chapter" -->
 
-<span class="num">01</span>
+01
+<!-- .element: class="num" -->
 
-## ディスパッチテーブル
+## 関数を辞書に入れる
 
---
+---
 
 ### `if` の連鎖を辞書に置き換える
 
-<div class="two-column">
-  <div>
-    <h4>if を並べる</h4>
-
-```python
-def calc(op, a, b):
+<div class="left-column">
+<h4>if を並べる</h4>
+<pre><code class="language-python">def calc(op, a, b):
     if op == "add":
         return a + b
     elif op == "sub":
         return a - b
-    ...       # 演算子の数だけ伸びる
-```
+    ...       # 演算子の数だけ伸びる</code></pre>
+</div>
 
-  </div>
-  <div>
-    <h4>辞書を引く</h4>
-
-```python
-import operator
+<div class="right-column">
+<h4>辞書を引く</h4>
+<pre><code class="language-python">import operator
 
 OPS = {
     "add": operator.add,
@@ -91,18 +85,14 @@ OPS = {
 }
 
 def calc(op, a, b):
-    return OPS[op](a, b)
-```
-
-  </div>
+    return OPS.get(op)(a, b)</code></pre>
 </div>
 
-<div class="key-box">
-演算子が何種類に増えても <code>calc</code> は1行のまま。しかも
-<strong>プログラムが動いている最中でも</strong> <code>OPS</code> に追加可能。
-</div>
+演算子が増えても <code>calc</code> は1行のまま。
+<strong>プログラムの実行中でも</strong> <code>OPS</code> に追加できる。
+<!-- .element: class="key-box" -->
 
---
+---
 
 ### 動いている最中に機能が増える
 
@@ -111,41 +101,39 @@ OPS["max"] = max        # ここで語彙がひとつ増える
 calc("max", 3, 9)       # 9
 ```
 
-<div class="highlight-box">
-コンパイル型の言語なら、分岐を増やすのはビルドし直しの作業。
-Python では<strong>ただの辞書への代入</strong>。
-</div>
+コンパイルが必要な言語では、分岐を増やすたびにビルドし直す。
+Pythonでは<strong>辞書に代入するだけ</strong>。
+<!-- .element: class="highlight-box" -->
 
-この性質が、今日の残り2つの土台。
+関数を値として扱えると、処理の選択肢を辞書に持てる。次は、関数を受け取って別の関数を返す。
 <!-- .element: class="note" -->
 
 ---
-
 <!-- .slide: class="chapter" -->
 
-<span class="num">02</span>
+02
+<!-- .element: class="num" -->
 
-## デコレータ
+## デコレータ：関数を包む
 
---
+---
 
 ### まず、関数を返す関数
 
 ```python
 def multiplier(n):
-    def inner(x):        # 関数の中で関数を定義し
+    def inner(x):        # 関数の中で関数を定義する
         return x * n     # 外側の n を覚えたまま
-    return inner         # 返す
+    return inner         # 関数を返す
 
 double = multiplier(2)
 double(10)   # 20
 ```
 
-<div class="key-box">
-<code>inner</code> は <code>n</code> を抱えたまま外へ出ていく。これが<strong>クロージャ</strong>。
-</div>
+<code>inner</code> は外側の <code>n</code> を覚えたまま返される。これが<strong>クロージャ</strong>。
+<!-- .element: class="key-box" -->
 
---
+---
 
 ### `@` はただの糖衣構文
 
@@ -157,36 +145,26 @@ def logged(func):
     return wrapper
 ```
 
-<div class="two-column">
-  <div>
-    <h4>手で書き換える</h4>
-
-```python
-def add(a, b):
+<div class="left-column">
+<h4>手で書き換える</h4>
+<pre><code class="language-python">def add(a, b):
     return a + b
 
-add = logged(add)
-```
+add = logged(add)</code></pre>
+</div>
 
-  </div>
-  <div>
-    <h4><code>@</code> を使う</h4>
-
-```python
-@logged
+<div class="right-column">
+<h4><code>@</code> を使う</h4>
+<pre><code class="language-python">@logged
 def add(a, b):
-    return a + b
-```
-
-  </div>
+    return a + b</code></pre>
 </div>
 
-<div class="key-box">
-この2つは<strong>まったく同じ意味</strong>。
-<code>@deco</code> を見たら「定義の直後に <code>f = deco(f)</code>」と読み替え。
-</div>
+この2つの意味は<strong>まったく同じ</strong>。
+<code>@deco</code> は「定義の直後に <code>f = deco(f)</code>」と読み替える。
+<!-- .element: class="key-box" -->
 
---
+---
 
 ### メモ化してみる
 
@@ -208,7 +186,7 @@ def tarai(x, y, z):                # 竹内関数
                  tarai(z-1, x, y))
 ```
 
---
+---
 
 ### 1行足しただけ
 
@@ -217,23 +195,22 @@ def tarai(x, y, z):                # 竹内関数
 | `@memo` なし | 12,604,861 回 | 約 1 秒 |
 | `@memo` あり | **225 回** | 一瞬 |
 
-<div class="key-box">
 <strong>tarai の中身は1文字も変えていない。</strong>
-上に1行足しただけで、仕事量が5万分の1。
-</div>
+上に1行足しただけで、計算量が約5万分の1になる。
+<!-- .element: class="key-box" -->
 
-同じ引数の組で何度も呼ばれていたのが原因。1度出した答えを覚えておけば済む話。
+同じ引数で何度も計算していたからだ。1度計算した結果を覚えておけば、同じ計算を繰り返さずに済む。
 <!-- .element: class="note" -->
 
 ---
-
 <!-- .slide: class="chapter" -->
 
-<span class="num">03</span>
+03
+<!-- .element: class="num" -->
 
-## 表を自動で作る
+## 定義と同時に登録する
 
---
+---
 
 ### 定義した瞬間に辞書へ登録する
 
@@ -242,7 +219,7 @@ COMMANDS = {}
 
 def command(name):
     def deco(func):
-        COMMANDS[name] = func     # 登録して
+        COMMANDS[name] = func     # 辞書に登録する
         return func               # 関数はそのまま返す
     return deco
 
@@ -255,12 +232,12 @@ def rev(text):
     return text[::-1]
 ```
 
-定義を書いただけで `COMMANDS` が埋まる。一覧を手で書き写す手間が不要。
+関数を定義すると、その場で `COMMANDS` に登録される。一覧を別に管理しなくてよい。
 <!-- .element: class="note" -->
 
---
+---
 
-### これで「文字列を実行」できる
+### 文字列から命令を実行する
 
 ```python
 def run(line):
@@ -273,29 +250,31 @@ run("shout hello")    # 'HELLO!!'
 run("rev abc")        # 'cba'
 ```
 
-<div class="lexer-container">
-  <div class="lexer-row">
-    <div class="lexer-input">"shout hello"</div>
-    <div class="big-arrow">&#8594;</div>
-    <div class="lexer-process"><div class="title">split</div><div class="sub">字句解析</div></div>
-    <div class="big-arrow">&#8594;</div>
-    <div class="lexer-process"><div class="title">COMMANDS[name]</div><div class="sub">ディスパッチ</div></div>
-    <div class="big-arrow">&#8594;</div>
-    <div class="lexer-token">HELLO!!</div>
-  </div>
-</div>
+![文字列から命令を実行する流れ](../assets/diagrams/lexer-command.svg)
 
-<div class="key-box">
-文字列を刻んで、辞書を引いて、呼ぶ。これで<strong>処理系の骨格</strong>。
-</div>
+文字列を分け、辞書を引き、関数を呼ぶ。これが<strong>処理系の骨格</strong>。
+<!-- .element: class="key-box" -->
 
 ---
 
-## おまけ: どこまで動的なのか
+## まとめ
+
+- **関数は値** — 変数にも辞書にも入る
+- **ディスパッチテーブル** — `if` の連鎖が辞書ひとつに畳まれる
+- **デコレータ** — 中身を変えずに機能を足す道具。`@deco` は `f = deco(f)`
+- **登録デコレータ** — 定義と同時に表ができあがる
+
+共通するのは、<strong>実行中にプログラムを組み立て直せる</strong>こと。
+これが動的言語の面白さだ。
+<!-- .element: class="key-box" -->
+
+---
+
+## 発展：どこまで動的なのか
 
 ```python
 class Echo:
-    def __getattr__(self, name):          # 無いメソッドが呼ばれたとき
+    def __getattr__(self, name):          # 呼ばれたときに作る
         def method(*args):
             print(f"{name} が {args} で呼ばれました")
         return method                     # その場で関数を作って返す
@@ -309,52 +288,20 @@ e.どんな名前でも("いける")
 jump が (3,) で呼ばれました
 どんな名前でも が ('いける',) で呼ばれました
 ```
-<!-- .element: class="output" -->
 
-<div class="warn-box">
-<code>Echo</code> はメソッドを1つも定義していない。呼ばれてから作っている。
-強力な反面、読む側は定義を探しても何も見つからない代物。
-</div>
+<code>Echo</code> はメソッドを1つも定義していない。呼ばれた時点で作っている。
+強力だが、定義を探しても見つからないので、読み手には追いにくい。
+<!-- .element: class="warn-box" -->
 
 ---
-
-## 演習課題
-
-| # | 課題 | ねらい |
-|---|---|---|
-| 1 | 竹内関数を実装し、呼び出し回数を数える | 再帰、爆発する計算量 |
-| 2 | ディスパッチテーブルで電卓 | 辞書に関数を入れる |
-| 3 | `@memo` を書き、課題1 に貼る | デコレータ、クロージャ |
-| 4 | `@command` と `run()` でコマンド表 | 字句解析 + ディスパッチ |
-
-発展: `@trace` で再帰の木を表示 / `__doc__` から `help` を自動生成
-
-`exercises/01_basics.ipynb`。各課題の下の<strong>確認セル</strong>が `OK` なら正解。
-<!-- .element: class="note" -->
-
----
-
-## まとめ
-
-- **関数は値** — 変数にも辞書にも入る
-- **ディスパッチテーブル** — `if` の連鎖が辞書ひとつに畳まれる
-- **デコレータ** — 中身を変えずに機能を足す道具。`@deco` は `f = deco(f)`
-- **登録デコレータ** — 定義と同時に表ができあがる
-
-<div class="key-box">
-共通するのは<strong>プログラム自身を、動いている最中に組み立て直せる</strong>という一点。
-これが動的言語の面白いところ。
-</div>
-
----
-
 <!-- .slide: class="chapter" -->
 
-<span class="num">付録</span>
+付録
+<!-- .element: class="num" -->
 
 ## 文法の早見表
 
---
+---
 
 ### 型・文字列・演算
 
@@ -368,13 +315,13 @@ s = "スクリプト"
 s[0], s[-1], s[0:3], s[::-1]    # 添字・スライス・逆順
 "ab" * 3, "a" + "b", "ス" in s
 f"{name:>10} | {score:6.2f}"    # 幅と桁数
-f"{score = }"                   # 式ごと表示 (printデバッグ用)
+f"{score = }"                   # 式と値を表示 (printデバッグ用)
 ```
 
-文字列は変更不可。`s[0] = "X"` はエラー。
+文字列は変更不可。`s&#91;0&#93; = "X"` はエラー。
 <!-- .element: class="note" -->
 
---
+---
 
 ### 制御構造
 
@@ -390,29 +337,66 @@ for i in range(2, 10, 3):               # 開始, 終了, 刻み
 
 try:
     n = int(s)
-except ValueError:    # 予期する例外だけを、失敗する1行で囲む
+except ValueError:    # 変換に失敗したときだけ処理する
     n = 0
 ```
 
 `for i in range(len(xs))` と書きたくなったら、`enumerate` か `zip` で十分。
 <!-- .element: class="note" -->
 
---
+---
 
 ### 落とし穴
 
 ```python
-xs = xs.sort()        # None が入る。sort() は書き換えて None を返す
+xs = xs.sort()        # sort() は書き換えて None を返す
 xs = sorted(xs)       # こちらが新しいリストを返す
 
 def add(xs, item):
     xs.append(item)   # 呼び出し元のリストが書き換わる
     return xs
 
-def bad(item, xs=[]): # デフォルト値は定義時に1回だけ作られ、使い回される
+def bad(item, xs=[]): # デフォルト値は定義時に1回だけ作られる
     xs.append(item)   # bad(1) -> [1],  bad(2) -> [1, 2]
     return xs
 ```
 
-リストや辞書は参照渡し。書き換える関数か、新しく作る関数か。決めたら混ぜないこと。
+リストや辞書は関数の中で書き換えられる。書き換えるのか、新しく作るのかを決め、両方を混在させない。
 <!-- .element: class="note" -->
+
+---
+<!-- .slide: class="chapter" -->
+
+課題
+<!-- .element: class="num" -->
+
+## 関数を組み合わせて実装する
+
+---
+
+## 取り組む課題
+
+ここまでに見た<strong>辞書・デコレータ・登録</strong>を、順番に実装する。
+
+| # | 課題 | ねらい |
+|---|---|---|
+| 1 | 竹内関数を実装し、呼び出し回数を数える | 再帰、爆発する計算量 |
+| 2 | ディスパッチテーブルで電卓 | 辞書に関数を入れる |
+| 3 | `@memo` を書き、課題1 に組み込む | デコレータ、クロージャ |
+| 4 | `@command` と `run()` でコマンド表 | 字句解析、ディスパッチ |
+
+発展: `@trace` で再帰の木を表示 / `__doc__` から `help` を自動生成
+
+---
+
+## 進め方
+
+- ページの「Colab で開く」から課題を開き、「ドライブにコピーを保存」しておく
+- 各課題の `TODO` を埋める
+- 直下の確認セルを実行し、`OK` が出ることを確かめる
+- 確認セルは変更せず、最後に実行結果を残して保存する
+- `score()` で全問を確認してから提出する
+
+課題3の `@memo` を課題1に組み込むと、関数の中身を変えずに
+呼び出し回数を大きく減らせる。課題はこの流れで進める。
+<!-- .element: class="key-box" -->
