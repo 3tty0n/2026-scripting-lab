@@ -53,8 +53,6 @@ jobs:
             -o _lite_contents/alice.txt || rm -f _lite_contents/alice.txt
           jupyter lite build --contents _lite_contents --output-dir lite
           rm -rf _lite_contents .jupyterlite.doit.db
-      - name: Export slide PDFs
-        run: sh tools/export-slide-pdfs.sh
       - name: Drop solutions
         # 模範解答はサイトに載せない (リポジトリは private だが Pages は公開)
         run: rm -rf exercises/solutions

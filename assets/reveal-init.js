@@ -1,4 +1,7 @@
 (function () {
+  const PRINT = /print-pdf/i.test(location.search);
+  const CHECK = /check-size/i.test(location.search);
+
   function leaves() {
     return [...document.querySelectorAll('.reveal .slides section')]
       .filter((slide) => !slide.querySelector('section'));
@@ -87,36 +90,105 @@
       const inner = slide.querySelector(':scope > .slide-fit') || slide;
       if (inner.querySelector(':scope > .section-label')) return;
       const title = inner.querySelector(':scope > h2');
-      if (!title) return;
+      if (!title || !section) return;
       if (OWN.test(title.textContent.trim())) return;
-      if (!section) return;
       const label = document.createElement('p');
       label.className = 'section-label';
       label.textContent = section;
-      const sub = title.nextElementSibling;
-      const after = sub && sub.tagName === 'H3' ? sub : title;
-      after.insertAdjacentElement('afterend', label);
+      inner.insertBefore(label, inner.firstChild);
     });
   }
+
+  const SLIDE_W = 1920;
+  const SLIDE_H = 1080;
 
   function fit(slide) {
     const inner = slide.querySelector(':scope > .slide-fit');
     if (!inner) return;
     inner.style.transform = 'none';
+    inner.style.zoom = '';
+    inner.style.left = '';
+    inner.style.top = '';
+    inner.style.position = '';
+    inner.querySelectorAll('pre').forEach((pre) => { pre.style.fontSize = ''; });
+    if (slide.classList.contains('title-slide') || slide.classList.contains('chapter')) return;
+    if (PRINT) {
+      slide.style.width = SLIDE_W + 'px';
+      slide.style.height = SLIDE_H + 'px';
+      slide.style.overflow = 'hidden';
+    }
+    inner.querySelectorAll('pre').forEach((pre) => {
+      if (pre.scrollWidth <= pre.clientWidth + 2) return;
+      const s = pre.clientWidth / pre.scrollWidth;
+      pre.style.fontSize = `calc(0.7em * ${s})`;
+    });
     const cs = getComputedStyle(slide);
-    const w = slide.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    const h = slide.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-    if (w <= 0 || h <= 0) return;
-    const scale = Math.min(1, w / inner.scrollWidth, h / inner.scrollHeight);
-    if (scale < 0.999) inner.style.transform = `scale(${scale})`;
+    const h = SLIDE_H - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const scale = Math.min(1, h / Math.max(inner.scrollHeight, 1));
+    if (scale < 0.999) inner.style.zoom = String(scale);
+  }
+
+  function addPdfHints() {
+    if (PRINT) return;
+    const slides = leaves();
+    if (!slides.length) return;
+    const href = location.pathname + '?print-pdf';
+    [slides[0], slides[slides.length - 1]].forEach((slide) => {
+      const inner = slide.querySelector(':scope > .slide-fit') || slide;
+      if (inner.querySelector('.pdf-hint')) return;
+      const p = document.createElement('p');
+      p.className = 'pdf-hint';
+      const a = document.createElement('a');
+      a.href = href;
+      a.textContent = 'PDF として保存';
+      p.append(
+        a,
+        document.createTextNode(
+          ' — 印刷 → PDFに保存。向きは横、用紙は US Legal、背景グラフィックをオン'
+        )
+      );
+      inner.appendChild(p);
+    });
   }
 
   function layout(first) {
     leaves().forEach(wrap);
-    if (first) leaves().forEach(boxLists);
+    if (first) {
+      leaves().forEach(boxLists);
+      addPdfHints();
+    }
     addSectionLabels();
     leaves().forEach(fit);
   }
+
+  function addPrintBanner() {
+    const bar = document.createElement('div');
+    bar.className = 'print-pdf-banner';
+    bar.innerHTML =
+      '<strong>PDF は横向き・US Legal。</strong> ' +
+      '宛先は「PDFに保存」。向きは横、用紙は US Legal、余白なし、背景グラフィックをオン。';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '印刷ダイアログを開く';
+    btn.addEventListener('click', () => window.print());
+    bar.appendChild(btn);
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+
+  const CourseLayout = {
+    id: 'course-layout',
+    init: (deck) => {
+      layout(true);
+      if (!PRINT) return;
+      addPrintBanner();
+      const st = document.createElement('style');
+      st.textContent = '@page { size: legal landscape; margin: 0; }';
+      document.head.appendChild(st);
+      const refit = () => leaves().forEach(fit);
+      deck.on('print-ready', refit);
+      deck.on('pdf-ready', refit);
+    },
+  };
 
   // slides.md を毎回取り直す (http.server だとブラウザが古いファイルを握ることがある)
   document.querySelectorAll("[data-markdown]").forEach((el) => {
@@ -128,7 +200,7 @@
   Reveal.initialize({
     width: 1920,
     height: 1080,
-    margin: 0.04,
+    margin: 0.06,
     minScale: 0.2,
     maxScale: 2,
     center: false,
@@ -142,18 +214,50 @@
     showSlideNumber: 'all',
     pdfMaxPagesPerSlide: 1,
     pdfSeparateFragments: false,
-    plugins: [RevealMarkdown, RevealHighlight],
+    plugins: [RevealMarkdown, RevealHighlight, CourseLayout],
     transition: 'none',
   }).then(() => {
-    layout(true);
+    if (PRINT) return;
     Reveal.on('slidechanged', (ev) => fit(ev.currentSlide));
     Reveal.on('resize', () => layout(false));
-    Reveal.on('pdf-ready', () => layout(false));
     document.fonts.ready.then(() => layout(false));
     leaves().forEach((slide) => {
       slide.querySelectorAll('img').forEach((img) => {
         if (!img.complete) img.addEventListener('load', () => fit(slide), { once: true });
       });
+    });
+    if (!CHECK) return;
+    const pending = [...document.images].filter((img) => !img.complete);
+    Promise.all([
+      document.fonts.ready,
+      ...pending.map((img) => new Promise((res) => img.addEventListener('load', res, { once: true }))),
+    ]).then(async () => {
+      const rows = [];
+      for (const [i, slide] of leaves().entries()) {
+        const idx = Reveal.getIndices(slide);
+        Reveal.slide(idx.h, idx.v);
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const inner = slide.querySelector(':scope > .slide-fit');
+        if (!inner) continue;
+        inner.style.transform = 'none';
+        const cs = getComputedStyle(slide);
+        const w = slide.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const h = slide.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        rows.push({
+          i,
+          title: ((slide.querySelector('h1, h2') || {}).textContent || '').trim().slice(0, 48),
+          dw: Math.round(inner.scrollWidth - w),
+          dh: Math.round(inner.scrollHeight - h),
+        });
+      }
+      const pre = document.createElement('pre');
+      pre.id = 'size-report';
+      pre.textContent = JSON.stringify({
+        n: rows.length,
+        bad: rows.filter((r) => r.dw > 4 || r.dh > 4),
+        tight: rows.filter((r) => r.dh > -24 || r.dw > -24),
+      });
+      document.documentElement.appendChild(pre);
     });
   });
 }());

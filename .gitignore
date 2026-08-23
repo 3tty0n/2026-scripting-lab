@@ -9,9 +9,8 @@ app.log
 out.txt
 scores.csv
 
-# JupyterLite / スライド PDF (CI で組み立てる)
+# JupyterLite (CI で組み立てる)
 lite/
-slides-pdf/
 _lite_contents/
 .jupyterlite.doit.db
 

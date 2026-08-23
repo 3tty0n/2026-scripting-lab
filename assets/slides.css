@@ -43,9 +43,12 @@
 
 html, body {
     margin: 0;
+    background: var(--paper);
+}
+html:not(.print-pdf),
+html:not(.print-pdf) body {
     width: 100%;
     height: 100%;
-    background: var(--paper);
 }
 
 body {
@@ -72,7 +75,8 @@ body {
 
 .reveal .slide-content {
     box-sizing: border-box;
-    padding: 42px 58px 46px;
+    position: relative;
+    padding: 40px 58px;
     overflow: hidden;
     background: var(--paper);
     color: var(--ink);
@@ -83,15 +87,50 @@ body {
 
 .reveal .slide-content > .slide-fit {
     width: 100%;
-    transform-origin: top center;
+    max-width: 100%;
+    transform-origin: top left;
 }
 
 .reveal .slide-content > .slide-fit > :first-child { margin-top: 0; }
 
 .reveal .progress { background: var(--accent); }
 
-/* 16:9。印刷も同じ比にする */
-@page { size: 13.333in 7.5in; margin: 0; }
+@page { size: legal landscape; margin: 0; }
+
+html.print-pdf,
+html.print-pdf body {
+    overflow: visible;
+    background: #777;
+}
+html.print-pdf .pdf-page {
+    page-break-after: always;
+    break-after: page;
+}
+
+.print-pdf-banner {
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    padding: 12px 20px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+}
+.print-pdf-banner strong { color: #ffb59c; }
+.print-pdf-banner button {
+    margin-left: 12px;
+    padding: 6px 14px;
+    border: 1px solid var(--paper);
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+@media print {
+    .print-pdf-banner { display: none !important; }
+}
 
 /* 右下: 番号を矢印の左に置き、重ねない */
 .reveal .controls {
@@ -110,6 +149,14 @@ body {
     padding: 0;
 }
 
+.reveal .slide-content .pdf-hint {
+    margin: 1.1em 0 0;
+    font-size: 0.62em;
+    color: var(--muted);
+}
+.reveal .slide-content .pdf-hint a { color: var(--accent); }
+html.print-pdf .pdf-hint { display: none !important; }
+
 .load-error {
     display: block;
     box-sizing: border-box;
@@ -127,8 +174,12 @@ body {
 .reveal .slide-content img[src*="diagrams/"] {
     display: block;
     width: 100%;
+    max-width: 100%;
     height: auto;
-    margin: 20px auto;
+    max-height: 360px;
+    object-fit: contain;
+    object-position: left center;
+    margin: 16px 0;
 }
 
 .reveal .slide-content { letter-spacing: 0.01em; }
@@ -142,28 +193,29 @@ body {
 }
 .reveal .slide-content h1 { font-size: 2.6em; }
 .reveal .slide-content h2 {
-    font-size: 2em;
+    font-size: 1.85em;
     border-bottom: 3px solid var(--ink);
     display: inline-block;
-    padding-bottom: 0.15em;
-    margin-bottom: 0.35em;
+    padding-bottom: 0.12em;
+    margin: 0 0 0.28em;
     color: var(--ink);
 }
 .reveal .slide-content h3 {
-    font-size: 1.15em;
-    font-weight: 600;
-    color: var(--accent);
-    margin: 0.1em 0 0.45em;
+    font-size: 1.05em;
+    font-weight: 400;
+    color: var(--muted);
+    margin: 0.15em 0 0;
 }
 .reveal .slide-content h4 { font-size: 0.95em; }
 
+/* いまどこか。本文の見出しではない */
 .reveal .section-label {
+    margin: 0 0 0.4em;
     font-family: var(--mono);
-    font-size: 0.58em;
+    font-size: 0.48em;
     font-weight: 600;
     color: var(--accent);
-    letter-spacing: 0.04em;
-    margin: 0 0 0.85em;
+    letter-spacing: 0.06em;
 }
 
 /* セクション扉: 数字を大きく見せる */
@@ -210,12 +262,18 @@ body {
 
 .reveal .slide-content pre {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
     font-size: 0.7em;
     box-shadow: none;
     margin: 0.6em 0;
 }
 .reveal .slide-content pre code {
-    max-height: 640px;
+    max-width: 100%;
+    max-height: 520px;
+    box-sizing: border-box;
+    overflow-x: auto;
     padding: 18px 22px;
     border-radius: 0;
     line-height: 1.5;
@@ -250,9 +308,11 @@ body {
 
 .reveal .slide-content table {
     font-size: 0.72em;
-    margin: 0.5em auto;
+    margin: 0.5em 0;
     border-collapse: collapse;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 .reveal .slide-content th, .reveal .slide-content td {
     padding: 0.5em 0.8em;
@@ -325,7 +385,9 @@ body {
 .reveal .slide-content.title-slide { text-align: left; }
 .reveal .slide-content.title-slide h1 {
     border-bottom: 6px solid var(--accent);
-    display: inline-block;
+    display: block;
+    width: max-content;
+    max-width: 100%;
     padding-bottom: 0.15em;
 }
 .reveal .slide-content.title-slide .kicker {
