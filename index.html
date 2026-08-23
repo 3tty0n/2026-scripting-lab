@@ -97,37 +97,47 @@
   <p class="sub">学部2・3年生向け 全3回</p>
 </header>
 
-<p>
-各回はスライド (20分程度) と課題ノートブックの組。
-スライドを見たあと、残り時間で課題に取り組みます。
+<p class="note">
+課題は <strong>Google Colab</strong> で進めます。
+<strong>「Colab で開く」</strong>を押し、Colab の
+<code>ファイル → ドライブにコピーを保存</code> で自分の控えを作ってから書き始めてください。
+書き終えたら <code>ファイル → .ipynb をダウンロード</code> で保存して提出します。
+</p>
+<p class="note">
+Colab を使わない方法もあります。<strong>「ブラウザで開く」</strong>を押すと、
+このページの中で Jupyter が立ち上がります (JupyterLite)。
+書いた内容はそのブラウザにだけ残るので、提出前に <code>File → Download</code> で
+.ipynb を保存してください。第3回A はモデルを動かすので Colab のみです。
 </p>
 
-<h2><span class="n">01</span> Python の基礎と動的な性質 <span class="bar"></span></h2>
+<h2><span class="n">01</span> Python の関数とデコレータ <span class="bar"></span></h2>
 <div class="card">
-  <h3>関数が値であること</h3>
+  <h3>Python の関数とデコレータ</h3>
   <p>
-    「関数も、ただの値」を出発点に、ディスパッチテーブル・デコレータ・登録デコレータへ。
-    竹内関数に <code>@memo</code> を1行足すと、呼び出しが 1,260万回から 225回に落ちます。
-    文法の早見表は付録に。
+    Python の基礎を1回の演習でさらいます。通常のプログラミング演習のような進め方はつまらないので、
+    Python らしい記法 (Pythonic) や動的言語としての特徴をメインに学習します。
+    文法の早見表は付録にあります。
   </p>
   <div class="links">
-    <a class="primary" href="01-basics/">スライド</a>
-    <a href="https://colab.research.google.com/github/3tty0n/2026_scripting_python/blob/main/exercises/01_basics.ipynb">課題を Colab で開く</a>
-    <a href="exercises/01_basics.ipynb">.ipynb</a>
+    <a class="primary" href="https://colab.research.google.com/gist/3tty0n/c3f350eac43bfaceee52c4e46211acf8/01_basics.ipynb">Colab で開く</a>
+    <a href="01-basics/index.html">スライド</a>
+    <a href="exercises/01_basics.ipynb" download>.ipynb を保存</a>
+    <a href="lite/notebooks/index.html?path=01_basics.ipynb">ブラウザで開く</a>
   </div>
 </div>
 
-<h2><span class="n">02</span> テキストを刻む・数える・生成する <span class="bar"></span></h2>
+<h2><span class="n">02</span> テキスト処理の基本と応用 <span class="bar"></span></h2>
 <div class="card">
-  <h3>数えて、選んで、つなげる</h3>
+  <h3>テキスト処理と文章生成</h3>
   <p>
-    テキストを刻んで「次に来る語」の統計を取り、そこから文章を自動生成します
-    (マルコフ連鎖)。温度パラメータまで実装。後半はスタックと逆ポーランド電卓。
+    1回目で勉強した内容を少し発展させます。
+    テキストのトーカナイズ (字句解析) から文章生成と計算まで行います。
   </p>
   <div class="links">
-    <a class="primary" href="02-text/">スライド</a>
-    <a href="https://colab.research.google.com/github/3tty0n/2026_scripting_python/blob/main/exercises/02_text.ipynb">課題を Colab で開く</a>
-    <a href="exercises/02_text.ipynb">.ipynb</a>
+    <a class="primary" href="https://colab.research.google.com/gist/3tty0n/b22ee21987175a8a41d05effd8a58deb/02_text.ipynb">Colab で開く</a>
+    <a href="02-text/index.html">スライド</a>
+    <a href="exercises/02_text.ipynb" download>.ipynb を保存</a>
+    <a href="lite/notebooks/index.html?path=02_text.ipynb">ブラウザで開く</a>
   </div>
 </div>
 
@@ -137,16 +147,20 @@
 </p>
 
 <div class="card variant">
-  <h3>小さな言語モデルを手元で動かす<span class="tag">A</span></h3>
+  <h3>言語モデルの仕組みと実装<span class="tag">A</span></h3>
   <p>
-    0.5B の Transformer を Colab に読み込んで、生成ループを自分で書きます。
-    第2回で辞書だった部分がニューラルネットに置き換わるだけで、ループも温度も流用可能。
+    小さな言語モデルを使用したチャットアプリを実装します。
+    0.5B の Transformer を Colab に読み込んで、生成ループを実装します。
     API キーは不要です。
   </p>
+  <p class="note">
+    この回はモデルを動かすので Colab だけです。
+    <code>ランタイムのタイプを変更 → T4 GPU</code> にすると速くなります。
+  </p>
   <div class="links">
-    <a class="primary" href="03a-llm/">スライド</a>
-    <a href="https://colab.research.google.com/github/3tty0n/2026_scripting_python/blob/main/exercises/03a_llm.ipynb">課題を Colab で開く</a>
-    <a href="exercises/03a_llm.ipynb">.ipynb</a>
+    <a class="primary" href="https://colab.research.google.com/gist/3tty0n/1c0f3cf4d3f4fb2f30354677156e75ea/03a_llm.ipynb">Colab で開く</a>
+    <a href="03a-llm/index.html">スライド</a>
+    <a href="exercises/03a_llm.ipynb" download>.ipynb を保存</a>
   </div>
 </div>
 
@@ -158,19 +172,41 @@
     <strong>実行中に語彙を増やせる</strong>ようにすると、電卓が言語になります。
   </p>
   <div class="links">
-    <a class="primary" href="03b-forth/">スライド</a>
-    <a href="https://colab.research.google.com/github/3tty0n/2026_scripting_python/blob/main/exercises/03b_forth.ipynb">課題を Colab で開く</a>
-    <a href="exercises/03b_forth.ipynb">.ipynb</a>
+    <a class="primary" href="https://colab.research.google.com/gist/3tty0n/97852f1114d1b445a903b5a641f07ce7/03b_forth.ipynb">Colab で開く</a>
+    <a href="03b-forth/index.html">スライド</a>
+    <a href="exercises/03b_forth.ipynb" download>.ipynb を保存</a>
+    <a href="lite/notebooks/index.html?path=03b_forth.ipynb">ブラウザで開く</a>
   </div>
 </div>
 
-<h2><span class="n">04</span> 提出について <span class="bar"></span></h2>
+<h2><span class="n">04</span> 採点と提出 <span class="bar"></span></h2>
+
+<div class="card">
+  <h3>出来具合いを確かめる</h3>
+  <p>
+    ノートブックの <code>score()</code> を実行すると、項目ごとに <code>OK</code> か
+    <code>NG</code> が出ます。<code>NG</code> の行には、次に何をすればいいかが付きます。
+    書きかけの .ipynb を採点ページにアップロードしても同じ検査ができます
+    (ブラウザの中だけで動くので、どこにも送られません)。
+    第3回A だけはモデルが要るので Colab の <code>score()</code> を使ってください。
+  </p>
+  <div class="links">
+    <a class="primary" href="grade.html">採点ページを開く</a>
+  </div>
+</div>
+
 <ul>
   <li>すべてのセルを上から実行し、<strong>出力を残したまま</strong>保存する</li>
   <li>Colab の <code>ファイル → .ipynb をダウンロード</code> で保存</li>
-  <li>各課題の下の<strong>確認セル</strong>が <code>OK</code> と出れば正解</li>
-  <li>「気づいたこと」を書く欄も埋めること</li>
+  <li>各課題の下の<strong>確認セル</strong>が <code>OK</code> と出れば正解。各回とも満点100</li>
+  <li><strong>確認セルは書き換えないこと。</strong>
+      採点は同じ内容の検査を別途走らせて行うので、書き換えても点は変わりません</li>
 </ul>
+
+<div class="callout">
+  <strong>正式な提出は kibaco から。</strong>
+  採点ページは出来具合いを確かめるための場所で、そこに置いても提出したことにはなりません。
+</div>
 
 <footer>
   資料一式: <a href="https://github.com/3tty0n/2026_scripting_python">github.com/3tty0n/2026_scripting_python</a>
