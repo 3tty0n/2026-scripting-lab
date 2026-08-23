@@ -88,34 +88,26 @@ body {
 
 .reveal .slide-content > .slide-fit > :first-child { margin-top: 0; }
 
-.reveal .slide-number {
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.7em;
-}
-
 .reveal .progress { background: var(--accent); }
 
-.pdf-button {
-    position: absolute;
-    right: 24px;
-    bottom: 16px;
-    z-index: 10;
-    border: 1px solid var(--rule);
-    border-radius: 0;
-    padding: 5px 10px;
-    background: var(--paper);
+/* 16:9。印刷も同じ比にする */
+@page { size: 13.333in 7.5in; margin: 0; }
+
+/* 右下: 番号を矢印の左に置き、重ねない */
+.reveal .controls {
+    right: 14px;
+    bottom: 12px;
     color: var(--muted);
-    font-family: var(--font);
-    font-size: 14px;
-    line-height: 1.2;
-    cursor: pointer;
 }
-.pdf-button:hover,
-.pdf-button:focus-visible {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: #fff;
+.reveal .slide-number {
+    right: 118px;
+    bottom: 20px;
+    left: auto;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.72em;
+    padding: 0;
 }
 
 .load-error {
@@ -157,14 +149,11 @@ body {
     margin-bottom: 0.35em;
     color: var(--ink);
 }
-.reveal .slide-content h3 { font-size: 1.15em; color: var(--accent); }
-.reveal .slide-content .slide-fit > h3 {
-    font-size: 2em;
-    border-bottom: 3px solid var(--ink);
-    display: inline-block;
-    padding-bottom: 0.15em;
-    margin-bottom: 0.35em;
-    color: var(--ink);
+.reveal .slide-content h3 {
+    font-size: 1.15em;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 0.1em 0 0.45em;
 }
 .reveal .slide-content h4 { font-size: 0.95em; }
 
@@ -192,8 +181,20 @@ body {
 /* ---- 本文 ------------------------------------------------------ */
 
 .reveal .slide-content p, .reveal .slide-content li { line-height: 1.6; }
-.reveal .slide-content ul, .reveal .slide-content ol { margin-left: 1em; }
-.reveal .slide-content li { margin-bottom: 0.35em; }
+.reveal .slide-content ul,
+.reveal .slide-content ol {
+  display: block;
+  margin: 0.4em 0 0.8em;
+  padding-left: 1.4em;
+  text-align: left;
+}
+.reveal .slide-content ul { list-style-type: disc; }
+.reveal .slide-content ol { list-style-type: decimal; }
+.reveal .slide-content ul ul { list-style-type: circle; margin: 0.2em 0; }
+.reveal .slide-content li {
+  display: list-item;
+  margin-bottom: 0.35em;
+}
 .reveal .slide-content strong { font-weight: 700; color: var(--accent); }
 .reveal .slide-content em { font-style: normal; background: var(--sand-bg); padding: 0 0.2em; }
 
@@ -286,6 +287,23 @@ body {
 .reveal .slide-content .key-box       { background: var(--ink); color: var(--paper); border-left: 10px solid var(--accent); }
 .reveal .slide-content .key-box strong { color: #ffb59c; }
 .reveal .slide-content .key-box code { background: #34322e; color: #e8e2d6; }
+.reveal .slide-content .highlight-box ul,
+.reveal .slide-content .warn-box ul,
+.reveal .slide-content .key-box ul,
+.reveal .slide-content ul.highlight-box,
+.reveal .slide-content ul.warn-box,
+.reveal .slide-content ul.key-box,
+.reveal .slide-content .highlight-box ol,
+.reveal .slide-content .warn-box ol,
+.reveal .slide-content .key-box ol,
+.reveal .slide-content ol.highlight-box,
+.reveal .slide-content ol.warn-box,
+.reveal .slide-content ol.key-box {
+    list-style-position: inside;
+    padding-left: 0.9em;
+    margin: 0.2em 0;
+}
+.reveal .slide-content .key-box li { color: inherit; }
 
 /* ---- 段組み ---------------------------------------------------- */
 
