@@ -11,62 +11,72 @@ Scripting Languages / 03-A
 
 ## 今日のゴール
 
-手元で Transformer を動かし、<strong>生成ループを自分で書く</strong>。
-最後に、簡単な応答プログラムを作る。
-<!-- .element: class="key-box" -->
+### 生成ループを自分で記述
 
-- APIキーは**不要**。モデルをダウンロードし、自分の環境で動かす
-- 文章が出てくる仕組みが、ループと確率でできていると確かめる
-- Colabがあれば始められる。GPUなら速いが、CPUでも動く
+- 手元で Transformer を実行
+- 次の1トークンを選ぶ処理を、自分で実装
+- 最後に、簡単な応答プログラムを作成
+
+APIキーは不要。モデルをダウンロードし、自分の環境で実行
+<!-- .element: class="note" -->
 
 ---
 
 ## 第2回でもう作っている
 
-|  | 第2回：マルコフ連鎖 | 今日：言語モデル |
+### 表を引く代わりに関数を呼ぶ
+
+- 次の語の予測も、選んでつなげるループも同一
+- 違うのは、回数の表が学習済みの関数になった点
+- 温度も、第2回のものをそのまま利用可能
+
+| | 第2回：マルコフ連鎖 | 今日：言語モデル |
 |---|---|---|
 | 次の語の予測 | `table[word]` を引く | `model(文脈)` を呼ぶ |
-| 予測の中身 | 数えた回数の表 | 学習した重み (Transformer) |
+| 予測の中身 | 数えた回数の表 | 学習した重み |
 | 見ている文脈 | 直前 1〜2 語 | 直前 数千トークン |
 | 選び方 | `random.choices` + 温度 | サンプリング + 温度 |
-| 生成 | 選んでつなげるループ | 選んでつなげるループ |
-
-今日は<strong>「表を引く」を「関数を呼ぶ」に置き換える</strong>。
-ループも温度も、第2回のものをそのまま使える。
-<!-- .element: class="key-box" -->
 
 ---
 
 ## 言語モデルがやっていること
 
-「ここまでの文字列」を受け取り、<strong>「次に来る1トークンの確率分布」</strong>を返す。
-<!-- .element: class="key-box" -->
+### 次の1トークンの確率分布
+
+- 入力は「ここまでの文字列」
+- 出力は文章ではなく、語彙それぞれの確率
+- 長い文章も、1ステップの繰り返しで生成
 
 ![言語モデルの入出力](../assets/diagrams/flow-llm.svg)
 
-返ってくるのは文章ではなく、語彙（数万語）それぞれの確率。
-だから文章の生成はループになる。長い文章も、1ステップを繰り返して作る。
-<!-- .element: class="highlight-box" -->
+生成がループになるのは、一度に1トークンしか返さないため
+<!-- .element: class="note" -->
 
 ---
 
 ## トークンと logits
 
-![トークナイザの入出力](../assets/diagrams/lexer-tokenizer.svg)
+### モデルが出すのはまだ確率ではない
 
-トークンは、単語とも1文字とも限らない。よく現れる文字列をまとめた、統計的な単位。
-<!-- .element: class="note" -->
-
-モデルが直接出すのは **logits**。大小だけが意味を持つ実数の並びで、
-まだ確率ではない。`softmax` を通すと確率になる。
+- トークンは、単語とも1文字とも限らない
+- よく現れる文字列をまとめた、統計的な単位
+- logits に `softmax` を通すと確率
 
 ```python
 probs = torch.softmax(logits, dim=-1)   # すべて 0 以上、合計 1
 ```
 
+![トークナイザの入出力](../assets/diagrams/lexer-tokenizer.svg)
+
 ---
 
 ## 1ステップだけ動かす
+
+### 最後の位置が、次の語の予測
+
+- トークナイザで文字列を ID に変換
+- `model(ids)` の形は (バッチ, 系列長, 語彙数)
+- 次に使うのは最後の位置なので `[0, -1]` を取得
 
 ```python
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -75,17 +85,14 @@ model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-0.5B-Instruct")
 
 ids = tok("むかしむかし、あるところに", return_tensors="pt").input_ids
 with torch.no_grad():
-    logits = model(ids).logits[0, -1]     # 最後の位置 = 次の予測
+    logits = model(ids).logits[0, -1]
 
 probs = torch.softmax(logits, dim=-1)
 top = torch.topk(probs, 5)
+# お 0.312    一 0.145    おじいさん 0.098
 ```
 
-```text
-お 0.312    一 0.145    おじいさん 0.098    男 0.041
-```
-
-`logits` の形は (バッチ, 系列長, 語彙数)。次の語の予測に使うのは最後の位置なので `&#91;0, -1&#93;` を取る。
+Colab があれば開始可能。GPU なら速いが、CPU でも動作
 <!-- .element: class="note" -->
 
 ---
@@ -98,82 +105,85 @@ top = torch.topk(probs, 5)
 
 ---
 
-### greedy：最も確率の高いトークンを選び続ける
+## greedy：一番高い語を選び続ける
+
+### 生成の基本形はこれだけ
+
+- 毎回、確率が最大のトークンを選択
+- 終端トークンが出たら停止
+- 第2回の `pick_next` が `argmax` に変わっただけ
 
 ```python
 def generate_greedy(prompt, max_new_tokens=40):
     ids = tok(prompt, return_tensors="pt").input_ids
-
     for _ in range(max_new_tokens):
         with torch.no_grad():
             logits = model(ids).logits[0, -1]
-
-        next_id = torch.argmax(logits)              # 最大のものを選ぶ
-        if next_id.item() == tok.eos_token_id:      # 終端なら止める
+        next_id = torch.argmax(logits)
+        if next_id.item() == tok.eos_token_id:
             break
-        ids = torch.cat([ids, next_id.view(1, 1)], dim=1)   # 末尾に足す
-
+        ids = torch.cat([ids, next_id.view(1, 1)], dim=1)
     return tok.decode(ids[0])
 ```
 
-<strong>生成の基本形はこれだけ。</strong>
-第2回の <code>pick_next(table&#91;word&#93;)</code> が
-<code>argmax(model(ids))</code> に変わっただけで、流れは同じ。
-<!-- .element: class="key-box" -->
-
 ---
 
-### greedy の弱点
+## greedy の弱点
+
+### 同じ言い回しのループに落下しやすい
+
+- 同じ入力なら、いつも同じ出力
+- いちばん高い語だけを拾うので、単調になりやすい
+- そこで、分布からランダムに選択
 
 ```text
 >>> generate_greedy("好きな食べ物は")
 好きな食べ物は何ですか？好きな食べ物は何ですか？好きな食べ物は...
 ```
 
-毎回いちばん確率の高い語を選ぶため、同じ入力ならいつも同じ出力になる。
-しかも<strong>同じ言い回しのループに落ちやすい</strong>。
-<!-- .element: class="warn-box" -->
-
-そこで、確率分布から<strong>ランダムに選ぶ</strong>。
-ただし、そのままでは確率の低い語も拾うので、分布を整えてから選ぶ。
-<!-- .element: class="highlight-box" -->
+そのままでは低い語も拾うので、分布を整えてから選択
+<!-- .element: class="note" -->
 
 ---
 
-### 温度と top-k
+## 温度と top-k
+
+### 差を開き、候補を絞ってから選択
+
+- 温度で割ってから softmax
+- 小さい数で割れば差が開き、大きい数で割れば縮小
+- 上位 k 個に絞れば、低い語を候補から除外
 
 ```python
 def sample_next(logits, temperature=0.8, k=50):
-    probs = torch.softmax(logits / temperature, dim=-1)   # 温度
-    top = torch.topk(probs, k)                            # 上位 k 個だけ
-    idx = torch.multinomial(top.values, 1)                # 重み付き抽選
+    probs = torch.softmax(logits / temperature, dim=-1)
+    top = torch.topk(probs, k)
+    idx = torch.multinomial(top.values, 1)
     return top.indices[idx]
 ```
 
-温度で割ってから softmax。小さい数で割れば差が開き、大きい数で割れば縮む。上位 k 個に絞れば、確率の低い語を候補から外せる。`k=1` なら greedy と同じ。
+第2回では回数を `c ** (1/T)` していた。logits は確率の対数なので、割り算が同じ役割
 <!-- .element: class="note" -->
-
-第2回では回数を <code>c ** (1/T)</code> していた。
-logits は確率の対数なので、ここでは<strong>割り算が同じ役割</strong>を果たす。
-<!-- .element: class="key-box" -->
 
 ---
 
-### 発展：top-p (nucleus) サンプリング
+## 発展: top-p サンプリング
 
-個数ではなく、**累積確率が p に達するまで**の語を候補にする。
+### 個数ではなく累積確率で切断
+
+- 確率の高い順に足し、合計が p に達したら停止
+- 偏っているときは候補が少なく、分散しているときは多い
+- `p = 0.9` あたりが定番。`k=1` なら greedy と同じ
 
 ```python
 probs = torch.softmax(logits / temperature, dim=-1)
 sorted_probs, sorted_idx = torch.sort(probs, descending=True)
 cumsum = torch.cumsum(sorted_probs, dim=-1)
-
-mask = cumsum - sorted_probs < p      # 累積が p に達するまで残す
+mask = cumsum - sorted_probs < p
 next_id = sorted_idx[mask][torch.multinomial(sorted_probs[mask], 1)]
 ```
 
-確率が偏っているときは候補が少なく、分散しているときは多くなる。
-固定数の top-k より、分布の状態に合わせて候補数が変わる。`p = 0.9` あたりが定番。
+課題の発展で実装。本編では温度と top-k で十分
 <!-- .element: class="note" -->
 
 ---
@@ -186,15 +196,13 @@ next_id = sorted_idx[mask][torch.multinomial(sorted_probs[mask], 1)]
 
 ---
 
-### 素のモデルは続きを書くだけ
+## 素のモデルは続きを書くだけ
 
-```text
-入力: 日本の首都は
-出力: 日本の首都は東京である。人口は約1400万人で...
-```
+### Instruct モデルは指示と応答の形を既知
 
-**Instructモデル**は「指示 → 応答」の形で追加学習されている。
-決められた書式で入力すると、応答の続きを生成する。
+- 追加学習で、「指示 → 応答」の書式を保持
+- `apply_chat_template` が、その書式の文字列を生成
+- あとは、いつもの生成ループへ
 
 ```python
 messages = [
@@ -205,54 +213,63 @@ prompt = tok.apply_chat_template(
     messages, tokenize=False, add_generation_prompt=True)
 ```
 
----
-
-### 中身はただの文字列
-
 ```text
-<|im_start|>system
-あなたは簡潔に答えるアシスタントです。<|im_end|>
-<|im_start|>user
-日本の首都は？<|im_end|>
-<|im_start|>assistant
+入力: 日本の首都は
+出力: 日本の首都は東京である。人口は約1400万人で...
 ```
 
-`<|im_start|>` のような特殊トークンで役割を区切っている。あとは、この文字列を先ほどの生成ループに渡す。
-<!-- .element: class="note" -->
+---
 
-モデルが会話を記憶しているわけではない。
-<strong>過去のやりとりを毎回すべて入力に含めているだけ</strong>。
-「文脈を覚えている」ように見えるのは、そのため。
-<!-- .element: class="key-box" -->
+## 中身はただの文字列
+
+### 会話の記憶は、毎回すべて入力に含む
+
+- 特殊トークンで、役割の区間を区切る
+- モデルがやりとりを覚えているわけではない
+- 「文脈を覚えている」ように見えるのは、そのため
+
+<pre><code class="language-text">&lt;|im_start|&gt;system
+あなたは簡潔に答えるアシスタントです。&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+日本の首都は？&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant
+</code></pre>
+
+この文字列を、先ほどの生成ループへ
+<!-- .element: class="note" -->
 
 ---
 
-### 気をつけること
+## 気をつけること
+
+### 今日のループは仕組みを確かめるための簡易実装
+
+- 会話が長くなると遅くなり、入力上限も超過
+- 0.5B では、もっともらしい嘘が頻繁
+- 実務では `model.generate(...)` を使用
 
 | 問題 | 対処 |
 |---|---|
-| 会話が長くなると遅い / 入力上限を超える | 古いやりとりを削る |
-| 同じ語を繰り返す | 温度を上げる / 既出の語の logits を下げる |
-| もっともらしい嘘を書く | 0.5B では**頻繁に起きる**。事実確認に使わない |
-| 1トークンずつ全体を再計算していて遅い | 本来は KV キャッシュで使い回す |
+| 会話が長い / 入力上限 | 古いやりとりを削る |
+| 同じ語の繰り返し | 温度を上げる / 既出語の logits を下げる |
+| 事実ではない答え | 事実確認に使わない |
+| 1トークンずつ再計算 | 本来は KV キャッシュで使い回す |
 
-今日書くループは、仕組みを確かめるための簡易実装。
-実務では <code>model.generate(...)</code> を使う。内部で同じ処理を、
-はるかに効率よく実行している。
-<!-- .element: class="warn-box" -->
+内部では同じ処理を、はるかに効率よく実行
+<!-- .element: class="note" -->
 
 ---
 
 ## まとめ
 
-- 言語モデル = **次の1トークンの確率分布を返す関数**
-- 生成 = **予測 → 選ぶ → つなげる** のループ
-- greedy / 温度 / top-k の違いは「どう選ぶか」だけ
-- 会話は、**履歴を毎回すべて渡す**ことで成り立っている
+### 仕組みが分かれば、API の裏側も同じ
 
-仕組みが分かれば、API の裏側で起きていることも同じ。
-違うのはモデルの大きさと、実装の速さだけ。
-<!-- .element: class="key-box" -->
+- 言語モデルは、次の1トークンの確率分布を返す関数
+- 生成は、予測 → 選ぶ → つなげる、のループ
+- 会話は、履歴を毎回すべて渡すことで成立
+
+違うのはモデルの大きさと、実装の速さだけ
+<!-- .element: class="note" -->
 
 ---
 <!-- .slide: class="chapter" -->
@@ -264,11 +281,18 @@ prompt = tok.apply_chat_template(
 
 ---
 
-### 箱の中で起きていること
+## 箱の中で起きていること
+
+### 今日はこの箱を関数として利用
+
+- トークンをベクトルにし、注意機構で文脈を混合
+- 最後に語彙サイズの logits を出力
+- 理論は機械学習の講義へ
 
 ![Transformerの処理の流れ](../assets/diagrams/transformer-pipeline.svg)
 
-理論の説明は機械学習の講義に譲り、今日は<strong>この箱を関数として使う</strong>ことに集中する。
+中身を全部実装しなくても、入出力だけ扱えれば生成ループは記述可能
+<!-- .element: class="note" -->
 
 ---
 <!-- .slide: class="chapter" -->
@@ -282,7 +306,11 @@ prompt = tok.apply_chat_template(
 
 ## 取り組む課題
 
-モデルを読み込み、次のトークンを選ぶ処理を少しずつ実装する。
+### 次のトークンの選び方を少しずつ実装
+
+- まず候補と確率を目で確認
+- greedy のあと、温度と top-k を追加
+- 最後に、チャットテンプレートで会話を生成
 
 | # | 課題 |
 |---|---|
@@ -292,16 +320,15 @@ prompt = tok.apply_chat_template(
 | 4 | チャットテンプレートで3往復の会話を生成する |
 
 発展: top-p サンプリング / 繰り返しペナルティ
+<!-- .element: class="note" -->
 
 ---
 
 ## 進め方
 
-- ページの「Colab で開く」から課題を開き、「ドライブにコピーを保存」しておく
-- 最初の2セルを実行し、モデルの読み込みを始める
-- 各課題の `TODO` を埋め、確認セルで結果を確かめる
-- モデルの読み込みには数分かかる。CPUでは生成に時間がかかる
+### 先にモデルの読み込みを開始
 
-Colabでは、先に「ランタイムのタイプを変更」からT4 GPUを選ぶとよい。
-確認セルは変更せず、最後に `score()` を実行してから提出する。
-<!-- .element: class="highlight-box" -->
+- 「Colab で開く」から課題を開き、「ドライブにコピーを保存」
+- 最初の2セルを実行し、各課題の `TODO` を埋める
+- 確認セルは消さない。最後に `score()` を実行してから提出
+
