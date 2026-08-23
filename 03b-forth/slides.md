@@ -48,6 +48,14 @@ Scripting Languages / 03-B
 まずは第2回と同じ電卓を、スタックとワード表で組み立て直す。
 
 ---
+<!-- .slide: class="chapter" -->
+
+01
+<!-- .element: class="num" -->
+
+## スタックと辞書
+
+---
 
 ## スタックで計算する
 
@@ -110,6 +118,14 @@ def forth_eval(stack, code):
 
 ここまでは第2回の電卓と同じ。Forthらしさが出るのは、次の `: ... ;` から。
 <!-- .element: class="note" -->
+
+---
+<!-- .slide: class="chapter" -->
+
+02
+<!-- .element: class="num" -->
+
+## 実行中に語彙を増やす
 
 ---
 
