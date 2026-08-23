@@ -4,24 +4,31 @@
    面は塗り、区切りはヘアラインか太い実線のみ。
    ------------------------------------------------------------------ */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+@font-face {
+    font-family: 'IBM Plex Sans JP';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('./fonts/IBMPlexSansJP-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'IBM Plex Sans JP';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('./fonts/IBMPlexSansJP-SemiBold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'IBM Plex Sans JP';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('./fonts/IBMPlexSansJP-Bold.ttf') format('truetype');
+}
 
 :root {
-    /* reveal.js のテーマ変数を上書き */
-    --r-background-color: #faf8f4;
-    --r-main-color: #14140f;
-    --r-heading-color: #14140f;
-    --r-link-color: #a02b0c;
-    --r-link-color-hover: #a02b0c;
-    --r-selection-background-color: #f2d9c9;
-    --r-main-font: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-    --r-heading-font: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-    --r-code-font: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
-    --r-main-font-size: 40px;
-    --r-heading-text-transform: none;
-    --r-heading-font-weight: 700;
-
-    /* 独自パレット */
+    --font: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans CJK JP', sans-serif;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
     --ink: #14140f;
     --paper: #faf8f4;
     --rule: #c4bcab;
@@ -34,116 +41,220 @@
     --sand-bg: #f6e9c6;
 }
 
-.reveal { letter-spacing: 0.01em; }
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--paper);
+}
+
+body {
+    color: var(--ink);
+    font-family: var(--font) !important;
+}
+
+.reveal,
+.reveal .slides,
+.reveal .slides > section {
+    width: 100%;
+    height: 100%;
+}
+
+#source {
+    display: none;
+}
+
+#source.load-error {
+    display: block;
+}
+
+.reveal .slides {
+    background: var(--paper);
+}
+
+.reveal .slide-content {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 42px 58px 46px;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font) !important;
+    font-size: clamp(24px, 2.7vw, 40px);
+}
+
+.reveal .slide-content > :first-child { margin-top: 0; }
+
+.reveal .slide-number {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.7em;
+}
+
+.reveal .progress { background: var(--accent); }
+
+.pdf-button {
+    position: absolute;
+    right: 24px;
+    bottom: 16px;
+    z-index: 10;
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    padding: 5px 10px;
+    background: var(--paper);
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.2;
+    cursor: pointer;
+}
+.pdf-button:hover,
+.pdf-button:focus-visible {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+}
+
+.load-error {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 2em;
+    border: none;
+    background: var(--paper);
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 1.5rem;
+    white-space: pre-wrap;
+}
+
+.reveal .slide-content img[src*="diagrams/"] {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 20px auto;
+}
+
+.reveal .slide-content { letter-spacing: 0.01em; }
 
 /* ---- 見出し ---------------------------------------------------- */
 
-.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+.reveal .slide-content h1, .reveal .slide-content h2, .reveal .slide-content h3, .reveal .slide-content h4 {
     text-transform: none;
     letter-spacing: -0.01em;
     line-height: 1.3;
 }
-.reveal h1 { font-size: 2.1em; }
-.reveal h2 {
+.reveal .slide-content h1 { font-size: 2.1em; }
+.reveal .slide-content h2 {
     font-size: 1.5em;
     border-bottom: 3px solid var(--ink);
     display: inline-block;
     padding-bottom: 0.15em;
     margin-bottom: 0.7em;
 }
-.reveal h3 { font-size: 1.15em; color: var(--accent); }
-.reveal h4 { font-size: 0.95em; }
+.reveal .slide-content h3 { font-size: 1.15em; color: var(--accent); }
+.reveal .slide-content h4 { font-size: 0.95em; }
 
 /* セクション扉: 数字を大きく見せる */
-.reveal .chapter { text-align: left; }
-.reveal .chapter .num {
-    font-family: var(--r-code-font);
+.reveal .slide-content.chapter { text-align: left; }
+.reveal .slide-content.chapter .num {
+    font-family: var(--mono);
     font-size: 4em;
     font-weight: 600;
     color: var(--rule);
     line-height: 1;
     display: block;
 }
-.reveal .chapter h2 { border: none; font-size: 1.9em; margin-top: 0.1em; }
+.reveal .slide-content.chapter h2 { border: none; font-size: 1.9em; margin-top: 0.1em; }
 
 /* ---- 本文 ------------------------------------------------------ */
 
-.reveal p, .reveal li { line-height: 1.6; }
-.reveal ul, .reveal ol { margin-left: 1em; }
-.reveal li { margin-bottom: 0.35em; }
-.reveal strong { font-weight: 700; color: var(--accent); }
-.reveal em { font-style: normal; background: var(--sand-bg); padding: 0 0.2em; }
+.reveal .slide-content p, .reveal .slide-content li { line-height: 1.6; }
+.reveal .slide-content ul, .reveal .slide-content ol { margin-left: 1em; }
+.reveal .slide-content li { margin-bottom: 0.35em; }
+.reveal .slide-content strong { font-weight: 700; color: var(--accent); }
+.reveal .slide-content em { font-style: normal; background: var(--sand-bg); padding: 0 0.2em; }
 
-.reveal .note {
+.reveal .slide-content .note {
     font-size: 0.74em;
     color: var(--muted);
     line-height: 1.6;
 }
-.reveal .small { font-size: 0.8em; }
-.reveal .lead { font-size: 1.15em; line-height: 1.6; }
+.reveal .slide-content .small { font-size: 0.8em; }
+.reveal .slide-content .lead { font-size: 1.15em; line-height: 1.6; }
 
 /* ---- コード ---------------------------------------------------- */
 
-.reveal pre {
+.reveal .slide-content pre {
     width: 100%;
     font-size: 0.48em;
     box-shadow: none;
     margin: 0.6em 0;
 }
-.reveal pre code {
+.reveal .slide-content pre code {
     max-height: 470px;
     padding: 16px 20px;
     border-radius: 0;
     line-height: 1.5;
     background: #201f1d;
 }
-.reveal code {
-    font-family: var(--r-code-font);
+.reveal .slide-content code {
+    font-family: var(--mono);
     font-size: 0.95em;
 }
-.reveal :not(pre) > code {
+.reveal .slide-content :not(pre) > code {
     background: #eae5db;
     padding: 0.08em 0.32em;
     color: #43403a;
 }
 
 /* 出力例: コードとは別の見た目にする */
-.reveal pre.output code {
+.reveal .slide-content pre.output code {
     background: transparent;
     color: var(--muted);
     border-left: 3px solid var(--rule);
     padding-left: 16px;
 }
 
+.reveal .slide-content pre code.language-text {
+    background: transparent !important;
+    color: var(--muted) !important;
+    border-left: 3px solid var(--rule);
+    padding-left: 16px;
+}
+
 /* ---- 表 -------------------------------------------------------- */
 
-.reveal table {
+.reveal .slide-content table {
     font-size: 0.72em;
     margin: 0.5em auto;
     border-collapse: collapse;
     width: 100%;
 }
-.reveal th, .reveal td {
+.reveal .slide-content th, .reveal .slide-content td {
     padding: 0.5em 0.8em;
     border: none;
     border-bottom: 1px solid var(--rule);
     text-align: left;
     vertical-align: top;
 }
-.reveal th {
+.reveal .slide-content th {
     background: var(--ink);
     color: var(--paper);
     font-weight: 600;
     border-bottom: none;
 }
-.reveal td.ok, .reveal tr.ok td { background: var(--teal-bg); }
-.reveal td.ng, .reveal tr.ng td { background: var(--accent-bg); }
+.reveal .slide-content td.ok, .reveal .slide-content tr.ok td { background: var(--teal-bg); }
+.reveal .slide-content td.ng, .reveal .slide-content tr.ng td { background: var(--accent-bg); }
 
 /* ---- 注記ブロック ---------------------------------------------- */
 
-.reveal .highlight-box,
-.reveal .warn-box,
-.reveal .key-box {
+.reveal .slide-content .highlight-box,
+.reveal .slide-content .warn-box,
+.reveal .slide-content .key-box {
     text-align: left;
     padding: 14px 18px;
     margin: 16px 0;
@@ -151,196 +262,93 @@
     line-height: 1.55;
     border-radius: 0;
 }
-.reveal .highlight-box { background: var(--teal-bg); border-left: 10px solid var(--teal); }
-.reveal .warn-box      { background: var(--sand-bg); border-left: 10px solid var(--sand); }
-.reveal .key-box       { background: var(--ink); color: var(--paper); border-left: 10px solid var(--accent); }
-.reveal .key-box strong { color: #ffb59c; }
-.reveal .key-box code { background: #34322e; color: #e8e2d6; }
+.reveal .slide-content .highlight-box { background: var(--teal-bg); border-left: 10px solid var(--teal); }
+.reveal .slide-content .warn-box      { background: var(--sand-bg); border-left: 10px solid var(--sand); }
+.reveal .slide-content .key-box       { background: var(--ink); color: var(--paper); border-left: 10px solid var(--accent); }
+.reveal .slide-content .key-box strong { color: #ffb59c; }
+.reveal .slide-content .key-box code { background: #34322e; color: #e8e2d6; }
 
 /* ---- 段組み ---------------------------------------------------- */
 
-.reveal .two-column { display: flex; gap: 28px; justify-content: center; align-items: flex-start; }
-.reveal .two-column > div { flex: 1; min-width: 0; }
-.reveal .cols-3 { display: flex; gap: 20px; justify-content: center; align-items: flex-start; }
-.reveal .cols-3 > div { flex: 1; min-width: 0; }
-
-/* ---- 図: 共通の箱 ---------------------------------------------- */
-
-.reveal .flow-container {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 10px; margin: 22px 0;
-}
-.reveal .flow-row { display: flex; align-items: center; gap: 14px; justify-content: center; }
-.reveal .flow-box {
-    padding: 12px 22px;
-    font-weight: 600;
-    font-size: 0.8em;
-    text-align: center;
-    min-width: 140px;
-    border: 3px solid var(--ink);
-    background: var(--paper);
-}
-.reveal .flow-box.source  { background: var(--sand-bg);   border-color: var(--sand); }
-.reveal .flow-box.process { background: var(--teal-bg);   border-color: var(--teal); }
-.reveal .flow-box.output  { background: var(--accent-bg); border-color: var(--accent); }
-.reveal .flow-box.token   { background: var(--paper); border-style: dashed; }
-.reveal .flow-box.decision{ background: #ece7f2; border-color: #5b4a78; }
-.reveal .flow-arrow { font-size: 1.2em; color: var(--muted); }
-.reveal .flow-arrow.down { font-size: 1em; }
-.reveal .flow-label {
-    font-size: 0.7em; font-weight: 400; color: var(--muted);
-    margin-top: 4px; display: block;
-}
-
-/* ---- 図: 比較 -------------------------------------------------- */
-
-.reveal .compare-container { display: flex; gap: 28px; justify-content: center; margin: 20px 0; }
-.reveal .compare-box { padding: 18px 20px; flex: 1; border: 3px solid var(--ink); }
-.reveal .compare-box.compiler    { background: var(--sand-bg); border-color: var(--sand); }
-.reveal .compare-box.interpreter { background: var(--teal-bg); border-color: var(--teal); }
-.reveal .compare-box h4 {
-    margin: 0 0 12px; padding-bottom: 8px;
-    border-bottom: 2px solid currentColor; font-size: 0.88em;
-}
-.reveal .compare-flow { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.reveal .compare-flow .step {
-    padding: 8px 14px; font-size: 0.72em; width: 90%; text-align: center;
-    background: rgba(255,255,255,0.7);
-}
-.reveal .compare-flow .step.tool { background: var(--ink); color: var(--paper); font-weight: 600; }
-.reveal .compare-flow .arrow { color: var(--muted); font-size: 0.7em; }
-.reveal .examples { font-size: 0.7em; color: var(--muted); margin-top: 10px; text-align: center; }
-
-/* ---- 図: 評価ループ -------------------------------------------- */
-
-/* 最後の箱から最初の箱へ戻る辺。行の下をくぐらせて左端で上向きに刺す */
-.reveal .eval-loop-container {
-    position: relative; margin: 24px auto 0; width: 92%; padding-bottom: 62px;
-}
-.reveal .eval-main-flow { display: flex; align-items: center; justify-content: center; gap: 14px; }
-.reveal .eval-box {
-    padding: 15px 20px; font-weight: 600; font-size: 0.78em;
-    text-align: center; border: 3px solid var(--ink); background: var(--paper);
-}
-.reveal .eval-box.read { background: var(--teal-bg);   border-color: var(--teal); }
-.reveal .eval-box.get  { background: var(--sand-bg);   border-color: var(--sand); }
-.reveal .eval-box.eval { background: var(--accent-bg); border-color: var(--accent); }
-.reveal .eval-branches { display: flex; justify-content: center; gap: 26px; margin-top: 18px; }
-.reveal .eval-branch { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.reveal .eval-branch .condition {
-    padding: 9px 16px; background: var(--paper);
-    border: 3px dashed var(--muted); font-size: 0.75em;
-}
-.reveal .eval-branch .action {
-    padding: 7px 14px; background: var(--ink); color: var(--paper); font-size: 0.7em;
-}
-.reveal .loop-arrow {
-    position: absolute; left: 7%; right: 7%; bottom: 16px; height: 34px;
-    border: 3px solid var(--ink);
-    border-top: none;                      /* 下辺と左右の縦線だけ描く */
-}
-/* 左端の先端: 上向きの三角で最初の箱に刺す */
-.reveal .loop-arrow::before {
-    content: ''; position: absolute; left: -10px; top: -14px;
-    border-left: 9px solid transparent;
-    border-right: 9px solid transparent;
-    border-bottom: 15px solid var(--ink);
-}
-/* 下辺の中央にラベルを置き、線を跨がせる */
-.reveal .loop-arrow::after {
-    content: 'くり返す';
-    position: absolute; left: 50%; bottom: -0.75em; transform: translateX(-50%);
-    background: var(--paper); padding: 0 12px;
-    font-size: 0.62em; font-weight: 600; color: var(--ink);
-    white-space: nowrap;
-}
-
-/* ---- 図: 字句解析 ---------------------------------------------- */
-
-.reveal .lexer-container { display: flex; flex-direction: column; align-items: center; gap: 18px; margin: 26px 0; }
-.reveal .lexer-row { display: flex; align-items: center; gap: 22px; justify-content: center; }
-.reveal .lexer-input {
-    padding: 14px 24px; background: var(--sand-bg); border: 2px solid var(--sand);
-    font-family: var(--r-code-font); font-size: 0.85em;
-}
-.reveal .lexer-process {
-    padding: 16px 22px; background: var(--ink); color: var(--paper);
-}
-.reveal .lexer-process .title { font-weight: 600; font-size: 0.78em; }
-.reveal .lexer-process .sub { font-size: 0.65em; opacity: 0.75; }
-.reveal .lexer-output { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
-.reveal .lexer-token {
-    padding: 10px 14px; background: var(--paper); border: 3px solid var(--teal);
-    font-family: var(--r-code-font); font-size: 0.8em;
-}
-.reveal .big-arrow { font-size: 1.5em; color: var(--muted); }
-
-/* ---- スタック可視化 -------------------------------------------- */
-
-.reveal .stack-viz {
-    font-family: var(--r-code-font);
-    font-size: 0.72em;
-    background: var(--paper);
-    border: 2px solid var(--rule);
-    padding: 12px 18px;
+.reveal .slide-content .two-column { display: flex; gap: 28px; justify-content: center; align-items: flex-start; }
+.reveal .slide-content .two-column > div { flex: 1; min-width: 0; }
+.reveal .slide-content .left-column,
+.reveal .slide-content .right-column {
     display: inline-block;
+    width: 48%;
+    vertical-align: top;
+    box-sizing: border-box;
 }
+.reveal .slide-content .left-column { margin-right: 2%; }
+.reveal .slide-content .cols-3 { display: flex; gap: 20px; justify-content: center; align-items: flex-start; }
+.reveal .slide-content .cols-3 > div { flex: 1; min-width: 0; }
 
 /* ---- タイトルスライド ------------------------------------------ */
 
-.reveal .title-slide { text-align: left; }
-.reveal .title-slide h1 {
+.reveal .slide-content.title-slide { text-align: left; }
+.reveal .slide-content.title-slide h1 {
     border-bottom: 6px solid var(--accent);
     display: inline-block;
     padding-bottom: 0.15em;
 }
-.reveal .title-slide .kicker {
-    font-family: var(--r-code-font);
+.reveal .slide-content.title-slide .kicker {
+    font-family: var(--mono);
     font-size: 0.68em;
     letter-spacing: 0.18em;
     color: var(--accent);
     text-transform: uppercase;
     margin-bottom: 0.4em;
 }
-.reveal .title-slide h3 { color: var(--muted); font-weight: 400; }
+.reveal .slide-content.title-slide h3 { color: var(--muted); font-weight: 400; }
 
-/* ---- 進捗バー等 ------------------------------------------------ */
-
-.reveal .progress { color: var(--accent); height: 7px; }
-.reveal .slide-number {
-    background: transparent;
-    color: var(--muted);
-    font-family: var(--r-code-font);
-    font-size: 0.7em;
+/* ---- コードハイライト ------------------------------------------ */
+.reveal .slide-content pre code.hljs {
+    display: block;
+    color: #f4efe7 !important;
+    background: #201f1d !important;
+    font-family: var(--mono) !important;
 }
-.reveal .controls { color: var(--muted); }
-
-/* ---- コードハイライトの微調整 ---------------------------------- */
-/* gruvbox のコメントは暗すぎるので、投影しても読める明度に上げる */
-.reveal .hljs-comment,
-.reveal .hljs-quote { color: #c4b596 !important; font-style: normal; }
-.reveal .hljs { background: #1d2021; }
-.reveal .hljs-ln-numbers { color: #665c54 !important; }
+.reveal .slide-content .hljs {
+    color: #f4efe7 !important;
+    background: #201f1d !important;
+}
+.reveal .slide-content .hljs-keyword,
+.reveal .slide-content .hljs-selector-tag,
+.reveal .slide-content .hljs-literal { color: #ff9f8f !important; }
+.reveal .slide-content .hljs-string,
+.reveal .slide-content .hljs-doctag,
+.reveal .slide-content .hljs-regexp { color: #b7e3b0 !important; }
+.reveal .slide-content .hljs-number,
+.reveal .slide-content .hljs-symbol,
+.reveal .slide-content .hljs-bullet { color: #e7c77a !important; }
+.reveal .slide-content .hljs-title,
+.reveal .slide-content .hljs-title.function_,
+.reveal .slide-content .hljs-section { color: #8fd8cf !important; }
+.reveal .slide-content .hljs-built_in,
+.reveal .slide-content .hljs-type { color: #f0b76e !important; }
+.reveal .slide-content .hljs-variable,
+.reveal .slide-content .hljs-params { color: #e5c07b !important; }
+.reveal .slide-content .hljs-comment,
+.reveal .slide-content .hljs-quote { color: #a39a8c !important; font-style: italic; }
+.reveal .slide-content .hljs-meta,
+.reveal .slide-content .hljs-punctuation { color: #c9b7a3 !important; }
+.reveal .slide-content .hljs-ln-numbers { color: #665c54 !important; }
 
 /* 濃い背景の上の inline code は反転させる */
-.reveal th code { background: #34322e; color: #e8e2d6; }
+.reveal .slide-content th code { background: #34322e; color: #e8e2d6; }
 
 /* ---- 詰めの調整 ------------------------------------------------ */
-/* 1200x700 の枠に収めるための微調整。ここを緩めると溢れるスライドが出る */
-.reveal .highlight-box,
-.reveal .warn-box,
-.reveal .key-box { margin: 12px 0; padding: 12px 17px; }
+/* 16:9 の枠に収めるための微調整 */
+.reveal .slide-content .highlight-box,
+.reveal .slide-content .warn-box,
+.reveal .slide-content .key-box { margin: 12px 0; padding: 12px 17px; }
 
 /* 段組みの中のコードは1段細くする */
-.reveal .two-column pre,
-.reveal .cols-3 pre { font-size: 0.45em; margin: 0.3em 0; }
-.reveal .two-column h4,
-.reveal .cols-3 h4 { margin: 0 0 0.4em; }
-
-/* 箱数が多い横長の図はこれを付けて詰める (例: Transformer の内部) */
-.reveal .flow-row { flex-wrap: wrap; }
-.reveal .flow-container.tight .flow-row { gap: 8px; }
-.reveal .flow-container.tight .flow-box {
-    min-width: 105px; padding: 10px 12px; font-size: 0.72em;
-}
-.reveal .flow-container.tight .flow-arrow { font-size: 0.9em; }
+.reveal .slide-content .two-column pre,
+.reveal .slide-content .left-column pre,
+.reveal .slide-content .right-column pre,
+.reveal .slide-content .cols-3 pre { font-size: 0.45em; margin: 0.3em 0; }
+.reveal .slide-content .two-column h4,
+.reveal .slide-content .left-column h4,
+.reveal .slide-content .right-column h4,
+.reveal .slide-content .cols-3 h4 { margin: 0 0 0.4em; }

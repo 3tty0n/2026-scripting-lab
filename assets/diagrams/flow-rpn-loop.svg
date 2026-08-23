@@ -1,0 +1,35 @@
+<?xml-stylesheet type="text/css" href="diagram-font.css"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 210" role="img" aria-labelledby="title desc">
+  <title id="title">スタックを更新する処理の流れ</title>
+  <desc id="desc">入力をトークンに分け、表から操作を選び、スタックを更新する</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f4a40"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: "IBM Plex Sans JP", "Hiragino Sans", sans-serif; }
+    .box { stroke: #14140f; stroke-width: 3; }
+    .main { font-size: 27px; font-weight: 600; text-anchor: middle; }
+    .sub { fill: #4f4a40; font-size: 20px; text-anchor: middle; }
+    .source { fill: #f6e9c6; }
+    .process { fill: #d5e8e5; }
+    .output { fill: #f7ded2; }
+    .arrow { stroke: #4f4a40; stroke-width: 4; marker-end: url(#arrow); }
+  </style>
+  <rect class="box source" x="20" y="45" width="260" height="90"/>
+  <text class="main" x="150" y="100">"3 4 + 2 *"</text>
+  <line class="arrow" x1="300" y1="90" x2="335" y2="90"/>
+  <rect class="box process" x="355" y="45" width="205" height="90"/>
+  <text class="main" x="457" y="88">split</text>
+  <text class="sub" x="457" y="116">トークンに分ける</text>
+  <line class="arrow" x1="580" y1="90" x2="615" y2="90"/>
+  <rect class="box process" x="635" y="45" width="240" height="90"/>
+  <text class="main" x="755" y="88">for token</text>
+  <text class="sub" x="755" y="116">表から操作を選ぶ</text>
+  <line class="arrow" x1="895" y1="90" x2="930" y2="90"/>
+  <rect class="box output" x="950" y="45" width="220" height="90"/>
+  <text class="main" x="1060" y="88">[14]</text>
+  <text class="sub" x="1060" y="116">更新後のスタック</text>
+</svg>
