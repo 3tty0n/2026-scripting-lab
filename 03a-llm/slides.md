@@ -1,7 +1,4 @@
-<!-- .slide: class="title-slide" -->
-
 Scripting Languages / 03-A
-<!-- .element: class="kicker" -->
 
 # 言語モデルの仕組みと実装
 
@@ -15,8 +12,7 @@ Scripting Languages / 03-A
 - 次の1トークンを選ぶ処理の実装
 - 簡単な応答プログラムの作成
 
-APIキー不要。モデルをダウンロードして自分の環境で実行
-<!-- .element: class="note" -->
+> APIキー不要。モデルをダウンロードして自分の環境で実行
 
 ---
 
@@ -43,8 +39,7 @@ APIキー不要。モデルをダウンロードして自分の環境で実行
 
 ![言語モデルの入出力](../assets/diagrams/flow-llm.svg)
 
-一度に1トークンしか返さないことによる、生成ループ
-<!-- .element: class="note" -->
+> 一度に1トークンしか返さないことによる、生成ループ
 
 ---
 
@@ -82,8 +77,7 @@ top = torch.topk(probs, 5)
 # お 0.312    一 0.145    おじいさん 0.098
 ```
 
-Colab ですぐに開始可能。GPU では高速、CPU でも動作
-<!-- .element: class="note" -->
+> Colab ですぐに開始可能。GPU では高速、CPU でも動作
 
 ---
 
@@ -119,8 +113,7 @@ def generate_greedy(prompt, max_new_tokens=40):
 好きな食べ物は何ですか？好きな食べ物は何ですか？好きな食べ物は...
 ```
 
-低い確率の語を除くための、分布の調整
-<!-- .element: class="note" -->
+> 低い確率の語を除くための、分布の調整
 
 ---
 
@@ -138,8 +131,7 @@ def sample_next(logits, temperature=0.8, k=50):
     return top.indices[idx]
 ```
 
-回数の `c ** (1/T)` と、確率の対数である logits の割り算の対応
-<!-- .element: class="note" -->
+> 回数の `c ** (1/T)` と、確率の対数である logits の割り算の対応
 
 ---
 
@@ -157,8 +149,7 @@ mask = cumsum - sorted_probs < p
 next_id = sorted_idx[mask][torch.multinomial(sorted_probs[mask], 1)]
 ```
 
-発展課題での実装。本編では温度と top-k で十分
-<!-- .element: class="note" -->
+> 発展課題での実装。本編では温度と top-k で十分
 
 ---
 
@@ -197,8 +188,7 @@ prompt = tok.apply_chat_template(
 &lt;|im_start|&gt;assistant
 </code></pre>
 
-先ほどの生成ループに渡す文字列
-<!-- .element: class="note" -->
+> 先ほどの生成ループに渡す文字列
 
 ---
 
@@ -215,8 +205,7 @@ prompt = tok.apply_chat_template(
 | 事実ではない答え | 事実確認に使わない |
 | 1トークンずつ再計算 | 本来は KV キャッシュで使い回す |
 
-内部で同じ処理を効率よく行う実装
-<!-- .element: class="note" -->
+> 内部で同じ処理を効率よく行う実装
 
 ---
 
@@ -226,8 +215,7 @@ prompt = tok.apply_chat_template(
 - 予測・選択・連結を繰り返す生成ループ
 - 履歴を毎回すべて渡して成立する会話
 
-第2回との違いは、モデルの大きさと実装の速さ
-<!-- .element: class="note" -->
+> 第2回との違いは、モデルの大きさと実装の速さ
 
 ---
 
@@ -239,8 +227,7 @@ prompt = tok.apply_chat_template(
 
 ![Transformerの処理の流れ](../assets/diagrams/transformer-pipeline.svg)
 
-入出力だけの扱いで記述できる生成ループ
-<!-- .element: class="note" -->
+> 入出力だけの扱いで記述できる生成ループ
 
 ---
 
@@ -257,8 +244,7 @@ prompt = tok.apply_chat_template(
 | 3 | 温度付き top-k を実装し、温度 0.3 / 0.8 / 1.5 で比べる |
 | 4 | チャットテンプレートで3往復の会話を生成する |
 
-発展：top-p サンプリング / 繰り返しペナルティ
-<!-- .element: class="note" -->
+> 発展：top-p サンプリング / 繰り返しペナルティ
 
 ---
 

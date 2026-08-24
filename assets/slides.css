@@ -305,6 +305,64 @@ html.print-pdf .pdf-hint { display: none !important; }
     padding-left: 16px;
 }
 
+.reveal .slide-content .code-cell { position: relative; }
+.reveal .slide-content .code-editor {
+    margin: 0.6em 0;
+    width: 100%;
+}
+.reveal .slide-content .code-editor:focus {
+    box-shadow: inset 0 0 0 2px #8fd8cf;
+    outline: none;
+}
+.reveal .slide-content .code-editor .ace_scroller { cursor: text; }
+.reveal .slide-content .code-editor .ace_content { padding-right: 52px; }
+.reveal .slide-content .print-source { display: none; }
+.reveal .slide-content .code-actions {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    z-index: 2;
+}
+.reveal .slide-content .run-cell {
+    align-items: center;
+    border: 2px solid #f4efe7;
+    border-radius: 50%;
+    background: #201f1d;
+    color: #f4efe7;
+    cursor: pointer;
+    display: flex;
+    font: 600 18px/1 var(--font);
+    height: 42px;
+    justify-content: center;
+    padding: 0 0 0 3px;
+    width: 42px;
+}
+.reveal .slide-content .run-cell:hover,
+.reveal .slide-content .run-cell:focus-visible {
+    background: var(--teal);
+    outline: 2px solid #8fd8cf;
+    outline-offset: 2px;
+}
+.reveal .slide-content .run-cell:disabled { cursor: wait; opacity: 0.65; }
+.reveal .slide-content .run-cell.running { animation: run-pulse 0.8s infinite; }
+@keyframes run-pulse { 50% { opacity: 0.35; } }
+.reveal .slide-content pre.cell-output {
+    background: transparent;
+    border-left: 3px solid var(--teal);
+    color: var(--muted);
+    font-size: 0.55em;
+    margin: 0.2em 0 0.5em;
+    max-height: 7em;
+    overflow: auto;
+    padding: 0.4em 0.8em;
+    white-space: pre-wrap;
+}
+
+html.print-pdf .code-actions,
+html.print-pdf .cell-output { display: none !important; }
+html.print-pdf .code-editor { display: none; }
+html.print-pdf .print-source { display: block; }
+
 /* ---- 表 -------------------------------------------------------- */
 
 .reveal .slide-content table {

@@ -1,7 +1,4 @@
-<!-- .slide: class="title-slide" -->
-
 Scripting Languages / 02
-<!-- .element: class="kicker" -->
 
 # テキスト処理と文章生成
 
@@ -17,8 +14,7 @@ Scripting Languages / 02
 
 ![文章をまねる生成器の流れ](../assets/diagrams/flow-text-generation.svg)
 
-この考え方の最初の例としてのマルコフ連鎖
-<!-- .element: class="note" -->
+> この考え方の最初の例としてのマルコフ連鎖
 
 ---
 
@@ -52,8 +48,7 @@ re.findall(r"[a-z']+", text.lower())
 # ['hello', 'world', "it's", 'a', 'nice', 'day']
 ```
 
-文章生成と電卓に共通する最初の処理
-<!-- .element: class="note" -->
+> 文章生成と電卓に共通する最初の処理
 
 ---
 
@@ -72,8 +67,7 @@ for a, b in zip(words, words[1:]):
     following[a][b] += 1
 ```
 
-3行で作る「単語 → 次の語の回数」の表
-<!-- .element: class="note" -->
+> 3行で作る「単語 → 次の語の回数」の表
 
 ---
 
@@ -88,8 +82,7 @@ for a, b in zip(words, words[1:]):
 | 文章生成 | 今の単語 | 次に来た語と回数 | 次の語を選ぶ |
 | 電卓 | 数のスタック | 記号と操作の関数 | 1トークンを実行する |
 
-文章生成から電卓へ続く、共通の形
-<!-- .element: class="note" -->
+> 文章生成から電卓へ続く、共通の形
 
 ---
 
@@ -101,8 +94,7 @@ for a, b in zip(words, words[1:]):
 
 ![今の単語を更新する生成ループ](../assets/diagrams/eval-markov.svg)
 
-長い文脈の前に作る、1語だけの生成器
-<!-- .element: class="note" -->
+> 長い文脈の前に作る、1語だけの生成器
 
 ---
 
@@ -144,8 +136,7 @@ def pick_next(counter):
 pick_next(table["i"])    # 'like' が出やすく、'love' がたまに出る
 ```
 
-回数の重みに残る、元の文章の頻度
-<!-- .element: class="note" -->
+> 回数の重みに残る、元の文章の頻度
 
 ---
 
@@ -185,8 +176,7 @@ weights = [c ** (1 / temperature) for c in counter.values()]
 | `1.0` | `(3, 1)` | 元の統計どおり |
 | `5.0` | `(1.25, 1)` | ほぼ等確率。多様だが崩れやすい |
 
-モデルの作り直しが不要な、確率のつまみとしての温度
-<!-- .element: class="note" -->
+> モデルの作り直しが不要な、確率のつまみとしての温度
 
 ---
 
@@ -202,8 +192,7 @@ weights = [c ** (1 / temperature) for c in counter.values()]
 | 2語 (trigram) | かなり自然 | 元の文章を写しやすい |
 | 5語 | ほぼ丸写し | 組み合わせが表に無くなる |
 
-第3回で扱う、表を学習済みの関数に置き換えた言語モデル
-<!-- .element: class="note" -->
+> 第3回で扱う、表を学習済みの関数に置き換えた言語モデル
 
 ---
 
@@ -219,8 +208,7 @@ weights = [c ** (1 / temperature) for c in counter.values()]
 | `4` | 数なので push | `[3, 4]` |
 | `+` | 2つ pop して足し、結果を push | `[7]` |
 
-`10 3 -` の結果は `7`。先に pop される値は `3`
-<!-- .element: class="note" -->
+> `10 3 -` の結果は `7`。先に pop される値は `3`
 
 ---
 
@@ -245,8 +233,7 @@ def _(stack):
     stack.append(a + b)
 ```
 
-引き算と割り算で重要な、取り出す順序
-<!-- .element: class="note" -->
+> 引き算と割り算で重要な、取り出す順序
 
 ---
 
@@ -300,8 +287,7 @@ with open("data.txt", encoding="utf-8") as f:
             continue
 ```
 
-省略時に環境によって起こる文字化け
-<!-- .element: class="note" -->
+> 省略時に環境によって起こる文字化け
 
 ---
 
@@ -371,5 +357,4 @@ sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
 - 確認セルの保存
   - 教員は別のテストケースで採点するため、削除しても採点結果は不変
 
-面白い出力や自作ワードの共有
-<!-- .element: class="note" -->
+> 面白い出力や自作ワードの共有

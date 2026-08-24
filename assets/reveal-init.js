@@ -152,6 +152,17 @@
   }
 
   function layout(first) {
+    const all = leaves();
+    if (all[0]) all[0].classList.add('title-slide');
+    if (all[0]) {
+      const firstParagraph = all[0].querySelector('p');
+      if (firstParagraph) firstParagraph.classList.add('kicker');
+    }
+    all.forEach((slide) => {
+      slide.querySelectorAll('blockquote').forEach((note) => {
+        note.classList.add('note');
+      });
+    });
     leaves().forEach(wrap);
     if (first) {
       leaves().forEach(boxLists);
@@ -214,7 +225,7 @@
     showSlideNumber: 'all',
     pdfMaxPagesPerSlide: 1,
     pdfSeparateFragments: false,
-    plugins: [RevealMarkdown, RevealHighlight, CourseLayout],
+    plugins: [RevealMarkdown, RevealHighlight, CourseLayout, ExecutableCode],
     transition: 'none',
   }).then(() => {
     if (PRINT) return;

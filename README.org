@@ -70,7 +70,12 @@ python3 grading/grade.py 03a 提出物/ --csv 結果.csv --check-timeout 300
 
 * 編集
 
-スライドの中身は各回の =slides.md=。=file://= では開けない。
+スライドの中身は各回の =slides.md=。本文は通常の Markdown で書く。
+=---= の単独行だけをスライド区切りとして使う。Python のコードブロックには
+編集可能なコードセルと右上の実行ボタンが付き、同じページ内では Notebook
+と同様に状態を共有する。コードセル内では Emacs キーバインドを使える。
+実行は右上のボタン、または =Command-Enter= で行う。
+=file://= では開けない。
 
 #+begin_src sh
 python3 -m http.server 8000
@@ -78,3 +83,19 @@ python3 -m http.server 8000
 
 =main= への push で GitHub Pages に載る。
 スライド PDF は各デッキの先頭と末尾の「PDF として保存」から、ブラウザの印刷で落とす。
+
+** A4 レジュメ
+
+同じ =slides.md= から、印刷用の A4 PDF を生成する。
+
+#+begin_src sh
+tools/build-handout.sh 01-basics
+make handouts                    # 全4回
+#+end_src
+
+出力は各回の =handout.pdf=。コード実行ボタンはレジュメには含まれない。
+Git hook を導入すると、commit 前に全レジュメを再生成して自動的に stage する。
+
+#+begin_src sh
+sh tools/install-hooks.sh
+#+end_src

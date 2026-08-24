@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+
+make -B handouts
+git add -- \
+  01-basics/handout.pdf \
+  02-text/handout.pdf \
+  03a-llm/handout.pdf \
+  03b-forth/handout.pdf

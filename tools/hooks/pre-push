@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+if command -v gh >/dev/null 2>&1; then
+    sh tools/sync-gists.sh || {
+        echo "Failed to update gists" >&2
+        exit 1
+    }
+else
+    echo "No gh; skipping gist update" >&2
+fi

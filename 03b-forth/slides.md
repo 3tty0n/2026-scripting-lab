@@ -1,7 +1,4 @@
-<!-- .slide: class="title-slide" -->
-
 Scripting Languages / 03-B
-<!-- .element: class="kicker" -->
 
 # Forth インタプリタの実装
 
@@ -15,8 +12,7 @@ Scripting Languages / 03-B
 - `: 名前 ... ;` による、実行中の語彙の追加
 - 語彙の増加による、電卓から言語への発展
 
-組み込みワードと自作ワードを同じループで実行する処理系
-<!-- .element: class="note" -->
+> 組み込みワードと自作ワードを同じループで実行する処理系
 
 ---
 
@@ -33,8 +29,7 @@ Scripting Languages / 03-B
 | 文法がほぼない | 空白区切りの「ワード」が並んでいるだけ |
 | 拡張が前提 | 組み込みとユーザ定義を区別しない |
 
-字句解析とディスパッチだけで作る、小さな処理系
-<!-- .element: class="note" -->
+> 字句解析とディスパッチだけで作る、小さな処理系
 
 ---
 
@@ -50,8 +45,7 @@ Scripting Languages / 03-B
 | 辞書と関数 | ワード辞書とディスパッチ |
 | スタック | 計算途中の値の保持 |
 
-小さな実装で、インタプリタの主要部品をすべて確認できる題材
-<!-- .element: class="note" -->
+> 小さな実装で、インタプリタの主要部品をすべて確認できる題材
 
 ---
 
@@ -84,8 +78,7 @@ Scripting Languages / 03-B
 | `2` | `[7, 2]` |
 | `*` | `[14]` |
 
-`b - a` による符号の反転という、よくある実装ミス
-<!-- .element: class="note" -->
+> `b - a` による符号の反転という、よくある実装ミス
 
 ---
 
@@ -97,8 +90,7 @@ Scripting Languages / 03-B
 
 ![Forthのディスパッチループ](../assets/diagrams/forth-dispatch.svg)
 
-今日実装する評価関数そのものの流れ
-<!-- .element: class="note" -->
+> 今日実装する評価関数そのものの流れ
 
 ---
 
@@ -162,8 +154,7 @@ def forth_eval(stack, code):
 5 QUADRUPLE .        ( 20 )
 ```
 
-組み込みとユーザ定義の扱いの差のなさという、Forth の特徴
-<!-- .element: class="note" -->
+> 組み込みとユーザ定義の扱いの差のなさという、Forth の特徴
 
 ---
 
@@ -178,8 +169,7 @@ WORDS["SQUARE"] = lambda s: s.append(s.pop() ** 2)
 # この行が動いた瞬間から SQUARE が使える
 ```
 
-`dis` のバイトコードに見える、今日の処理に似た命令列
-<!-- .element: class="note" -->
+> `dis` のバイトコードに見える、今日の処理に似た命令列
 
 ---
 
@@ -189,8 +179,7 @@ WORDS["SQUARE"] = lambda s: s.append(s.pop() ** 2)
 - スタックと辞書で構成する Forth の処理系
 - 実行中の辞書の書き換えによる、言語自体の拡張
 
-発展の `IF ... THEN` まで含めた、小さな言語処理系
-<!-- .element: class="note" -->
+> 発展の `IF ... THEN` まで含めた、小さな言語処理系
 
 ---
 
@@ -207,8 +196,7 @@ WORDS["SQUARE"] = lambda s: s.append(s.pop() ** 2)
 | 3 | ユーザ定義ワード `: 名前 ... ;` |
 | 4 | 対話ループ (REPL) |
 
-発展：比較演算子 `<` `>` `=` / `IF ... ELSE ... THEN`
-<!-- .element: class="note" -->
+> 発展：比較演算子 `<` `>` `=` / `IF ... ELSE ... THEN`
 
 ---
 
