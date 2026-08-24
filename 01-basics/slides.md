@@ -133,12 +133,17 @@ names = ["Alice", "Bob"]
 scores = ["73", "92"]
 
 for i, name in enumerate(names):
+    pass
 for a, b in zip(names, scores):
+    pass
 
+s = "1234"
 try:
     n = int(s)
 except ValueError:
     n = 0
+
+print(n)
 ```
 
 ---
