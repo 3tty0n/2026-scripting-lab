@@ -208,14 +208,13 @@ html.print-pdf .pdf-hint { display: none !important; }
 }
 .reveal .slide-content h4 { font-size: 0.95em; }
 
-/* いまどこか。本文の見出しではない */
-.reveal .section-label {
-    margin: 0 0 0.4em;
+/* ## 直上の ### : サイズは h3 のまま、色だけ朱 */
+.reveal .slide-content h3.slide-subtitle {
+    margin: 0 0 0.35em;
     font-family: var(--mono);
-    font-size: 0.48em;
     font-weight: 600;
     color: var(--accent);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
 }
 
 /* セクション扉: 数字を大きく見せる */

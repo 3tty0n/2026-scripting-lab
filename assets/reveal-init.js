@@ -70,32 +70,26 @@
     });
   }
 
-  const OWN = /^(まとめ|今日やること|今日作るもの|今日のゴール|前提を確認)$/;
-
-  function addSectionLabels() {
-    let section = '導入';
+  // ### をタイトル直上のサブタイトルにする。
+  // h3 のまま残す（サイズは既存の h3 ルールに従う）。色だけ赤くする。
+  function placeSubtitles() {
     leaves().forEach((slide) => {
-      if (slide.classList.contains('title-slide')) {
-        section = '導入';
-        return;
-      }
-      if (slide.classList.contains('chapter')) {
-        const num = slide.querySelector('.num');
-        const h2 = slide.querySelector('h2');
-        const name = h2 ? h2.textContent.trim() : '';
-        const n = num ? num.textContent.trim() : '';
-        section = [n, name].filter(Boolean).join('  ');
-        return;
-      }
+      if (slide.classList.contains('title-slide')) return;
       const inner = slide.querySelector(':scope > .slide-fit') || slide;
-      if (inner.querySelector(':scope > .section-label')) return;
       const title = inner.querySelector(':scope > h2');
-      if (!title || !section) return;
-      if (OWN.test(title.textContent.trim())) return;
-      const label = document.createElement('p');
-      label.className = 'section-label';
-      label.textContent = section;
-      inner.insertBefore(label, inner.firstChild);
+      if (!title) return;
+      let sub = inner.querySelector(':scope > h3.slide-subtitle');
+      if (!sub) {
+        const prev = title.previousElementSibling;
+        const next = title.nextElementSibling;
+        sub =
+          prev && prev.matches('h3') ? prev :
+          next && next.matches('h3') ? next :
+          null;
+        if (!sub) return;
+        sub.classList.add('slide-subtitle');
+      }
+      if (sub.nextElementSibling !== title) inner.insertBefore(sub, title);
     });
   }
 
@@ -144,7 +138,7 @@
       p.append(
         a,
         document.createTextNode(
-          ' — 印刷 → PDFに保存。向きは横、用紙は US Legal、背景グラフィックをオン'
+          ' : 印刷 => PDFに保存。向きは横、用紙は US Legal、背景グラフィックをオン'
         )
       );
       inner.appendChild(p);
@@ -168,7 +162,7 @@
       leaves().forEach(boxLists);
       addPdfHints();
     }
-    addSectionLabels();
+    placeSubtitles();
     leaves().forEach(fit);
   }
 
