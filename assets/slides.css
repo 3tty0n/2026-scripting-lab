@@ -232,11 +232,12 @@ html.print-pdf .pdf-hint { display: none !important; }
 
 /* ---- 本文 ------------------------------------------------------ */
 
-.reveal .slide-content p, .reveal .slide-content li { line-height: 1.6; }
+.reveal .slide-content p { line-height: 1.55; }
+.reveal .slide-content li { line-height: 1.5; }
 .reveal .slide-content ul,
 .reveal .slide-content ol {
   display: block;
-  margin: 0.4em 0 0.8em;
+  margin: 0.32em 0 0.65em;
   padding-left: 1.4em;
   text-align: left;
 }
@@ -245,7 +246,7 @@ html.print-pdf .pdf-hint { display: none !important; }
 .reveal .slide-content ul ul { list-style-type: circle; margin: 0.2em 0; }
 .reveal .slide-content li {
   display: list-item;
-  margin-bottom: 0.35em;
+  margin-bottom: 0.25em;
 }
 .reveal .slide-content strong { font-weight: 700; color: var(--accent); }
 .reveal .slide-content em { font-style: normal; background: var(--sand-bg); padding: 0 0.2em; }
@@ -253,7 +254,7 @@ html.print-pdf .pdf-hint { display: none !important; }
 .reveal .slide-content .note {
     font-size: 0.74em;
     color: var(--muted);
-    line-height: 1.6;
+    line-height: 1.5;
 }
 .reveal .slide-content .small { font-size: 0.8em; }
 .reveal .slide-content .lead { font-size: 1.15em; line-height: 1.6; }
@@ -315,11 +316,12 @@ html.print-pdf .pdf-hint { display: none !important; }
     box-sizing: border-box;
 }
 .reveal .slide-content th, .reveal .slide-content td {
-    padding: 0.5em 0.8em;
+    padding: 0.45em 0.8em;
     border: none;
     border-bottom: 1px solid var(--rule);
     text-align: left;
     vertical-align: top;
+    line-height: 1.45;
 }
 .reveal .slide-content th {
     background: var(--ink);
