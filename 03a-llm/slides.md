@@ -50,7 +50,11 @@ Scripting Languages / Transformer / 03-A
 - logits に `softmax` を通して得る確率
 
 ```python
+import torch
+
+logits = torch.randn(5)  # ダミーの logits（語彙サイズ 5）
 probs = torch.softmax(logits, dim=-1)   # すべて 0 以上、合計 1
+print(probs, probs.sum().item())  # 合計 1 になる
 ```
 
 ![トークナイザの入出力](../assets/diagrams/lexer-tokenizer.svg)
@@ -64,6 +68,7 @@ probs = torch.softmax(logits, dim=-1)   # すべて 0 以上、合計 1
 - 最後の位置から取得する `[0, -1]`
 
 ```python
+import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B-Instruct")
 model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-0.5B-Instruct")
@@ -75,6 +80,7 @@ with torch.no_grad():
 probs = torch.softmax(logits, dim=-1)
 top = torch.topk(probs, 5)
 # お 0.312    一 0.145    おじいさん 0.098
+print(top)
 ```
 
 > Colab ですぐに開始可能。GPU では高速、CPU でも動作
@@ -88,6 +94,8 @@ top = torch.topk(probs, 5)
 - 第2回の `pick_next` を `argmax` に置き換えた形
 
 ```python
+import torch
+# 前セルで tok, model を用意した前提（単体で試す場合は上のセルを先に実行）
 def generate_greedy(prompt, max_new_tokens=40):
     ids = tok(prompt, return_tensors="pt").input_ids
     for _ in range(max_new_tokens):
@@ -98,6 +106,8 @@ def generate_greedy(prompt, max_new_tokens=40):
             break
         ids = torch.cat([ids, next_id.view(1, 1)], dim=1)
     return tok.decode(ids[0])
+
+# print(generate_greedy("好きな食べ物は"))
 ```
 
 ---
@@ -124,11 +134,17 @@ def generate_greedy(prompt, max_new_tokens=40):
 - 上位 k 個への絞り込みによる低確率語の除外
 
 ```python
+import torch
+
 def sample_next(logits, temperature=0.8, k=50):
     probs = torch.softmax(logits / temperature, dim=-1)
     top = torch.topk(probs, k)
     idx = torch.multinomial(top.values, 1)
     return top.indices[idx]
+
+# 単体テスト用ダミー
+logits = torch.randn(100)
+print(sample_next(logits, temperature=0.8, k=50))
 ```
 
 > 回数の `c ** (1/T)` と、確率の対数である logits の割り算の対応
@@ -142,11 +158,18 @@ def sample_next(logits, temperature=0.8, k=50):
 - 定番の `p = 0.9` と、`k=1` の greedy と同じ挙動
 
 ```python
+import torch
+
+logits = torch.randn(100)
+temperature = 0.8
+p = 0.9
+
 probs = torch.softmax(logits / temperature, dim=-1)
 sorted_probs, sorted_idx = torch.sort(probs, descending=True)
 cumsum = torch.cumsum(sorted_probs, dim=-1)
 mask = cumsum - sorted_probs < p
 next_id = sorted_idx[mask][torch.multinomial(sorted_probs[mask], 1)]
+print(next_id)
 ```
 
 > 発展課題での実装。本編では温度と top-k で十分
@@ -160,12 +183,16 @@ next_id = sorted_idx[mask][torch.multinomial(sorted_probs[mask], 1)]
 - その後の通常の生成ループ
 
 ```python
+from transformers import AutoTokenizer
+tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B-Instruct")
+
 messages = [
     {"role": "system", "content": "あなたは簡潔に答えるアシスタントです。"},
     {"role": "user",   "content": "日本の首都は？"},
 ]
 prompt = tok.apply_chat_template(
     messages, tokenize=False, add_generation_prompt=True)
+print(prompt)
 ```
 
 ```text

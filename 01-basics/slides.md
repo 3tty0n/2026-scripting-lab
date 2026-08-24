@@ -79,6 +79,8 @@ type(name)          # str
 - 変更不可の文字列と、`s[0] = "X"` のエラー
 
 ```python
+name, score = "Alice", 92.5
+
 7 / 2       # 3.5
 7 // 2      # 3
 2 ** 200    # 桁あふれしない
@@ -224,7 +226,11 @@ import operator
 OPS = {"add": operator.add, "sub": operator.sub, "mul": operator.mul}
 
 def calc(op, a, b):
-    return OPS.get(op)(a, b)
+    if op not in OPS:
+        raise ValueError(f"知らない演算: {op}")
+    return OPS[op](a, b)
+
+calc("add", 2, 3)  # 5
 ```
 
 ---
@@ -278,9 +284,17 @@ add = logged(add)
 ```
 
 ```python
+def logged(func):
+    def wrapper(*args):
+        print(f"{func.__name__}{args}")
+        return func(*args)
+    return wrapper
+
 @logged
 def add(a, b):
     return a + b
+
+add(2, 3)  # ログ出力 + 5
 ```
 
 ---
@@ -361,6 +375,18 @@ def shout(text):
 - 文字列から処理系を動かす最小の骨格
 
 ```python
+COMMANDS = {}
+
+def command(name):
+    def deco(func):
+        COMMANDS[name] = func
+        return func
+    return deco
+
+@command("shout")
+def shout(text):
+    return text.upper() + "!!"
+
 def run(line):
     name, *args = line.split()
     if name not in COMMANDS:
@@ -417,8 +443,13 @@ e.どんな名前でも("いける")
   - デフォルト値の `[]`は定義時に1回だけ生成される
 
 ```python
-xs = xs.sort()        # 間違い。sorted(xs) を使う
-xs = sorted(xs)
+xs = [3, 1, 2]
+result = xs.sort()    # None が返る — xs = xs.sort() は間違い
+print(xs, result)     # [1, 2, 3] None
+
+xs = [3, 1, 2]
+xs = sorted(xs)       # 新しいリストを返す
+print(xs)             # [1, 2, 3]
 
 def add(xs, item):
     xs.append(item)   # 呼び出し元のリストが書き換わる
@@ -427,6 +458,9 @@ def add(xs, item):
 def bad(item, xs=[]):
     xs.append(item)   # bad(1) -> [1],  bad(2) -> [1, 2]
     return xs
+
+print(bad(1))  # [1]
+print(bad(2))  # [1, 2] — デフォルト共有の落とし穴
 ```
 
 ---

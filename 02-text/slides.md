@@ -59,12 +59,18 @@ re.findall(r"[a-z']+", text.lower())
 - 初出の語も0から集計する `Counter`
 
 ```python
+import re
 from collections import Counter, defaultdict
+
+text = "I like cats. I like dogs. I love cats."
+words = re.findall(r"[a-z']+", text.lower())
 
 following = defaultdict(Counter)
 
 for a, b in zip(words, words[1:]):
     following[a][b] += 1
+
+print(following["i"])  # Counter({'like': 2, 'love': 1})
 ```
 
 > 3行で作る「単語 → 次の語の回数」の表
@@ -105,6 +111,8 @@ for a, b in zip(words, words[1:]):
 - この例での like が 2/3、love が 1/3
 
 ```python
+from collections import Counter, defaultdict
+
 def build_table(tokens):
     table = defaultdict(Counter)
     for a, b in zip(tokens, tokens[1:]):
@@ -115,6 +123,7 @@ text = "I like cats. I like dogs. I love cats."
 table = build_table(text.lower().replace(".", "").split())
 # table["i"]    -> Counter({'like': 2, 'love': 1})
 # table["like"] -> Counter({'cats': 1, 'dogs': 1})
+print(table["i"])
 ```
 
 ---
@@ -127,13 +136,22 @@ table = build_table(text.lower().replace(".", "").split())
 
 ```python
 import random
+from collections import Counter, defaultdict
+
+def build_table(tokens):
+    table = defaultdict(Counter)
+    for a, b in zip(tokens, tokens[1:]):
+        table[a][b] += 1
+    return table
 
 def pick_next(counter):
     words = list(counter.keys())
     weights = list(counter.values())
     return random.choices(words, weights=weights)[0]
 
-pick_next(table["i"])    # 'like' が出やすく、'love' がたまに出る
+text = "I like cats. I like dogs. I love cats."
+table = build_table(text.lower().replace(".", "").split())
+print(pick_next(table["i"]))    # 'like' が出やすく、'love' がたまに出る
 ```
 
 > 回数の重みに残る、元の文章の頻度
@@ -147,6 +165,20 @@ pick_next(table["i"])    # 'like' が出やすく、'love' がたまに出る
 - 次の語が表にない場合の終了
 
 ```python
+import random
+from collections import Counter, defaultdict
+
+def build_table(tokens):
+    table = defaultdict(Counter)
+    for a, b in zip(tokens, tokens[1:]):
+        table[a][b] += 1
+    return table
+
+def pick_next(counter):
+    words = list(counter.keys())
+    weights = list(counter.values())
+    return random.choices(words, weights=weights)[0]
+
 def generate(table, start, n=30):
     word = start
     result = [word]
@@ -156,6 +188,10 @@ def generate(table, start, n=30):
         word = pick_next(table[word])
         result.append(word)
     return " ".join(result)
+
+text = "I like cats. I like dogs. I love cats."
+table = build_table(text.lower().replace(".", "").split())
+print(generate(table, "i"))  # 例: "i like cats"
 ```
 
 ---
@@ -167,7 +203,12 @@ def generate(table, start, n=30):
 - `T = 1` における元の統計
 
 ```python
+from collections import Counter
+
+counter = Counter({"like": 3, "love": 1})
+temperature = 0.8
 weights = [c ** (1 / temperature) for c in counter.values()]
+print(weights)  # 温度で重みを調整した例
 ```
 
 | 温度 | 重み `(3, 1)` | 出力の傾向 |
@@ -244,12 +285,29 @@ def _(stack):
 - 操作を増やしても変わらないループ
 
 ```python
+WORDS = {}
+
+def word(name):
+    def deco(func):
+        WORDS[name] = func
+        return func
+    return deco
+
+@word("+")
+def _(stack):
+    b, a = stack.pop(), stack.pop()
+    stack.append(a + b)
+
 def evaluate(stack, text):
     for token in text.split():
         if token in WORDS:
             WORDS[token](stack)
         else:
             stack.append(int(token))
+
+stack = []
+evaluate(stack, "3 4 +")
+print(stack)  # [7]
 ```
 
 ![スタックを更新する処理の流れ](../assets/diagrams/flow-rpn-loop.svg)
@@ -277,14 +335,21 @@ def evaluate(stack, text):
 - 日本語で指定する `encoding="utf-8"`
 
 ```python
+from pathlib import Path
+
+# サンプルファイルを用意（既存なら上書きしない例でも可）
+Path("data.txt").write_text("hello\n# comment\nworld\n", encoding="utf-8")
+
 with open("data.txt", encoding="utf-8") as f:
     text = f.read()
+print(text)
 
 with open("data.txt", encoding="utf-8") as f:
     for line in f:
         line = line.strip()
         if not line or line.startswith("#"):
             continue
+        print(line)
 ```
 
 > 省略時に環境によって起こる文字化け
@@ -306,11 +371,16 @@ with open("data.txt", encoding="utf-8") as f:
 | `( )` | グループ。取り出したい部分 |
 
 ```python
-re.findall(r"[a-z']+", text)
-re.sub(r"\d+", "N", text)
+import re
+
+text = "Hello 123 world"
+s = "2026-08-24"
+print(re.findall(r"[a-z']+", text.lower()))
+print(re.sub(r"\d+", "N", text))
 m = re.match(r"(\d{4})-(\d{2})", s)
 if m:
     year, month = m.groups()
+    print(year, month)
 ```
 
 ---
@@ -322,7 +392,11 @@ if m:
 - 電卓の課題で登録するワード
 
 ```python
-sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+from collections import Counter
+
+counts = Counter({"apple": 3, "banana": 2, "cherry": 3})
+print(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+# [('apple', 3), ('cherry', 3), ('banana', 2)]
 ```
 
 | ワード | 動作 | スタックの変化 |

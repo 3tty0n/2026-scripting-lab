@@ -115,6 +115,11 @@ WORDS = {
     ".": lambda s: print(s.pop()),
     "DUP": lambda s: s.append(s[-1]),
 }
+
+# 動作確認
+stack = [3, 4]
+WORDS["+"](stack)
+print(stack)  # [7]
 ```
 
 ---
@@ -126,6 +131,21 @@ WORDS = {
 - Forth らしさの出発点となる、次の `: ... ;`
 
 ```python
+import operator
+
+def binop(fn):
+    def run(stack):
+        b, a = stack.pop(), stack.pop()
+        stack.append(fn(a, b))
+    return run
+
+WORDS = {
+    "+": binop(operator.add), "-": binop(operator.sub),
+    "*": binop(operator.mul), "/": binop(operator.floordiv),
+    ".": lambda s: print(s.pop()),
+    "DUP": lambda s: s.append(s[-1]),
+}
+
 def forth_eval(stack, code):
     for token in code.split():
         up = token.upper()
@@ -135,6 +155,10 @@ def forth_eval(stack, code):
             stack.append(int(token))
         else:
             raise ValueError(f"知らないワード: {token}")
+
+stack = []
+forth_eval(stack, "3 4 +")
+print(stack)  # [7]
 ```
 
 ---
@@ -165,8 +189,12 @@ def forth_eval(stack, code):
 - 定義直後に言語の一部となる新しい名前
 
 ```python
+WORDS = {}
 WORDS["SQUARE"] = lambda s: s.append(s.pop() ** 2)
 # この行が動いた瞬間から SQUARE が使える
+stack = [5]
+WORDS["SQUARE"](stack)
+print(stack)  # [25]
 ```
 
 > `dis` のバイトコードに見える、今日の処理に似た命令列
