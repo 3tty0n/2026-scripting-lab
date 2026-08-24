@@ -1,6 +1,6 @@
-Scripting Languages / 01
+Scripting Languages / Dynamic Languages / 01
 
-# Python 入門: 関数とデコレータ
+# Python 入門
 
 ### スクリプト言語演習
 

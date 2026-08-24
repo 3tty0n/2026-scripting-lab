@@ -1,8 +1,8 @@
-Scripting Languages / 03-A
+Scripting Languages / Transformer / 03-A
 
 # 言語モデルの仕組みと実装
 
-### スクリプト言語演習 第3回 (A)
+### スクリプト言語演習
 
 ---
 

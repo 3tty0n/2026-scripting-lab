@@ -1,8 +1,8 @@
-Scripting Languages / 03-B
+Scripting Languages / Dynamic Languages / 03-B
 
 # Forth インタプリタの実装
 
-### スクリプト言語演習 第3回 (B)
+### スクリプト言語演習
 
 ---
 

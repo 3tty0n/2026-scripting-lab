@@ -1,8 +1,8 @@
-Scripting Languages / 02
+Scripting Languages / Dynamic Languages / 02
 
 # テキスト処理と文章生成
 
-### スクリプト言語演習 第2回
+### スクリプト言語演習
 
 ---
 
