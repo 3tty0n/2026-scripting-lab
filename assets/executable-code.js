@@ -53,7 +53,7 @@ def _run_slide_cell(source):
       fontSize: '25px',
       highlightActiveLine: false,
       highlightGutterLine: false,
-      maxLines: 18,
+      maxLines: 30,
       minLines: Math.max(2, source.split('\n').length),
       printMargin: false,
       showFoldWidgets: false,
