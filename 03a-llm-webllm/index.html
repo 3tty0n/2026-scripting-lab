@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3回A (ブラウザ版): 言語モデルの仕組みと実装</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reset.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/theme/white.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/gruvbox-dark-hard.min.css">
+<link rel="stylesheet" href="../assets/slides.css?v=subtitle">
+</head>
+<body>
+
+<!--
+  スライドの中身は slides.md にある。編集するのはそちらだけでよい。
+  Colab 版 (../03a-llm/) のブラウザ版で、コードセルは WebLLM で動く。
+  WebGPU 対応ブラウザ (Chrome / Edge) が必要。初回だけモデルを
+  ダウンロードするので、リポジトリの直下で python3 -m http.server を
+  動かして開くこと (file:// では動かない)。
+-->
+
+<div class="reveal">
+  <div class="slides">
+    <section data-markdown="slides.md"
+             data-separator="^\r?\n---\r?\n"
+             data-separator-vertical="^\r?\n--\r?\n"
+             data-charset="utf-8">
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/plugin/markdown/markdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/plugin/highlight/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.2/ace.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.2/keybinding-emacs.min.js"></script>
+<script type="module">
+  import * as webllm from "https://esm.run/@mlc-ai/web-llm@0.2.84";
+  window.webllm = webllm;
+</script>
+<script src="../assets/executable-code-webllm.js"></script>
+<script src="../assets/reveal-init.js?v=subtitle"></script>
+</body>
+</html>
