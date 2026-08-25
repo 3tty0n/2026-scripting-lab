@@ -1,4 +1,4 @@
-Scripting Languages / Transformer / 03-A (WebLLM 版)
+Scripting Languages / Transformer / 03-A (ブラウザ版)
 
 # 言語モデルの仕組みと実装
 
@@ -18,13 +18,13 @@ Scripting Languages / Transformer / 03-A (WebLLM 版)
 
 ## Colab 版との違い
 
-- 課題の中身は同じ。動かす場所と言語が違うだけ
+- 課題の中身は同じ。動かす場所だけが違う
 - torch 版は内部 (logits) を観察、この版は振る舞いを制御
 - 初回だけモデルをダウンロードし、以後はブラウザがキャッシュ
 
-| | Colab 版 | この版 (WebLLM) |
+| | Colab 版 | この版 (ブラウザ) |
 |---|---|---|
-| 言語 | Python | JavaScript |
+| 言語 | Python | Python |
 | 場所 | Colab の GPU | 自分のブラウザ (WebGPU) |
 | 準備 | `pip install` | ページを開くだけ |
 | 内部の logits | 直接観察できる | API の外側で隠れている |
@@ -35,15 +35,13 @@ Scripting Languages / Transformer / 03-A (WebLLM 版)
 
 ## セットアップ
 
-- 最初の ▶ でモデルを読み込む
+- モデルはノートブックのセットアップで読み込む
 - 2 回目以降はキャッシュで即起動
 - 生成中はタブを開いたままにする
 
-```javascript
-// 最初の一回だけ時間がかかる (進捗が出力に出る)
-console.log("キャッシュ済み:", await webllm.hasModelInCache(MODEL).catch(() => false));
-const engine = await getEngine();
-console.log("読み込んだモデル:", MODEL);
+```python
+# ノートブックのセットアップで engine とヘルパー (ask / chat など) が使える
+# このスライドのセルは、ノートブックでの実行例
 ```
 
 ---
@@ -81,17 +79,18 @@ console.log("読み込んだモデル:", MODEL);
 - logits に `softmax` を通して得る確率
 - この部分はモデルなしで試せる
 
-```javascript
-function softmax(xs) {
-  const m = Math.max(...xs);
-  const es = xs.map((x) => Math.exp(x - m));
-  const s = es.reduce((a, b) => a + b, 0);
-  return es.map((e) => e / s);
-}
+```python
+import math
 
-const probs = softmax([0.3, -1.2, 2.1, 0.0, 0.7]); // ダミーの logits
-console.log(probs.map((p) => p.toFixed(3)));
-console.log("合計:", probs.reduce((a, b) => a + b)); // 1 になる
+def softmax(xs):
+    m = max(xs)
+    es = [math.exp(x - m) for x in xs]
+    s = sum(es)
+    return [e / s for e in es]
+
+probs = softmax([0.3, -1.2, 2.1, 0.0, 0.7])  # ダミーの logits
+print([round(p, 3) for p in probs])
+print("合計:", round(sum(probs), 3))  # 1 になる
 ```
 
 ![トークナイザの入出力](../assets/diagrams/lexer-tokenizer.svg)
@@ -101,19 +100,17 @@ console.log("合計:", probs.reduce((a, b) => a + b)); // 1 になる
 ## 1ステップの実行
 
 - 文字列からトークン列への変換は WebLLM の内部
-- 返り値の `usage` で、入力と出力のトークン数がわかる
+- `chat_reply` の返り値から、テキストとトークン数を取り出す
 - ストリームの1かたまりが、およそ1トークン
 
-```javascript
-const engine = await getEngine();
-const reply = await engine.chat.completions.create({
-  messages: [{ role: "user", content: "むかしむかし、あるところに" }],
-  max_tokens: 16,
-});
+```python
+reply = await chat_reply(
+    [{"role": "user", "content": "むかしむかし、あるところに"}],
+    max_tokens=16)
 
-console.log("続き:", reply.choices[0].message.content.trim());
-console.log("入力のトークン数:", reply.usage.prompt_tokens);
-console.log("作ったトークン数:", reply.usage.completion_tokens);
+print("続き:", reply_text(reply))
+print("入力のトークン数:", prompt_tokens(reply))
+print("作ったトークン数:", completion_tokens(reply))
 ```
 
 > tokenizer の内訳を直接見たいときは Colab 版 (`tok.tokenize`) を使う
@@ -126,20 +123,9 @@ console.log("作ったトークン数:", reply.usage.completion_tokens);
 - 温度 0 でランダム性を消すのが一番簡単な方法
 - 第2回の `pick_next` を `argmax` に置き換えた形
 
-```javascript
-const engine = await getEngine();
-
-async function ask(prompt) {
-  const reply = await engine.chat.completions.create({
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0,
-    max_tokens: 24,
-  });
-  return reply.choices[0].message.content.trim();
-}
-
-console.log(await ask("好きな食べ物は"));
-console.log(await ask("好きな食べ物は"));
+```python
+print(await ask("好きな食べ物は", temperature=0))
+print(await ask("好きな食べ物は", temperature=0))  # 同じ文字列になる
 ```
 
 ---
@@ -159,45 +145,41 @@ console.log(await ask("好きな食べ物は"));
 
 ---
 
-## 温度と top-p
+## 温度と top-k / top-p
 
 - 温度で割った値への softmax
-- 累積確率 p に入る候補への絞り込み
+- top-k で候補を絞り、top-p で累積確率に入る候補を残す
 - 低温で堅く、高温でばらける応答
 
-```javascript
-const engine = await getEngine();
-
-for (const t of [0.3, 0.8, 1.5]) {
-  const reply = await engine.chat.completions.create({
-    messages: [{ role: "user", content: "好みの音楽について一言" }],
-    temperature: t,
-    top_p: 0.9,
-    max_tokens: 24,
-  });
-  console.log(`T=${t}:`, reply.choices[0].message.content.trim());
-}
+```python
+for t in [0.3, 0.8, 1.5]:
+    print(f"T={t}:", await ask("好みの音楽について一言",
+                               temperature=t, top_p=0.9))
 ```
 
 > 回数の `c ** (1/T)` と、logits の割り算の対応
 
 ---
 
-## 発展：繰り返しペナルティ
+## 発展：繰り返しの検出
 
-- 既出トークンの logits を下げる仕組み
-- `presence_penalty` は出現で1回ぶん、`frequency_penalty` は回数ぶん
-- 温度や top-p との組み合わせによる単調さの回避
+- 同じフレーズを繰り返すと単調になる
+- テキスト中の繰り返しを検出する純関数
+- さらに `presence_penalty` で生成側にも手を入れる
 
-```javascript
-const engine = await getEngine();
-const reply = await engine.chat.completions.create({
-  messages: [{ role: "user", content: "好きな食べ物は" }],
-  temperature: 0.8,
-  presence_penalty: 0.5,
-  max_tokens: 48,
-});
-console.log(reply.choices[0].message.content.trim());
+```python
+def has_repeat(text, n=3):
+    words = text.split()
+    seen = set()
+    for i in range(len(words) - n + 1):
+        chunk = tuple(words[i:i + n])
+        if chunk in seen:
+            return True
+        seen.add(chunk)
+    return False
+
+print(has_repeat("I like cats. I like cats. Yes", 3))  # True
+print(has_repeat("the quick brown fox", 3))             # False
 ```
 
 > 発展課題での実装。本編では温度だけで十分
@@ -210,15 +192,13 @@ console.log(reply.choices[0].message.content.trim());
 - 書式への変換 (チャットテンプレート) は WebLLM の内部
 - そのあとはいつもの生成ループ
 
-```javascript
-const engine = await getEngine();
-const messages = [
-  { role: "system", content: "あなたは簡潔に答えるアシスタントです。" },
-  { role: "user",   content: "日本の首都は？" },
-];
+```python
+messages = [
+    {"role": "system", "content": "あなたは簡潔に答えるアシスタントです。"},
+    {"role": "user",   "content": "日本の首都は？"},
+]
 
-const reply = await engine.chat.completions.create({ messages, max_tokens: 32 });
-console.log(reply.choices[0].message.content.trim());
+print(await chat(messages, max_tokens=32))
 ```
 
 > 実際に渡っているのは下のような形の文字列
@@ -236,25 +216,21 @@ console.log(reply.choices[0].message.content.trim());
 
 - やりとり自体を記憶しているわけではないモデル
 - 履歴を毎回すべて渡して成立する会話
-- `state` はセルをまたいで使える作業領域
+- `history` は呼び出し側 (アプリ) が持つ
 
-```javascript
-const engine = await getEngine();
-state.messages ??= [
-  { role: "system", content: "あなたは簡潔に答えるアシスタントです。" },
-];
+```python
+history = [
+    {"role": "system", "content": "あなたは簡潔に答えるアシスタントです。"},
+]
+history.append({"role": "user", "content": "日本の首都は？"})
 
-state.messages.push({ role: "user", content: "日本の首都は？" });
-
-const reply = await engine.chat.completions.create({
-  messages: state.messages, max_tokens: 48,
-});
-const text = reply.choices[0].message.content.trim();
-state.messages.push({ role: "assistant", content: text });
-console.log(`(${reply.usage.total_tokens} トークン)`, text);
+reply = await chat_reply(history, max_tokens=48)
+text = reply_text(reply)
+history.append({"role": "assistant", "content": text})
+print(f"({total_tokens(reply)} トークン)", text)
 ```
 
-> ▶ を押すたびに履歴が伸びていく。「覚えている」のはこの仕組み
+> ▶ を押すたびに会話が1往復できる。履歴を全部渡すのがポイント
 
 ---
 
@@ -283,7 +259,7 @@ console.log(`(${reply.usage.total_tokens} トークン)`, text);
 - 予測・選択・連結を繰り返す生成ループ
 - 履歴を毎回すべて渡して成立する会話
 
-> torch 版は内部を、WebLLM 版は振る舞いを見るための版
+> torch 版は内部を、ブラウザ版は振る舞いを見るための版
 
 ---
 
@@ -303,16 +279,18 @@ console.log(`(${reply.usage.total_tokens} トークン)`, text);
 
 - 最初に確認するトークン数
 - temperature 0 による一致の確認
-- 最後に作る、履歴による3往復の会話
+- 最後に作る、履歴を持つ簡易チャットアプリ
 
 | # | 課題 |
 |---|---|
 | 1 | `usage` で、入力と出力それぞれのトークン数を表示する |
 | 2 | temperature 0 で、同じ入力から同じ出力が返ることを確かめる |
-| 3 | 温度 0.3 / 0.8 / 1.5 で出力を比べ、違いを一言でまとめる (top-k) |
+| 3 | 温度 0.3 / 0.8 / 1.5 で出力を比べ、違いを一言でまとめる (top-k / top-p) |
 | 4 | 履歴を渡して3往復の会話を作る |
+| 5 | 履歴を保持する簡易チャットアプリ (`make_chat`) を作る |
 
-> 発展：top-p を変える / presence_penalty・frequency_penalty
+> 発展：繰り返し検出 / コンテキスト圧縮 / ストリーミング / エフォート。
+> ブラウザ版はノートブックの `score()` で自己確認できる
 
 ---
 
@@ -323,4 +301,4 @@ console.log(`(${reply.usage.total_tokens} トークン)`, text);
 - このスライドの ▶ セルはデモ用。書き換えの必要はない
 - Colab 版とブラウザ版はどちらで提出してもよい
 
-> Colab 版には `score()` がある。ブラウザ版は出力を残して提出
+> どちらの版も `score()` で自己確認できる (ブラウザ版は発展課題を採点)

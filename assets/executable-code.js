@@ -9,15 +9,26 @@ import ast
 import contextlib
 import io
 
-def _run_slide_cell(source):
+async def _run_slide_cell(source):
     tree = ast.parse(source, mode="exec")
     last = None
     if tree.body and isinstance(tree.body[-1], ast.Expr):
-        last = ast.Expression(tree.body.pop().value)
+        last = tree.body.pop().value
+    # セル内で代入される名前は global に置く (セル間で変数を共有するため)
+    stores = {n.id for n in ast.walk(tree)
+              if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)}
+    body = ""
+    if stores:
+        body += "global " + ", ".join(sorted(stores)) + "\\n"
+    body += ast.unparse(tree)
+    if last is not None:
+        body += "\\nreturn " + ast.unparse(last)
+    # トップレベルの await を許すため、async 関数で包んでから実行する
+    indented = "\\n".join(("    " + ln if ln.strip() else "") for ln in body.splitlines())
+    exec(compile(f"async def _cell():\\n{indented}", "<slide>", "exec"), globals())
     stream = io.StringIO()
     with contextlib.redirect_stdout(stream), contextlib.redirect_stderr(stream):
-        exec(compile(tree, "<slide>", "exec"), globals())
-        value = eval(compile(last, "<slide>", "eval"), globals()) if last else None
+        value = await globals()["_cell"]()
     output = stream.getvalue()
     if value is not None:
         output += repr(value)
