@@ -21,6 +21,7 @@ TASK_OF = {
     "01_basics.ipynb": "01",
     "02_text.ipynb": "02",
     "03a_llm.ipynb": "03a",
+    "03a_llm_webllm.ipynb": "03a_web",
     "03b_forth.ipynb": "03b",
 }
 
@@ -28,7 +29,7 @@ BASE = "https://3tty0n.github.io/2026-scripting-lab/grading"
 
 PREP = """#@title 自動セットアップ (実行するだけ。中身は隠しています)
 # [SKIP] 採点の対象外
-# ---- 自己確認 (check / score) の準備。1回実行すればよい ----
+# ---- 自己確認の準備 (check / score)。1回実行すればよい ----
 import pathlib
 import urllib.request
 
@@ -60,7 +61,7 @@ def fix_notebook(path):
     inst_idx = None
     for i, cell in enumerate(nb.cells):
         src = "".join(cell.source)
-        if cell.cell_type == "code" and "# [SKIP]" in src and "自己確認の準備" in src:
+        if cell.cell_type == "code" and "# [SKIP]" in src and "自己確認" in src and "準備" in src:
             prep_idx = i
         if (
             cell.cell_type == "markdown"
