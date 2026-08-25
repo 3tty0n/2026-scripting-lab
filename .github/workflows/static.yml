@@ -40,12 +40,13 @@ jobs:
       - name: Build JupyterLite
         # ブラウザの中で動く Jupyter をサイトに同梱する。
         # 学生は何も入れずに、リンク1つで課題を開いて書ける。
-        # 第3回A は torch が要るので入れない (Colab を使わせる)。
+        # 第3回A は torch が要るので Colab を使わせる。ブラウザで動く
+        # WebLLM 版 (torch 不要) だけを同梱する。
         run: |
           pip install jupyterlite-core==0.8.3 jupyterlite-pyodide-kernel==0.8.5 jupyter-server
           mkdir -p _lite_contents
           cp exercises/01_basics.ipynb exercises/02_text.ipynb \
-             exercises/03b_forth.ipynb _lite_contents/
+             exercises/03b_forth.ipynb exercises/03a_llm_webllm.ipynb _lite_contents/
           cp grading/autograde.py grading/contracts.py grading/notebook.py _lite_contents/
           cp -r grading/checks _lite_contents/checks
           # 第2回で使う長文。取れなければノートブック側が代用を作る
