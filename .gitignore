@@ -15,3 +15,6 @@ _lite_contents/
 .jupyterlite.doit.db
 
 .playwright-mcp/
+
+# 解答ノートブック (git には入れない。教員のみ手元で参照)
+exercises/solutions/
