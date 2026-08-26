@@ -1,0 +1,49 @@
+#!/bin/sh
+# JupyterLite を組み立てる。カレントはコースルート。
+# usage: slidekit-lite [OUTPUT]
+# 既定の出力は .cache/jupyterlite（Eleventy が _site/lite へコピーする）
+set -eu
+
+self=$0
+case "$self" in
+  */*) ;;
+  *) self=$(command -v -- "$self") ;;
+esac
+while [ -L "$self" ]; do
+  dir=$(CDPATH= cd -- "$(dirname -- "$self")" && pwd)
+  link=$(readlink "$self")
+  case "$link" in
+    /*) self=$link ;;
+    *) self=$dir/$link ;;
+  esac
+done
+kit=$(CDPATH= cd -- "$(dirname -- "$self")/.." && pwd)
+root=$(pwd)
+config=${LITE_CONFIG:-"$root/src/_data/lite.json"}
+out=${1:-"$root/.cache/jupyterlite"}
+
+if [ ! -f "$config" ]; then
+  echo "slidekit-lite: no $config, skip"
+  exit 0
+fi
+if ! node "$kit/scripts/stage-lite.js" --check "$config"; then
+  echo "slidekit-lite: lite.json has no contents, skip"
+  exit 0
+fi
+
+python3 -m pip install -q \
+  jupyterlite-core==0.8.3 \
+  jupyterlite-pyodide-kernel==0.8.5 \
+  jupyter-server
+
+contents=$(mktemp -d)
+trap 'rm -rf "$contents" "$root/.jupyterlite.doit.db"' EXIT
+
+node "$kit/scripts/stage-lite.js" "$config" "$contents"
+rm -rf "$out"
+mkdir -p "$(dirname -- "$out")"
+jupyter lite build --contents "$contents" --output-dir "$out"
+
+echo "Built JupyterLite: $out"
+echo "  npm run build && npm run serve"
+echo "  Open: http://127.0.0.1:8000/lite/lab/index.html"

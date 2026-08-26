@@ -1,8 +1,13 @@
 (function () {
-  const MODEL = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
+  const DEFAULT = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
   const CDN = 'https://esm.run/@mlc-ai/web-llm@0.2.84';
   const webllmReady = import(CDN);
+  const cfg = window.SlidekitWebLLM || {};
+  const queryModel = new URLSearchParams(location.search).get('model');
+  let MODEL = queryModel || cfg.model || DEFAULT;
+  let loaded;
   let enginePromise;
+  let selectEl;
   const state = {};   // セルをまたいで使える作業領域 (会話履歴など)
   const listeners = new Set();
 
@@ -38,24 +43,76 @@
     listeners.forEach((fn) => fn(line));
   }
 
-  async function getEngine() {
+  function catalog(webllm) {
+    const listed = Array.isArray(cfg.models) ? cfg.models.filter(Boolean) : [];
+    if (listed.length) return listed;
+    const pre = webllm.prebuiltAppConfig && webllm.prebuiltAppConfig.model_list;
+    const ids = Array.isArray(pre) ? pre.map((m) => m.model_id).filter(Boolean) : [];
+    return ids.length ? ids : [DEFAULT];
+  }
+
+  function setModel(id) {
+    if (!id || id === MODEL) return;
+    MODEL = id;
+    if (loaded && loaded !== id) {
+      const prev = enginePromise;
+      enginePromise = undefined;
+      loaded = undefined;
+      if (prev) prev.then((e) => e && e.unload && e.unload()).catch(() => {});
+    }
+    if (selectEl && selectEl.value !== id) selectEl.value = id;
+  }
+
+  function mountSelect(root, ids) {
+    if (selectEl || ids.length < 2) return;
+    if (!ids.includes(MODEL)) ids = [MODEL].concat(ids);
+    const wrap = document.createElement('label');
+    wrap.className = 'webllm-model';
+    wrap.textContent = 'model ';
+    const sel = document.createElement('select');
+    sel.setAttribute('aria-label', 'WebLLM model');
+    ids.forEach((id) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = id;
+      sel.appendChild(opt);
+    });
+    sel.value = ids.includes(MODEL) ? MODEL : ids[0];
+    MODEL = sel.value;
+    sel.addEventListener('change', () => setModel(sel.value));
+    wrap.appendChild(sel);
+    root.appendChild(wrap);
+    selectEl = sel;
+  }
+
+  async function getEngine(id) {
     const webllm = window.webllm || (window.webllm = await webllmReady);
     if (!('gpu' in navigator)) {
       throw new Error(
         'WebGPU 非対応のブラウザです。Chrome / Edge の最新版で開いてください'
       );
     }
+    if (id) setModel(id);
+    const want = MODEL;
+    if (enginePromise && loaded !== want) {
+      enginePromise = undefined;
+      loaded = undefined;
+    }
     if (!enginePromise) {
+      loaded = want;
       enginePromise = webllm
-        .CreateMLCEngine(MODEL, {
+        .CreateMLCEngine(want, {
           initProgressCallback: (r) =>
             broadcast(`[読み込み中 ${Math.round(r.progress * 100)}%] ${r.text}`),
         })
         .then((engine) => {
-          broadcast('[モデル準備完了]');
+          broadcast('[モデル準備完了] ' + want);
           return engine;
         });
-      enginePromise.catch(() => { enginePromise = undefined; });
+      enginePromise.catch(() => {
+        enginePromise = undefined;
+        loaded = undefined;
+      });
     }
     return enginePromise;
   }
@@ -76,6 +133,7 @@
       listeners.add(onProgress);
       try {
         const webllm = window.webllm || (window.webllm = await webllmReady);
+        mountSelect(document.querySelector('.reveal') || document.body, catalog(webllm));
         const AsyncFunction =
           Object.getPrototypeOf(async function () {}).constructor;
         const fn = new AsyncFunction(
@@ -88,4 +146,13 @@
       }
     },
   });
+
+  const origInit = window.ExecutableCode.init;
+  window.ExecutableCode.init = function (deck) {
+    origInit(deck);
+    webllmReady.then((webllm) => {
+      window.webllm = window.webllm || webllm;
+      mountSelect(deck.getRevealElement(), catalog(webllm));
+    }).catch(() => {});
+  };
 }());

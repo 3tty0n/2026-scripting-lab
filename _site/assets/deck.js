@@ -6,6 +6,10 @@
   const v = new URL(boot.src).searchParams.get('v') || '1';
   const markdown = boot.dataset.markdown || 'slides.md';
   const code = boot.dataset.code || 'python'; // python | webllm | none
+  window.SlidekitWebLLM = {
+    model: boot.dataset.model || '',
+    models: (boot.dataset.models || '').split(',').map((s) => s.trim()).filter(Boolean),
+  };
   const cdn = {
     reveal: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1',
     hljs: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0',

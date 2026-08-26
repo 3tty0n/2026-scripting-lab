@@ -1,0 +1,566 @@
+/* ------------------------------------------------------------------
+   スクリプト言語演習 共通スタイル
+   フラットデザイン: 角丸なし・影なし・グラデーションなし。
+   面は塗り、区切りはヘアラインか太い実線のみ。
+   ------------------------------------------------------------------ */
+
+@font-face {
+    font-family: 'IBM Plex Sans JP';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('./fonts/IBMPlexSansJP-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'IBM Plex Sans JP';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('./fonts/IBMPlexSansJP-SemiBold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'IBM Plex Sans JP';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('./fonts/IBMPlexSansJP-Bold.ttf') format('truetype');
+}
+
+:root {
+    --font: 'IBM Plex Sans JP', 'Hiragino Sans', 'Noto Sans CJK JP', sans-serif;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+    --ink: #14140f;
+    --paper: #faf8f4;
+    --rule: #c4bcab;
+    --muted: #4f4a40;
+    --accent: #a02b0c;   /* 朱 : 強調・リンク */
+    --accent-bg: #f7ded2;
+    --teal: #0a544c;     /* 青緑 : 補助 */
+    --teal-bg: #d5e8e5;
+    --sand: #6d5410;     /* 黄土 : 注意 */
+    --sand-bg: #f6e9c6;
+}
+
+html, body {
+    margin: 0;
+    background: var(--paper);
+}
+html:not(.print-pdf),
+html:not(.print-pdf) body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    color: var(--ink);
+    font-family: var(--font) !important;
+}
+
+.reveal {
+    height: 100%;
+    background: var(--paper);
+}
+
+#source {
+    display: none;
+}
+
+#source.load-error {
+    display: block;
+}
+
+.reveal .slides {
+    background: var(--paper);
+}
+
+.reveal .slide-content {
+    box-sizing: border-box;
+    position: relative;
+    padding: 40px 58px;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font) !important;
+    font-size: 36px;
+    text-align: left;
+}
+
+.reveal .slide-content > .slide-fit {
+    width: 100%;
+    max-width: 100%;
+    transform-origin: top left;
+}
+
+.reveal .slide-content > .slide-fit > :first-child { margin-top: 0; }
+
+/* ::: hstack ... ||| ... ::: */
+.reveal .slide-hstack {
+    align-items: flex-start;
+    gap: 1.5em;
+    width: 100%;
+}
+.reveal .slide-hstack-col {
+    min-width: 0;
+}
+.reveal .slide-hstack-col > :first-child { margin-top: 0; }
+.reveal .slide-hstack-col > :last-child { margin-bottom: 0; }
+
+/* ```lang wrap / ::: hstack wrap */
+.reveal .slide-content pre.code-wrap code,
+.reveal .slide-content .code-wrap pre code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    overflow-x: hidden;
+}
+.reveal .slide-content .code-wrap .code-editor .ace_scroller {
+    overflow-x: hidden !important;
+}
+.reveal .slide-content .ace-wrap-cont {
+    box-sizing: border-box;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+}
+
+.reveal .progress { background: var(--accent); }
+
+@page { size: legal landscape; margin: 0; }
+
+html.print-pdf,
+html.print-pdf body {
+    overflow: visible;
+    background: #777;
+}
+html.print-pdf .pdf-page {
+    page-break-after: always;
+    break-after: page;
+}
+
+.print-pdf-banner {
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    padding: 12px 20px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+}
+.print-pdf-banner strong { color: #ffb59c; }
+.print-pdf-banner button {
+    margin-left: 12px;
+    padding: 6px 14px;
+    border: 1px solid var(--paper);
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+@media print {
+    .print-pdf-banner { display: none !important; }
+}
+
+/* 右下: 番号を矢印の左に置き、重ねない */
+.reveal .controls {
+    right: 14px;
+    bottom: 12px;
+    color: var(--muted);
+}
+.reveal .slide-number {
+    right: 118px;
+    bottom: 20px;
+    left: auto;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.72em;
+    padding: 0;
+}
+
+.reveal .slide-content .pdf-hint {
+    margin: 1.1em 0 0;
+    font-size: 0.62em;
+    color: var(--muted);
+}
+.reveal .slide-content .pdf-hint a { color: var(--accent); }
+html.print-pdf .pdf-hint { display: none !important; }
+
+.load-error {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 2em;
+    border: none;
+    background: var(--paper);
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 1.5rem;
+    white-space: pre-wrap;
+}
+
+.reveal .slide-content img[src*="diagrams/"] {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 360px;
+    object-fit: contain;
+    object-position: left center;
+    margin: 16px 0;
+}
+
+.reveal .slide-content { letter-spacing: 0.01em; }
+
+/* ---- 見出し ---------------------------------------------------- */
+
+.reveal .slide-content h1, .reveal .slide-content h2, .reveal .slide-content h3, .reveal .slide-content h4 {
+    text-transform: none;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+.reveal .slide-content h1 { font-size: 2.6em; }
+.reveal .slide-content h2 {
+    font-size: 1.85em;
+    border-bottom: 3px solid var(--ink);
+    display: inline-block;
+    padding-bottom: 0.12em;
+    margin: 0 0 0.28em;
+    color: var(--ink);
+}
+.reveal .slide-content h3 {
+    font-size: 1.05em;
+    font-weight: 400;
+    color: var(--muted);
+    margin: 0.15em 0 0;
+}
+.reveal .slide-content h4 { font-size: 0.95em; }
+
+/* ## 直上の ### : サイズは h3 のまま、色だけ朱 */
+.reveal .slide-content h3.slide-subtitle {
+    margin: 0 0 0.35em;
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+}
+
+/* セクション扉: 数字を大きく見せる */
+.reveal .slide-content.chapter { text-align: left; }
+.reveal .slide-content.chapter .num {
+    font-family: var(--mono);
+    font-size: 4em;
+    font-weight: 600;
+    color: var(--rule);
+    line-height: 1;
+    display: block;
+}
+.reveal .slide-content.chapter h2 { border: none; font-size: 2.3em; margin-top: 0.1em; }
+
+/* ---- 本文 ------------------------------------------------------ */
+
+.reveal .slide-content p { line-height: 1.55; }
+.reveal .slide-content li { line-height: 1.5; }
+.reveal .slide-content ul,
+.reveal .slide-content ol {
+  display: block;
+  margin: 0.32em 0 0.65em;
+  padding-left: 1.4em;
+  text-align: left;
+}
+.reveal .slide-content ul { list-style-type: disc; }
+.reveal .slide-content ol { list-style-type: decimal; }
+.reveal .slide-content ul ul { list-style-type: circle; margin: 0.2em 0; }
+.reveal .slide-content li {
+  display: list-item;
+  margin-bottom: 0.25em;
+}
+.reveal .slide-content strong { font-weight: 700; color: var(--accent); }
+.reveal .slide-content em { font-style: normal; background: var(--sand-bg); padding: 0 0.2em; }
+
+.reveal .slide-content .note {
+    font-size: 0.74em;
+    color: var(--muted);
+    line-height: 1.5;
+}
+.reveal .slide-content .small { font-size: 0.8em; }
+.reveal .slide-content .lead { font-size: 1.15em; line-height: 1.6; }
+
+/* ---- コード ---------------------------------------------------- */
+
+.reveal .slide-content pre {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    font-size: 0.7em;
+    box-shadow: none;
+    margin: 0.6em 0;
+}
+.reveal .slide-content pre code {
+    max-width: 100%;
+    max-height: 520px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    padding: 18px 22px;
+    border-radius: 0;
+    line-height: 1.5;
+    background: #201f1d;
+}
+.reveal .slide-content code {
+    font-family: var(--mono);
+    font-size: 0.95em;
+}
+.reveal .slide-content :not(pre) > code {
+    background: #eae5db;
+    padding: 0.08em 0.32em;
+    color: #43403a;
+}
+
+/* 出力例: コードとは別の見た目にする */
+.reveal .slide-content pre.output code {
+    background: transparent;
+    color: var(--muted);
+    border-left: 3px solid var(--rule);
+    padding-left: 16px;
+}
+
+.reveal .slide-content pre code.language-text {
+    background: transparent !important;
+    color: var(--muted) !important;
+    border-left: 3px solid var(--rule);
+    padding-left: 16px;
+}
+
+.reveal .slide-content .code-cell { position: relative; }
+.reveal .slide-content .code-editor {
+    margin: 0.6em 0;
+    width: 100%;
+}
+.reveal .slide-content .code-editor:focus {
+    box-shadow: inset 0 0 0 2px #8fd8cf;
+    outline: none;
+}
+.reveal .slide-content .code-editor .ace_scroller { cursor: text; }
+.reveal .slide-content .code-editor .ace_content { padding-right: 52px; }
+.reveal .slide-content .print-source { display: none; }
+.reveal .slide-content .code-actions {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    z-index: 2;
+}
+.reveal .slide-content .run-cell {
+    align-items: center;
+    border: 2px solid #f4efe7;
+    border-radius: 50%;
+    background: #201f1d;
+    color: #f4efe7;
+    cursor: pointer;
+    display: flex;
+    font: 600 18px/1 var(--font);
+    height: 42px;
+    justify-content: center;
+    padding: 0 0 0 3px;
+    width: 42px;
+}
+.reveal .slide-content .run-cell:hover,
+.reveal .slide-content .run-cell:focus-visible {
+    background: var(--teal);
+    outline: 2px solid #8fd8cf;
+    outline-offset: 2px;
+}
+.reveal .slide-content .run-cell:disabled { cursor: wait; opacity: 0.65; }
+.reveal .slide-content .run-cell.running { animation: run-pulse 0.8s infinite; }
+@keyframes run-pulse { 50% { opacity: 0.35; } }
+.reveal .slide-content pre.cell-output {
+    background: transparent;
+    border-left: 3px solid var(--teal);
+    color: var(--muted);
+    font-size: 0.55em;
+    margin: 0.2em 0 0.5em;
+    max-height: 7em;
+    overflow: auto;
+    padding: 0.4em 0.8em;
+    white-space: pre-wrap;
+}
+
+.reveal .webllm-model {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 20;
+    color: #4f4a40;
+    font: 14px/1.3 var(--font, sans-serif);
+}
+.reveal .webllm-model select {
+    max-width: 22em;
+    font: inherit;
+}
+
+html.print-pdf .code-actions,
+html.print-pdf .cell-output,
+html.print-pdf .webllm-model { display: none !important; }
+html.print-pdf .code-editor { display: none; }
+html.print-pdf .print-source { display: block; }
+
+/* ---- 表 -------------------------------------------------------- */
+
+.reveal .slide-content table {
+    font-size: 0.72em;
+    margin: 0.5em 0;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.reveal .slide-content th, .reveal .slide-content td {
+    padding: 0.45em 0.8em;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: top;
+    line-height: 1.45;
+}
+.reveal .slide-content th {
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 600;
+    border-bottom: none;
+}
+.reveal .slide-content td.ok, .reveal .slide-content tr.ok td { background: var(--teal-bg); }
+.reveal .slide-content td.ng, .reveal .slide-content tr.ng td { background: var(--accent-bg); }
+
+/* ---- 注記ブロック ---------------------------------------------- */
+
+.reveal .slide-content .highlight-box,
+.reveal .slide-content .warn-box,
+.reveal .slide-content .key-box {
+    text-align: left;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 0.85em;
+    line-height: 1.55;
+    border-radius: 0;
+}
+.reveal .slide-content .highlight-box { background: var(--teal-bg); border-left: 10px solid var(--teal); }
+.reveal .slide-content .warn-box      { background: var(--sand-bg); border-left: 10px solid var(--sand); }
+.reveal .slide-content .key-box       { background: var(--ink); color: var(--paper); border-left: 10px solid var(--accent); }
+.reveal .slide-content .key-box strong { color: #ffb59c; }
+.reveal .slide-content .key-box code { background: #34322e; color: #e8e2d6; }
+.reveal .slide-content .highlight-box ul,
+.reveal .slide-content .warn-box ul,
+.reveal .slide-content .key-box ul,
+.reveal .slide-content ul.highlight-box,
+.reveal .slide-content ul.warn-box,
+.reveal .slide-content ul.key-box,
+.reveal .slide-content .highlight-box ol,
+.reveal .slide-content .warn-box ol,
+.reveal .slide-content .key-box ol,
+.reveal .slide-content ol.highlight-box,
+.reveal .slide-content ol.warn-box,
+.reveal .slide-content ol.key-box {
+    list-style-position: inside;
+    padding-left: 0.9em;
+    margin: 0.2em 0;
+}
+.reveal .slide-content .key-box li { color: inherit; }
+
+/* ---- 段組み ---------------------------------------------------- */
+
+.reveal .slide-content .two-column { display: flex; gap: 28px; justify-content: center; align-items: flex-start; }
+.reveal .slide-content .two-column > div { flex: 1; min-width: 0; }
+.reveal .slide-content .left-column,
+.reveal .slide-content .right-column {
+    display: inline-block;
+    width: 48%;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+.reveal .slide-content .left-column { margin-right: 2%; }
+.reveal .slide-content .cols-3 { display: flex; gap: 20px; justify-content: center; align-items: flex-start; }
+.reveal .slide-content .cols-3 > div { flex: 1; min-width: 0; }
+
+/* ---- タイトルスライド ------------------------------------------ */
+
+.reveal .slide-content.title-slide { text-align: left; }
+.reveal .slide-content.title-slide h1 {
+    border-bottom: 6px solid var(--accent);
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    padding-bottom: 0.15em;
+}
+.reveal .slide-content.title-slide .kicker {
+    font-family: var(--mono);
+    font-size: 0.68em;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4em;
+}
+.reveal .slide-content.title-slide h3 {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 1.15em;
+    border: none;
+    display: block;
+    margin-bottom: 0.7em;
+}
+
+/* ---- コードハイライト ------------------------------------------ */
+.reveal .slide-content pre code.hljs {
+    display: block;
+    color: #f4efe7 !important;
+    background: #201f1d !important;
+    font-family: var(--mono) !important;
+}
+.reveal .slide-content .hljs {
+    color: #f4efe7 !important;
+    background: #201f1d !important;
+}
+.reveal .slide-content .hljs-keyword,
+.reveal .slide-content .hljs-selector-tag,
+.reveal .slide-content .hljs-literal { color: #ff9f8f !important; }
+.reveal .slide-content .hljs-string,
+.reveal .slide-content .hljs-doctag,
+.reveal .slide-content .hljs-regexp { color: #b7e3b0 !important; }
+.reveal .slide-content .hljs-number,
+.reveal .slide-content .hljs-symbol,
+.reveal .slide-content .hljs-bullet { color: #e7c77a !important; }
+.reveal .slide-content .hljs-title,
+.reveal .slide-content .hljs-title.function_,
+.reveal .slide-content .hljs-section { color: #8fd8cf !important; }
+.reveal .slide-content .hljs-built_in,
+.reveal .slide-content .hljs-type { color: #f0b76e !important; }
+.reveal .slide-content .hljs-variable,
+.reveal .slide-content .hljs-params { color: #e5c07b !important; }
+.reveal .slide-content .hljs-comment,
+.reveal .slide-content .hljs-quote { color: #a39a8c !important; font-style: italic; }
+.reveal .slide-content .hljs-meta,
+.reveal .slide-content .hljs-punctuation { color: #c9b7a3 !important; }
+.reveal .slide-content .hljs-ln-numbers { color: #665c54 !important; }
+
+/* 濃い背景の上の inline code は反転させる */
+.reveal .slide-content th code { background: #34322e; color: #e8e2d6; }
+
+/* ---- 詰めの調整 ------------------------------------------------ */
+/* 16:9 の枠に収めるための微調整 */
+.reveal .slide-content .highlight-box,
+.reveal .slide-content .warn-box,
+.reveal .slide-content .key-box { margin: 12px 0; padding: 12px 17px; }
+
+/* 段組みの中のコードは1段細くする */
+.reveal .slide-content .two-column pre,
+.reveal .slide-content .left-column pre,
+.reveal .slide-content .right-column pre,
+.reveal .slide-content .cols-3 pre,
+.reveal .slide-content .slide-hstack pre { font-size: 0.62em; margin: 0.3em 0; }
+.reveal .slide-content .two-column h4,
+.reveal .slide-content .left-column h4,
+.reveal .slide-content .right-column h4,
+.reveal .slide-content .cols-3 h4,
+.reveal .slide-content .slide-hstack h4 { margin: 0 0 0.4em; }

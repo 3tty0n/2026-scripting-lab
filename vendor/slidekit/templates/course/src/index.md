@@ -1,0 +1,4 @@
+---
+layout: slidekit-home
+permalink: /
+---

@@ -1,0 +1,141 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+
+const KIT = path.join(__dirname, '..');
+const COURSE = path.join(KIT, 'templates/course');
+const CODES = new Set(['python', 'webllm', 'none']);
+
+function fail(msg) {
+  console.error(msg);
+  process.exit(1);
+}
+
+function usage() {
+  console.log(`Usage:
+  slidekit init "title" [dir]
+  slidekit create 01 [title] [--code python|webllm|none] [--model ID] [--models ID,ID]
+
+init    new course directory (slug from title unless dir is given)
+create  add src/<id>/slides.md and list it on the home page`);
+}
+
+function parse(argv) {
+  const out = { _: [] };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--title' || a === '--code' || a === '--model' || a === '--models') {
+      const v = argv[++i];
+      if (!v) fail('missing value for ' + a);
+      out[a.slice(2)] = v;
+      continue;
+    }
+    if (a.startsWith('-')) fail('unknown flag ' + a);
+    out._.push(a);
+  }
+  return out;
+}
+
+function slug(title) {
+  const s = String(title)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return s || 'course';
+}
+
+function writeFile(dest, body) {
+  if (fs.existsSync(dest)) {
+    console.log('skip  ' + dest);
+    return false;
+  }
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, body);
+  console.log('write ' + dest);
+  return true;
+}
+
+function fill(s, vars) {
+  return s.replace(/__([A-Z0-9_]+)__/g, (_, k) =>
+    Object.prototype.hasOwnProperty.call(vars, k) ? vars[k] : '__' + k + '__');
+}
+
+function walk(dir, acc = []) {
+  for (const name of fs.readdirSync(dir)) {
+    const p = path.join(dir, name);
+    if (fs.statSync(p).isDirectory()) walk(p, acc);
+    else acc.push(p);
+  }
+  return acc;
+}
+
+function relTemplate(abs) {
+  const rel = path.relative(COURSE, abs);
+  return rel === 'gitignore' ? '.gitignore' : rel;
+}
+
+function init(title, dir) {
+  if (!title) fail('slidekit init "title"');
+  const dest = path.resolve(dir || slug(title));
+  const name = path.basename(dest).replace(/[^a-zA-Z0-9._-]+/g, '-') || 'course';
+  const vars = { TITLE: title, NAME: name };
+  fs.mkdirSync(dest, { recursive: true });
+  for (const file of walk(COURSE)) {
+    writeFile(path.join(dest, relTemplate(file)), fill(fs.readFileSync(file, 'utf8'), vars));
+  }
+  writeFile(path.join(dest, 'assets/.gitkeep'), '');
+  console.log('\nNext:\n  cd ' + dest + '\n  npm install\n  npx slidekit create 01');
+}
+
+function readDecks(root) {
+  const file = path.join(root, 'src/_data/decks.json');
+  if (!fs.existsSync(file)) fail('no src/_data/decks.json (run slidekit init)');
+  return { file, decks: JSON.parse(fs.readFileSync(file, 'utf8')) };
+}
+
+function create(id, title, code, model, models) {
+  if (!id || /[\\/]/.test(id) || id === '.' || id === '..') {
+    fail('slidekit create <id>');
+  }
+  if (!CODES.has(code)) fail('--code must be python, webllm, or none');
+  const root = process.cwd();
+  const { file, decks } = readDecks(root);
+  if (decks.some((d) => d.dir === id)) fail('already exists: ' + id);
+  const heading = title || id;
+  const slides = path.join(root, 'src', id, 'slides.md');
+  writeFile(
+    slides,
+    fill(fs.readFileSync(path.join(KIT, 'templates/deck/slides.md'), 'utf8'), {
+      TITLE: heading,
+    }),
+  );
+  const row = { dir: id, title: heading, code };
+  if (model) row.model = model;
+  if (models) {
+    row.models = models.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  decks.push(row);
+  fs.writeFileSync(file, JSON.stringify(decks, null, 2) + '\n');
+  console.log('update ' + file);
+}
+
+const argv = parse(process.argv.slice(2));
+const cmd = argv._[0];
+if (cmd === 'init') init(argv._[1], argv._[2]);
+else if (cmd === 'create' || cmd === 'deck') {
+  if (!argv._[1]) fail('slidekit create <id>');
+  create(
+    argv._[1],
+    argv._[2] || argv.title,
+    argv.code || 'python',
+    argv.model,
+    argv.models,
+  );
+} else {
+  usage();
+  process.exit(cmd ? 1 : 0);
+}

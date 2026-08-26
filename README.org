@@ -71,12 +71,9 @@ python3 grading/grade.py 03a 提出物/ --csv 結果.csv --check-timeout 300
 
 * フレームワーク
 
-スライドの実行・ビルドは [[https://github.com/3tty0n/slidekit][slidekit]]。
+スライドの実行・ビルドは =vendor/slidekit= に同梱した slidekit。
+npm は GitHub を見ない (=file:vendor/slidekit=)。
 コース固有の中身だけ =src/= と =assets/diagrams/= に置く。
-
-#+begin_src json
-{ "dependencies": { "slidekit": "github:3tty0n/slidekit" } }
-#+end_src
 
 * 編集
 

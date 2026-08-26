@@ -1,0 +1,59 @@
+#!/bin/sh
+# usage: slidekit-handout DECK [OUTPUT.pdf]
+# DECK は 01-basics または src/01-basics。カレントはコースルート。
+set -eu
+
+self=$0
+case "$self" in
+  */*) ;;
+  *) self=$(command -v -- "$self") ;;
+esac
+while [ -L "$self" ]; do
+  dir=$(CDPATH= cd -- "$(dirname -- "$self")" && pwd)
+  link=$(readlink "$self")
+  case "$link" in
+    /*) self=$link ;;
+    *) self=$dir/$link ;;
+  esac
+done
+kit=$(CDPATH= cd -- "$(dirname -- "$self")/.." && pwd)
+root=$(pwd)
+
+deck=${1:?"usage: slidekit-handout DECK [OUTPUT.pdf]"}
+case "$deck" in
+  src/*) deck_dir=$deck ;;
+  *) deck_dir=src/$deck ;;
+esac
+source_file="$root/$deck_dir/slides.md"
+output=${2:-"$root/$deck_dir/handout.pdf"}
+
+test -f "$source_file"
+mkdir -p "$(dirname -- "$output")"
+output_dir=$(CDPATH= cd -- "$(dirname -- "$output")" && pwd)
+output="$output_dir/$(basename -- "$output")"
+
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+
+node "$kit/scripts/flatten-slides-dsl.js" "$source_file" \
+  | sed "s|](\\./\\.\\./assets/|]($root/assets/|g; s|](\\.\\./assets/|]($root/assets/|g" \
+  > "$tmp"
+
+if grep -nE '^::: *(r-)?hstack\b|^\|\|\| *$|^```[^`]*\bwrap\b' "$tmp" >/dev/null; then
+  echo "flatten-slides-dsl: DSL markers remain in $source_file" >&2
+  grep -nE '^::: *(r-)?hstack\b|^\|\|\| *$|^```[^`]*\bwrap\b' "$tmp" >&2 || true
+  exit 1
+fi
+
+pandoc "$tmp" \
+  --from=gfm \
+  --pdf-engine=xelatex \
+  --variable=documentclass:bxjsarticle \
+  --variable=classoption:xelatex,ja=standard \
+  --variable=papersize:a4 \
+  --variable=mainfont:IBMPlexSansJP \
+  --variable="mainfontoptions:Path=$kit/assets/fonts/,Extension=.ttf,UprightFont=*-Regular,BoldFont=*-Bold" \
+  --resource-path="$root:$root/assets:$kit/assets:$root/$deck_dir" \
+  --include-in-header="$kit/templates/handout.tex" \
+  --output="$output"
+printf '%s\n' "$output"

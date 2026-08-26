@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title or site.title }}</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>{{ site.title }}</h1>
+{{ content | safe }}
+{% if decks.length %}
+<ul>
+{% for deck in decks %}
+  <li><a href="{{ deck.dir }}/">{{ deck.title }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+</body>
+</html>

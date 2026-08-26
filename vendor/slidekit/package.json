@@ -1,0 +1,24 @@
+{
+  "name": "slidekit",
+  "version": "0.1.0",
+  "description": "Reveal.js + Markdown lecture decks for Eleventy, with handouts and JupyterLite",
+  "main": "eleventy.cjs",
+  "bin": {
+    "slidekit": "./scripts/cli.js",
+    "slidekit-handout": "./scripts/build-handout.sh",
+    "slidekit-lite": "./scripts/build-jupyter-lite.sh"
+  },
+  "files": [
+    "eleventy.cjs",
+    "templates",
+    "assets",
+    "runtime",
+    "contrib",
+    "scripts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3tty0n/slidekit.git"
+  },
+  "license": "MIT"
+}
