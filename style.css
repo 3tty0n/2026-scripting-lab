@@ -71,6 +71,8 @@
   .callout .links a:hover { background: var(--paper); color: var(--ink); }
 
   .note { color: var(--muted); font-size: 0.88rem; }
+
+  .lock-note { font-size: 0.85rem; color: var(--muted); padding: 8px 2px; }
   ul { padding-left: 1.2em; }
   li { margin-bottom: 0.3em; font-size: 0.94rem; }
   code { font-family: var(--mono); font-size: 0.86em; background: #eae5db; padding: 0.1em 0.35em; }
