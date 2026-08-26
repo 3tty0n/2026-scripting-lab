@@ -1,7 +1,6 @@
 #!/bin/sh
-# JupyterLite を組み立てる。カレントはコースルート。
 # usage: slidekit-lite [OUTPUT]
-# 既定の出力は .cache/jupyterlite（Eleventy が _site/lite へコピーする）
+
 set -eu
 
 self=$0
