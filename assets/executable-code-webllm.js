@@ -61,6 +61,50 @@
     return enginePromise;
   }
 
+  function paintWrapLineNumbers(editor) {
+    const layer = editor.renderer.$gutterLayer;
+    if (!layer || !layer.element) return;
+    layer.element.querySelectorAll('.ace-wrap-cont').forEach((n) => n.remove());
+    if (!editor.session.getUseWrapMode()) return;
+    const config = editor.renderer.layerConfig;
+    const session = editor.session;
+    for (let row = config.firstRow; row <= config.lastRow; row++) {
+      const parts = session.getRowLength(row);
+      if (parts <= 1) continue;
+      const top = layer.$lines.computeLineTop(row, config, session);
+      const num = String(row + session.$firstLineNumber);
+      for (let i = 1; i < parts; i++) {
+        const d = document.createElement('div');
+        d.className = 'ace_gutter-cell ace-wrap-cont';
+        d.textContent = num;
+        d.style.top = `${top + i * config.lineHeight}px`;
+        d.style.height = `${config.lineHeight}px`;
+        layer.element.appendChild(d);
+      }
+    }
+  }
+
+  function enableWrapLineNumbers(editor) {
+    editor.setOption('indentedSoftWrap', false);
+    const paint = () => paintWrapLineNumbers(editor);
+    editor.renderer.on('afterRender', paint);
+    editor.session.on('changeWrapMode', paint);
+    editor.session.on('changeWrapData', paint);
+  }
+
+  // ::: hstack wrap 内の複数セルは行番号を通す
+  function syncHstackLineNumbers(el) {
+    const hstack = el?.closest?.('.slide-hstack.code-wrap');
+    if (!hstack) return;
+    let next = 1;
+    hstack.querySelectorAll('.code-cell .code-editor').forEach((host) => {
+      const ed = ace.edit(host);
+      ed.setOption('firstLineNumber', next);
+      next += ed.session.getLength();
+      paintWrapLineNumbers(ed);
+    });
+  }
+
   function addCell(code) {
     const pre = code.parentElement;
     if (pre.parentElement.classList.contains('code-cell')) return;
@@ -74,6 +118,7 @@
     pre.classList.add('print-source');
     cell.append(editorHost, pre);
 
+    const wrap = pre.classList.contains('code-wrap') || !!pre.closest('.code-wrap');
     const editor = ace.edit(editorHost);
     editor.session.setMode('ace/mode/javascript');
     editor.setTheme('ace/theme/one_dark');
@@ -93,18 +138,22 @@
       showLineNumbers: true,
       tabSize: 2,
       useSoftTabs: true,
-      wrap: false,
+      wrap,
+      indentedSoftWrap: false,
     });
     editor.renderer.setScrollMargin(16, 16, 20, 64);
+    if (wrap) enableWrapLineNumbers(editor);
 
     function updatePrintSource() {
       code.textContent = editor.getValue();
       code.removeAttribute('data-highlighted');
       if (window.hljs) window.hljs.highlightElement(code);
+      syncHstackLineNumbers(cell);
       window.dispatchEvent(new Event('resize'));
     }
 
     editor.session.on('change', updatePrintSource);
+    syncHstackLineNumbers(cell);
 
     const actions = document.createElement('div');
     actions.className = 'code-actions';

@@ -70,19 +70,117 @@ python3 grading/grade.py 03a 提出物/ --csv 結果.csv --check-timeout 300
 
 * 編集
 
-スライドの中身は各回の =slides.md=。本文は通常の Markdown で書く。
-=---= の単独行だけをスライド区切りとして使う。Python のコードブロックには
-編集可能なコードセルと右上の実行ボタンが付き、同じページ内では Notebook
-と同様に状態を共有する。コードセル内では Emacs キーバインドを使える。
-実行は右上のボタン、または =Command-Enter= で行う。
-=file://= では開けない。
+スライドの中身は各回の =slides.md=。HTML (=index.html=) は触らなくてよい。
+=file://= では開けない。リポジトリ直下で HTTP サーバを立てる。
 
 #+begin_src sh
 python3 -m http.server 8000
+# 例: http://127.0.0.1:8000/01-basics/
 #+end_src
 
 =main= への push で GitHub Pages に載る。
 スライド PDF は各デッキの先頭と末尾の「PDF として保存」から、ブラウザの印刷で落とす。
+
+** Reveal.js / Markdown の基本
+
+本文は通常の Markdown。前処理と Reveal Markdown プラグインが HTML に変換する。
+
+| 記法 | 意味 |
+|------+------|
+| 単独行の =---= | 横スライド区切り |
+| 単独行の =--= | 縦スライド区切り |
+| =#= / =##= | タイトル (=h1= / =h2=)。先頭スライドの =#= が表紙 |
+| =###= | =##= 直上または直下に置くと赤サブタイトル |
+| =~...~= / 引用 | 注釈ブロック (=note=) |
+| =```python= ... =```= | 実行可能な Ace セル (Pyodide)。ページ内で状態共有 |
+| =```js= / =```javascript= | 第3回A WebLLM デッキでは実行可能セル |
+| その他のフェンス | ハイライトのみ (実行なし) |
+
+コードセルは右上の ▶、または =Command-Enter= / =Ctrl-Enter= で実行。
+Emacs キーバインドが有効。
+
+Reveal 標準の要素属性も使える。
+
+#+begin_src markdown
+- 強調したい項目 <!-- .element: class="fragment" -->
+#+end_src
+
+スタイル用クラス (=key-box= / =warn-box= / =highlight-box= など) は
+リストや段落に付く。詳細は =assets/slides.css= と =assets/reveal-init.js=。
+
+** Markdown DSL (このリポジトリ独自)
+
+=assets/reveal-init.js= が =slides.md= 読み込み時に展開する。
+素の Reveal Markdown には無い。
+
+*** 左右分割: =hstack=
+
+#+begin_src markdown
+::: hstack
+
+左の Markdown
+
+|||
+
+右の Markdown
+
+:::
+#+end_src
+
+- 開き: =::: hstack= または =::: r-hstack= (単独行)
+- 列区切り: =|||= (単独行。コードフェンスの外に置く)
+- 閉じ: =:::= (単独行)
+- 列は 3 つ以上も可 (=|||= を増やす)
+- 各列では通常の Markdown (見出し・リスト・コード) が使える
+- *必ず* コードフェンスを閉じてから =|||= や =:::= を書く
+
+幅比 (flex) を付ける例:
+
+#+begin_src markdown
+::: hstack 2 1
+
+広い左
+
+|||
+
+狭い右
+
+:::
+#+end_src
+
+*** 折り返し: =wrap=
+
+狭い列では長い行がはみ出すので、必要なら折り返す。
+Ace セルも静的コードも対象。デフォルトは折り返しなし (横スクロール)。
+
+列全体:
+
+#+begin_src markdown
+::: hstack wrap
+
+```python
+long_name = something_very_long(...)
+```
+
+|||
+
+```python
+other = also_quite_long(...)
+```
+
+:::
+#+end_src
+
+=::: hstack wrap 2 1= のように flex 比と併用可。
+=::: hstack wrap= 内の複数コードセルは、左から右へ行番号を通す (右列は左列の続きから)。
+
+コード単位:
+
+#+begin_src markdown
+```python wrap
+long_name = something_very_long(...)
+```
+#+end_src
 
 ** A4 レジュメ
 
