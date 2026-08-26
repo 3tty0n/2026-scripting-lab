@@ -103,36 +103,6 @@ sh tools/serve.sh
 | =###= | =##= 直上または直下に置くと赤サブタイトル |
 | =~...~= / 引用 | 注釈ブロック (=note=) |
 | =```python= ... =```= | 実行可能な Ace セル (Pyodide)。ページ内で状態共有 |
-| =```js= / =```javascript= | =data-code=webllm= デッキでは実行可能セル |
-| その他のフェンス | ハイライトのみ (実行なし) |
-
-コードセルは右上の ▶、または =Command-Enter= / =Ctrl-Enter= で実行。
-Emacs キーバインドが有効。
-
-Reveal 標準の要素属性も使える。
-
-#+begin_src markdown
-- 強調したい項目 <!-- .element: class="fragment" -->
-#+end_src
-
-スタイル用クラス (=key-box= / =warn-box= / =highlight-box= など) は
-リストや段落に付く。詳細は =assets/slides.css= と =assets/reveal-init.js=。
-
-デッキの title / 実行系を変えるときは =src/_data/decks.json= を編集する
-(=code=: =python= / =webllm= / =none=)。
-
-** Reveal.js / Markdown の基本
-
-本文は通常の Markdown。前処理と Reveal Markdown プラグインが HTML に変換する。
-
-| 記法 | 意味 |
-|------+------|
-| 単独行の =---= | 横スライド区切り |
-| 単独行の =--= | 縦スライド区切り |
-| =#= / =##= | タイトル (=h1= / =h2=)。先頭スライドの =#= が表紙 |
-| =###= | =##= 直上または直下に置くと赤サブタイトル |
-| =~...~= / 引用 | 注釈ブロック (=note=) |
-| =```python= ... =```= | 実行可能な Ace セル (Pyodide)。ページ内で状態共有 |
 | =```js= / =```javascript= | 第3回A WebLLM デッキでは実行可能セル |
 | その他のフェンス | ハイライトのみ (実行なし) |
 
@@ -148,7 +118,7 @@ Reveal 標準の要素属性も使える。
 スタイル用クラス (=key-box= / =warn-box= / =highlight-box= など) は
 リストや段落に付く。詳細は =assets/slides.css= と =assets/reveal-init.js=。
 
-** Markdown DSL (このリポジトリ独自)
+*** Markdown DSL (このリポジトリ独自)
 
 =assets/reveal-init.js= が =slides.md= 読み込み時に展開する。
 素の Reveal Markdown には無い。
