@@ -37,8 +37,14 @@ jobs:
           python-version: '3.12'
       - name: Install JS deps
         run: npm ci
+      - name: Install pandoc and TeX for handouts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex texlive-lang-japanese
       - name: Build JupyterLite
         run: npx slidekit-lite
+      - name: Build handouts (PDF)
+        run: make handouts
       - name: Build site (Eleventy)
         run: npm run build
       - name: Upload artifact

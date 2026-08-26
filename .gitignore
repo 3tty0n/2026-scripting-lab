@@ -17,7 +17,7 @@ _lite_contents/
 
 # ビルド成果物 (GitHub Pages は CI が組み立てた _site をデプロイする)
 _site/
-.jupyterlite.doit.db
+src/*/handout.pdf
 
 .playwright-mcp/
 

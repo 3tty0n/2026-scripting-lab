@@ -2,7 +2,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 
-for name in pre-commit pre-push; do
+for name in pre-push; do
     hook=".git/hooks/$name"
     cp "tools/hooks/$name" "$hook"
     chmod +x "$hook"

@@ -1,30 +1,9 @@
 #!/bin/sh
-# push 直前: site / handout がコミットされているか確認する。
+# push 直前: 課題 Gist を最新のノートブックと同期する。
 set -eu
 
 root=$(git rev-parse --show-toplevel)
 cd "$root"
-
-if ! git cat-file -e HEAD:_site/index.html 2>/dev/null; then
-  echo "missing in HEAD: _site/index.html" >&2
-  echo "commit してから push してください (pre-commit が site/handout を生成して stage します)" >&2
-  exit 1
-fi
-
-node -e '
-const fs = require("fs");
-const decks = require("./src/_data/decks.json");
-for (const d of decks) {
-  const pdf = "src/" + d.dir + "/handout.pdf";
-  if (fs.existsSync(pdf)) console.log(pdf);
-}
-' | while read -r f; do
-  if ! git cat-file -e "HEAD:$f" 2>/dev/null; then
-    echo "missing in HEAD: $f" >&2
-    echo "commit してから push してください (pre-commit が site/handout を生成して stage します)" >&2
-    exit 1
-  fi
-done
 
 if command -v gh >/dev/null 2>&1; then
   sh tools/sync-gists.sh || {
