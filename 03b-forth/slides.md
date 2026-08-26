@@ -4,6 +4,8 @@ Scripting Languages / Dynamic Languages / 03-B
 
 ### スクリプト言語演習
 
+伊澤 侑祐
+
 ---
 
 ## 本日の成果物
@@ -45,7 +47,7 @@ Scripting Languages / Dynamic Languages / 03-B
 | 辞書と関数 | ワード辞書とディスパッチ |
 | スタック | 計算途中の値の保持 |
 
-> 小さな実装で、インタプリタの主要部品をすべて確認できる題材
+> 小さな実装でインタプリタの主要部品をすべて確認できる題材
 
 ---
 
@@ -82,7 +84,7 @@ Scripting Languages / Dynamic Languages / 03-B
 
 ---
 
-## ディスパッチループ
+## Forth: ディスパッチループ
 
 - ワード表にある関数の呼び出し
 - 表にないトークンの整数としての push
@@ -94,7 +96,7 @@ Scripting Languages / Dynamic Languages / 03-B
 
 ---
 
-## 辞書へのワード登録
+## Forth: 辞書へのワード登録
 
 - 通常の関数をワードに変換する `binop`
 - 先に pop される右辺
@@ -117,14 +119,12 @@ WORDS = {
 }
 
 # 動作確認
-stack = [3, 4]
-WORDS["+"](stack)
-print(stack)  # [7]
+stack = [3, 4]; WORDS["+"](stack); print(stack)  # [7]
 ```
 
 ---
 
-## 評価処理
+## Forth: 評価処理
 
 - 空白分割・大文字化・表の参照
 - 数として push する負号付きの整数
@@ -156,20 +156,18 @@ def forth_eval(stack, code):
         else:
             raise ValueError(f"知らないワード: {token}")
 
-stack = []
-forth_eval(stack, "3 4 +")
-print(stack)  # [7]
+stack = []; forth_eval(stack, "3 4 +"); print(stack)  # [7]
 ```
 
 ---
 
-## ユーザ定義ワード
+## Forth: ユーザ定義ワード
 
 - `:` から `;` までの新しいワードの本体
 - 名前が現れたときに評価する保存済みの列
 - 別のワードからも呼び出せる定義済みワード
 
-```text
+```forth
 : SQUARE DUP * ;
 5 SQUARE .           ( 25 )
 
@@ -182,7 +180,7 @@ print(stack)  # [7]
 
 ---
 
-## 動的言語の語彙追加
+## Forth: 動的言語の語彙追加
 
 - 実行中に書き換え可能な Python の辞書
 - 同じことを行う Forth の `: SQUARE DUP * ;`
@@ -201,7 +199,7 @@ print(stack)  # [25]
 
 ---
 
-## 要点
+## Forth: 要点
 
 - 字句解析とディスパッチで動くインタプリタ
 - スタックと辞書で構成する Forth の処理系

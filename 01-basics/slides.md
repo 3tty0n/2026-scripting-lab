@@ -1,4 +1,4 @@
-Scripting Languages / Dynamic Languages / 01
+ScriptingScripting Languages / Dynamic Languages / 01
 
 # Python 入門
 
@@ -29,6 +29,7 @@ square.__name__     # ==> 'square'
 ## Python の書き方
 ### Python の基本
 
+::: hstack wrap
 - 動的型付け
   - 型宣言不要、実行時に型が決定 (runtime type, 動的型)
 - 副作用 (side effect)
@@ -37,19 +38,22 @@ square.__name__     # ==> 'square'
   - リスト (list): `append`, `pop`, etc.
   - 辞書 (dictionary): `get`, `set`, etc.
     - キーによる辞書の参照も可能
-
+|||
 ```python
 n, name, flag = 42, "Alice", True
 x = 10
 x = "文字列"        # 型を持つのは値
 
 xs = [3, 1, 4]
-xs.append(9); xs.pop()
+xs.append(9)
+xs.pop()
+
 d = {"a": 1}
 d.get("z", 0)       # 無いキーでも落ちない
 
 [x**2 for x in range(5) if x % 2 == 0]
 ```
+:::
 
 ---
 
@@ -167,13 +171,15 @@ score.get("carol", 0)
 ## 関数
 ### Python の基本
 
+::: hstack wrap 1 2
 - 関数の定義:
 ```text
 def 関数名(引数名1, 引数名2, ...):
-    関数ボディ # インデントはすぺーすq4つ
+    関数ボディ   # インデントはスペース4つ
     ...
     return     # 値を返す
 ```
+|||
 - 名前付き引数を指定可能: `def 関数名(名前1=デフォルト値): ...`
 
 ```python
@@ -183,6 +189,7 @@ def greet(name, suffix="!"):
 greet("Alice")
 greet(name="Bob", suffix=".")
 ```
+:::
 
 ---
 
@@ -211,6 +218,7 @@ double(10)   # 20
   - `if` の連鎖に伴う関数の肥大化を避けられる
   - 演算子追加後も1行の `calc`
 
+::: hstack wrap
 ```python
 def calc(op, a, b):
     if op == "add":
@@ -220,7 +228,7 @@ def calc(op, a, b):
     else:
         return -1
 ```
-
+|||
 ```python
 import operator
 OPS = {"add": operator.add, "sub": operator.sub, "mul": operator.mul}
@@ -232,6 +240,7 @@ def calc(op, a, b):
 
 calc("add", 2, 3)  # 5
 ```
+:::
 
 ---
 
@@ -241,6 +250,7 @@ calc("add", 2, 3)  # 5
 - コンパイル済みのプログラムは機能追加時に再コンパイルする必要
 - ディスパッチテーブルがあれば辞書への関数の追加だけで実現
 
+::: hstack wrap
 ```python
 def min(x, y):
     if x < y: return x
@@ -249,7 +259,9 @@ def add(x, y):
     return x + y
 
 OPS = {"min": min, "add": add}
-
+```
+|||
+```python
 def max(x, y):
     if x > y: return x
     else: return y
@@ -261,6 +273,7 @@ def calc(name, arg1, arg2): # 計算を行う本体
 
 calc("max", 3, 9)           # 9
 ```
+:::
 
 ---
 
@@ -271,6 +284,7 @@ calc("max", 3, 9)           # 9
   - `add = logged(add)` と同じ意味
 - `@deco`: 定義直後の `f = deco(f)` を表す
 
+::: hstack wrap
 ```python
 def logged(func):
     def wrapper(*args):
@@ -282,7 +296,7 @@ def add(a, b):
     return a + b
 add = logged(add)
 ```
-
+|||
 ```python
 def logged(func):
     def wrapper(*args):
@@ -296,6 +310,7 @@ def add(a, b):
 
 add(2, 3)  # ログ出力 + 5
 ```
+:::
 
 ---
 
@@ -374,6 +389,7 @@ def shout(text):
 - 辞書にない命令へのエラー
 - 文字列から処理系を動かす最小の骨格
 
+::: hstack wrap
 ```python
 COMMANDS = {}
 
@@ -386,7 +402,9 @@ def command(name):
 @command("shout")
 def shout(text):
     return text.upper() + "!!"
-
+```
+|||
+```python
 def run(line):
     name, *args = line.split()
     if name not in COMMANDS:
@@ -395,6 +413,7 @@ def run(line):
 
 run("shout hello")    # 'HELLO!!'
 ```
+:::
 
 ![文字列から命令を実行する流れ](../assets/diagrams/lexer-command.svg)
 
@@ -442,6 +461,8 @@ e.どんな名前でも("いける")
   - 呼び出し元にも及ぶ
   - デフォルト値の `[]`は定義時に1回だけ生成される
 
+
+::: hstack wrap
 ```python
 xs = [3, 1, 2]
 result = xs.sort()    # None が返る — xs = xs.sort() は間違い
@@ -450,7 +471,9 @@ print(xs, result)     # [1, 2, 3] None
 xs = [3, 1, 2]
 xs = sorted(xs)       # 新しいリストを返す
 print(xs)             # [1, 2, 3]
-
+```
+|||
+```python
 def add(xs, item):
     xs.append(item)   # 呼び出し元のリストが書き換わる
     return xs
@@ -462,6 +485,7 @@ def bad(item, xs=[]):
 print(bad(1))  # [1]
 print(bad(2))  # [1, 2] — デフォルト共有の落とし穴
 ```
+:::
 
 ---
 
