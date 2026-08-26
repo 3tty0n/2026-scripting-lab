@@ -2,6 +2,7 @@
 (function () {
   const boot = document.currentScript;
   const assets = new URL('.', boot.src).href;
+  const root = new URL('..', boot.src).href;
   const v = new URL(boot.src).searchParams.get('v') || '1';
   const markdown = boot.dataset.markdown || 'slides.md';
   const code = boot.dataset.code || 'python'; // python | webllm | none
@@ -9,8 +10,6 @@
     reveal: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1',
     hljs: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0',
     ace: 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.2',
-    pyodide: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js',
-    webllm: 'https://esm.run/@mlc-ai/web-llm@0.2.84',
   };
 
   function css(href) {
@@ -53,12 +52,13 @@
     await loadScript(cdn.reveal + '/plugin/highlight/highlight.min.js');
     await loadScript(cdn.ace + '/ace.min.js');
     await loadScript(cdn.ace + '/keybinding-emacs.min.js');
+    if (code === 'python' || code === 'webllm') {
+      await loadScript(root + 'runtime/cell.js?v=' + v);
+    }
     if (code === 'python') {
-      await loadScript(cdn.pyodide);
-      await loadScript(assets + 'executable-code.js?v=' + v);
+      await loadScript(root + 'runtime/python.js?v=' + v);
     } else if (code === 'webllm') {
-      window.webllm = await import(cdn.webllm);
-      await loadScript(assets + 'executable-code-webllm.js?v=' + v);
+      await loadScript(root + 'contrib/webllm.js?v=' + v);
     } else {
       window.ExecutableCode = { id: 'executable-code', init() {} };
     }

@@ -1,0 +1,19 @@
+{
+  "contents": [
+    "exercises/01_basics.ipynb",
+    "exercises/02_text.ipynb",
+    "exercises/03b_forth.ipynb",
+    "exercises/03a_llm_webllm.ipynb",
+    "grading/autograde.py",
+    "grading/contracts.py",
+    "grading/notebook.py",
+    { "from": "grading/checks", "to": "checks" }
+  ],
+  "fetch": [
+    {
+      "url": "https://www.gutenberg.org/files/11/11-0.txt",
+      "as": "alice.txt",
+      "local": "alice.txt"
+    }
+  ]
+}

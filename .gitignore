@@ -9,8 +9,9 @@ app.log
 out.txt
 scores.csv
 
-# JupyterLite (CI で組み立てる。_site に載せるがリポジトリには入れない)
+# JupyterLite (組み立ては .cache。_site へは Eleventy がコピー)
 lite/
+.cache/
 _site/lite/
 _site/exercises/solutions/
 _site/**/__pycache__/

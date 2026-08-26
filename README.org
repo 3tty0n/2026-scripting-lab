@@ -39,15 +39,16 @@ sh tools/sync-gists.sh --check
 sh tools/sync-gists.sh
 #+end_src
 
-Colab が使えないときは JupyterLite (=lite/=、第3回A は対象外)。
-手元で試すときは:
+Colab が使えないときは JupyterLite。手元:
 
 #+begin_src sh
-sh tools/build-jupyter-lite.sh
-python3 -m http.server 8000
+npx slidekit-lite
+npm run serve
 #+end_src
 
 http://127.0.0.1:8000/lite/lab/index.html
+
+中身の指定は =src/_data/lite.json=。第3回A の torch 版は含めず WebLLM 版だけ入れる。
 
 提出は kibaco。=grade.html= へのアップロードは提出ではない。
 
@@ -68,6 +69,15 @@ python3 grading/grade.py 01 --check-setup
 python3 grading/grade.py 03a 提出物/ --csv 結果.csv --check-timeout 300
 #+end_src
 
+* フレームワーク
+
+スライドの実行・ビルドは [[https://github.com/3tty0n/slidekit][slidekit]]。
+コース固有の中身だけ =src/= と =assets/diagrams/= に置く。
+
+#+begin_src json
+{ "dependencies": { "slidekit": "github:3tty0n/slidekit" } }
+#+end_src
+
 * 編集
 
 スライドの中身は =src/<回>/slides.md=。壳 HTML は触らない。
@@ -84,8 +94,8 @@ sh tools/serve.sh
 リポジトリ直下で =python3 -m http.server= してもスライドは出ない
 (=src/= はソース、公開物は =_site/=)。
 
-=file://= では開けない。Reveal・Ace など共通壳は =assets/deck.js=。
-各回の =index.html= は Eleventy が =src/decks.njk= + =src/_data/decks.json= から生成する。
+=file://= では開けない。Reveal・Ace など共通壳は slidekit の =assets/deck.js=。
+各回の =index.html= は slidekit が =src/_data/decks.json= から生成する。
 トップページは =src/index.njk=。
 
 =main= への push で GitHub Pages に載る (CI が =npm run build= と JupyterLite を実行)。
@@ -116,11 +126,11 @@ Reveal 標準の要素属性も使える。
 #+end_src
 
 スタイル用クラス (=key-box= / =warn-box= / =highlight-box= など) は
-リストや段落に付く。詳細は =assets/slides.css= と =assets/reveal-init.js=。
+リストや段落に付く。詳細は slidekit の =assets/slides.css= と =assets/reveal-init.js=。
 
-*** Markdown DSL (このリポジトリ独自)
+*** Markdown DSL (slidekit)
 
-=assets/reveal-init.js= が =slides.md= 読み込み時に展開する。
+slidekit の =reveal-init.js= が =slides.md= 読み込み時に展開する。
 素の Reveal Markdown には無い。
 
 *** 左右分割: =hstack=
@@ -202,7 +212,7 @@ make handouts                    # 全4回
 #+end_src
 
 出力は =src/<回>/handout.pdf=。コード実行ボタンはレジュメには含まれない。
-=::: hstack= / =wrap= などの Reveal DSL は =tools/flatten-slides-dsl.js= で潰してから PDF 化する。
+=::: hstack= / =wrap= などの Reveal DSL は slidekit が潰してから PDF 化する。
 
 Git hook (=tools/install-hooks.sh=) を入れると:
 

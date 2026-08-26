@@ -31,32 +31,16 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Build site (Eleventy)
-        # pre-commit で _site は載るが、hook 無し push にも耐えるよう CI でも再生成する
-        run: |
-          npm ci
-          npm run build
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install JS deps
+        run: npm ci
       - name: Build JupyterLite
-        # ブラウザの中で動く Jupyter をサイトに同梱する。
-        # 学生は何も入れずに、リンク1つで課題を開いて書ける。
-        # 第3回A は torch が要るので Colab を使わせる。ブラウザで動く
-        # WebLLM 版 (torch 不要) だけを同梱する。
-        run: |
-          pip install jupyterlite-core==0.8.3 jupyterlite-pyodide-kernel==0.8.5 jupyter-server
-          mkdir -p _lite_contents
-          cp exercises/01_basics.ipynb exercises/02_text.ipynb \
-             exercises/03b_forth.ipynb exercises/03a_llm_webllm.ipynb _lite_contents/
-          cp grading/autograde.py grading/contracts.py grading/notebook.py _lite_contents/
-          cp -r grading/checks _lite_contents/checks
-          curl -sL --max-time 60 https://www.gutenberg.org/files/11/11-0.txt \
-            -o _lite_contents/alice.txt || rm -f _lite_contents/alice.txt
-          rm -rf _site/lite
-          jupyter lite build --contents _lite_contents --output-dir _site/lite
-          rm -rf _lite_contents .jupyterlite.doit.db
+        run: npx slidekit-lite
+      - name: Build site (Eleventy)
+        run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
