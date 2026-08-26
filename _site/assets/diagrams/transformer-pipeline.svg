@@ -1,0 +1,36 @@
+<?xml-stylesheet type="text/css" href="diagram-font.css"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 220" role="img" aria-labelledby="title desc">
+  <title id="title">Transformerの処理の流れ</title>
+  <desc id="desc">トークンID列を埋め込み、自己注意、出力層を通してlogitsに変換する</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f4a40"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: "IBM Plex Sans JP", "Hiragino Sans", sans-serif; }
+    .box { stroke: #14140f; stroke-width: 3; }
+    .main { font-size: 24px; font-weight: 600; text-anchor: middle; }
+    .sub { fill: #4f4a40; font-size: 18px; text-anchor: middle; }
+    .arrow { stroke: #4f4a40; stroke-width: 4; marker-end: url(#arrow); }
+  </style>
+  <rect class="box" fill="#f6e9c6" x="15" y="45" width="215" height="105"/>
+  <text class="main" x="122" y="88">トークン</text>
+  <text class="main" x="122" y="120">ID列</text>
+  <line class="arrow" x1="245" y1="97" x2="275" y2="97"/>
+  <rect class="box" fill="#d5e8e5" x="295" y="45" width="245" height="105"/>
+  <text class="main" x="417" y="88">埋め込み層</text>
+  <text class="sub" x="417" y="120">ID → ベクトル</text>
+  <line class="arrow" x1="555" y1="97" x2="585" y2="97"/>
+  <rect class="box" fill="#d5e8e5" x="605" y="45" width="245" height="105"/>
+  <text class="main" x="727" y="88">自己注意 × N</text>
+  <text class="sub" x="727" y="120">互いを参照して混ぜる</text>
+  <line class="arrow" x1="865" y1="97" x2="895" y2="97"/>
+  <rect class="box" fill="#d5e8e5" x="915" y="45" width="245" height="105"/>
+  <text class="main" x="1037" y="88">出力層</text>
+  <text class="sub" x="1037" y="120">語彙数のスコアへ</text>
+  <line class="arrow" x1="1175" y1="97" x2="1205" y2="97"/>
+  <rect class="box" fill="#f7ded2" x="1225" y="45" width="160" height="105"/>
+  <text class="main" x="1305" y="105">logits</text>
+</svg>

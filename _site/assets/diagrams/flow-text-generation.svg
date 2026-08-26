@@ -1,0 +1,36 @@
+<?xml-stylesheet type="text/css" href="diagram-font.css"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 220" role="img" aria-labelledby="title desc">
+  <title id="title">文章をまねる生成器の流れ</title>
+  <desc id="desc">文章を単語に分け、次の語を数え、順に選んで新しい文章を作る</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f4a40"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: "IBM Plex Sans JP", "Hiragino Sans", sans-serif; }
+    .box { stroke: #14140f; stroke-width: 3; }
+    .main { font-size: 30px; font-weight: 600; text-anchor: middle; }
+    .sub { fill: #4f4a40; font-size: 21px; text-anchor: middle; }
+    .source { fill: #f6e9c6; }
+    .process { fill: #d5e8e5; }
+    .output { fill: #f7ded2; }
+    .arrow { stroke: #4f4a40; stroke-width: 4; marker-end: url(#arrow); }
+  </style>
+  <rect class="box source" x="20" y="45" width="235" height="105"/>
+  <text class="main" x="137" y="85">元の文章</text>
+  <text class="sub" x="137" y="120">元にする文章</text>
+  <line class="arrow" x1="270" y1="98" x2="305" y2="98"/>
+  <rect class="box process" x="325" y="45" width="235" height="105"/>
+  <text class="main" x="442" y="85">単語に分ける</text>
+  <text class="sub" x="442" y="120">トークン化</text>
+  <line class="arrow" x1="575" y1="98" x2="610" y2="98"/>
+  <rect class="box process" x="630" y="45" width="235" height="105"/>
+  <text class="main" x="747" y="85">次の語を数える</text>
+  <text class="sub" x="747" y="120">出現回数の表</text>
+  <line class="arrow" x1="880" y1="98" x2="915" y2="98"/>
+  <rect class="box output" x="935" y="45" width="235" height="105"/>
+  <text class="main" x="1052" y="85">新しい文を作る</text>
+  <text class="sub" x="1052" y="120">次の語を順に選ぶ</text>
+</svg>

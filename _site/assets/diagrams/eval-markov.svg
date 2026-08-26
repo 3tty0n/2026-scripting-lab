@@ -1,0 +1,35 @@
+<?xml-stylesheet type="text/css" href="diagram-font.css"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 310" role="img" aria-labelledby="title desc">
+  <title id="title">今の単語を更新する生成ループ</title>
+  <desc id="desc">今の単語から次の語を選び、結果に加えて繰り返す</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f4a40"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: "IBM Plex Sans JP", "Hiragino Sans", sans-serif; }
+    .box { stroke: #14140f; stroke-width: 3; }
+    .main { font-size: 26px; font-weight: 600; text-anchor: middle; }
+    .arrow { stroke: #4f4a40; stroke-width: 4; marker-end: url(#arrow); }
+    .read { fill: #d5e8e5; }
+    .get { fill: #f6e9c6; }
+    .eval { fill: #f7ded2; }
+  </style>
+  <rect class="box read" x="30" y="40" width="230" height="80"/>
+  <text class="main" x="145" y="89">今の単語</text>
+  <line class="arrow" x1="275" y1="80" x2="315" y2="80"/>
+  <rect class="box get" x="335" y="40" width="250" height="80"/>
+  <text class="main" x="460" y="78">次の語の回数を</text>
+  <text class="main" x="460" y="106">調べる</text>
+  <line class="arrow" x1="600" y1="80" x2="640" y2="80"/>
+  <rect class="box eval" x="660" y="40" width="230" height="80"/>
+  <text class="main" x="775" y="78">回数を重みにして</text>
+  <text class="main" x="775" y="106">1つ選ぶ</text>
+  <line class="arrow" x1="905" y1="80" x2="945" y2="80"/>
+  <rect class="box read" x="965" y="40" width="205" height="80"/>
+  <text class="main" x="1067" y="89">結果に加える</text>
+  <path class="arrow" fill="none" d="M1060 145 V225 H145 V145"/>
+  <text x="600" y="270" text-anchor="middle" fill="#4f4a40" font-size="22">直前の1語から、次の語を選ぶ</text>
+</svg>

@@ -1,11 +1,30 @@
 #!/bin/sh
+# push 直前: site / handout がコミットされているか確認する。
+# 生成は pre-commit 側。
 set -eu
 
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+
+for f in \
+  src/01-basics/handout.pdf \
+  src/02-text/handout.pdf \
+  src/03a-llm/handout.pdf \
+  src/03b-forth/handout.pdf \
+  _site/index.html
+do
+  if ! git cat-file -e "HEAD:$f" 2>/dev/null; then
+    echo "missing in HEAD: $f" >&2
+    echo "commit してから push してください (pre-commit が site/handout を生成して stage します)" >&2
+    exit 1
+  fi
+done
+
 if command -v gh >/dev/null 2>&1; then
-    sh tools/sync-gists.sh || {
-        echo "Failed to update gists" >&2
-        exit 1
-    }
+  sh tools/sync-gists.sh || {
+    echo "Failed to update gists" >&2
+    exit 1
+  }
 else
-    echo "No gh; skipping gist update" >&2
+  echo "No gh; skipping gist update" >&2
 fi

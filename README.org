@@ -6,12 +6,12 @@
 
 * 構成
 
-| 回     | テーマ                    | スライド     | 課題                        |
-|--------+---------------------------+--------------+-----------------------------|
-| 第1回  | Python入門 (Pythonic中心) | =01-basics/= | =exercises/01_basics.ipynb= |
-| 第2回  | テキスト処理の基本と応用  | =02-text/=   | =exercises/02_text.ipynb=   |
-| 第3回A | 言語モデル入門            | =03a-llm/=   | =exercises/03a_llm.ipynb=   |
-| 第3回B | インタプリタ実装入門      | =03b-forth/= | =exercises/03b_forth.ipynb= |
+| 回     | テーマ                    | スライド         | 課題                        |
+|--------+---------------------------+------------------+-----------------------------|
+| 第1回  | Python入門 (Pythonic中心) | =src/01-basics/= | =exercises/01_basics.ipynb= |
+| 第2回  | テキスト処理の基本と応用  | =src/02-text/=   | =exercises/02_text.ipynb=   |
+| 第3回A | 言語モデル入門            | =src/03a-llm/=   | =exercises/03a_llm.ipynb=   |
+| 第3回B | インタプリタ実装入門      | =src/03b-forth/= | =exercises/03b_forth.ipynb= |
 
 第1・2回は共通。第3回は A か B のどちらか。
 
@@ -70,16 +70,56 @@ python3 grading/grade.py 03a 提出物/ --csv 結果.csv --check-timeout 300
 
 * 編集
 
-スライドの中身は各回の =slides.md=。HTML (=index.html=) は触らなくてよい。
-=file://= では開けない。リポジトリ直下で HTTP サーバを立てる。
+スライドの中身は =src/<回>/slides.md=。壳 HTML は触らない。
+サイト全体は Eleventy でビルドする (=src/= → =_site/=)。
+公開 URL は従来どおり =/01-basics/= など (ソースだけ =src/= 配下)。
 
 #+begin_src sh
-python3 -m http.server 8000
-# 例: http://127.0.0.1:8000/01-basics/
+npm ci
+npm run serve          # http://127.0.0.1:8000/  (=_site/= を配信)
+# または
+sh tools/serve.sh
 #+end_src
 
-=main= への push で GitHub Pages に載る。
+リポジトリ直下で =python3 -m http.server= してもスライドは出ない
+(=src/= はソース、公開物は =_site/=)。
+
+=file://= では開けない。Reveal・Ace など共通壳は =assets/deck.js=。
+各回の =index.html= は Eleventy が =src/decks.njk= + =src/_data/decks.json= から生成する。
+トップページは =src/index.njk=。
+
+=main= への push で GitHub Pages に載る (CI が =npm run build= と JupyterLite を実行)。
 スライド PDF は各デッキの先頭と末尾の「PDF として保存」から、ブラウザの印刷で落とす。
+
+** Reveal.js / Markdown の基本
+
+本文は通常の Markdown。前処理と Reveal Markdown プラグインが HTML に変換する。
+
+| 記法 | 意味 |
+|------+------|
+| 単独行の =---= | 横スライド区切り |
+| 単独行の =--= | 縦スライド区切り |
+| =#= / =##= | タイトル (=h1= / =h2=)。先頭スライドの =#= が表紙 |
+| =###= | =##= 直上または直下に置くと赤サブタイトル |
+| =~...~= / 引用 | 注釈ブロック (=note=) |
+| =```python= ... =```= | 実行可能な Ace セル (Pyodide)。ページ内で状態共有 |
+| =```js= / =```javascript= | =data-code=webllm= デッキでは実行可能セル |
+| その他のフェンス | ハイライトのみ (実行なし) |
+
+コードセルは右上の ▶、または =Command-Enter= / =Ctrl-Enter= で実行。
+Emacs キーバインドが有効。
+
+Reveal 標準の要素属性も使える。
+
+#+begin_src markdown
+- 強調したい項目 <!-- .element: class="fragment" -->
+#+end_src
+
+スタイル用クラス (=key-box= / =warn-box= / =highlight-box= など) は
+リストや段落に付く。詳細は =assets/slides.css= と =assets/reveal-init.js=。
+
+デッキの title / 実行系を変えるときは =src/_data/decks.json= を編集する
+(=code=: =python= / =webllm= / =none=)。
 
 ** Reveal.js / Markdown の基本
 
@@ -191,9 +231,17 @@ tools/build-handout.sh 01-basics
 make handouts                    # 全4回
 #+end_src
 
-出力は各回の =handout.pdf=。コード実行ボタンはレジュメには含まれない。
-Git hook を導入すると、commit 前に全レジュメを再生成して自動的に stage する。
+出力は =src/<回>/handout.pdf=。コード実行ボタンはレジュメには含まれない。
+=::: hstack= / =wrap= などの Reveal DSL は =tools/flatten-slides-dsl.js= で潰してから PDF 化する。
+
+Git hook (=tools/install-hooks.sh=) を入れると:
+
+- *pre-commit*: =npm run build= と =make handouts= を実行し、=_site/= と
+  各 =handout.pdf= を stage してコミットに含める
+- *pre-push*: =_site= / handout が HEAD に無ければ push を止める (加えて Gist 同期)
 
 #+begin_src sh
 sh tools/install-hooks.sh
 #+end_src
+
+=_site/lite/= (JupyterLite) は CI だけが組み立て、リポジトリには入れない。

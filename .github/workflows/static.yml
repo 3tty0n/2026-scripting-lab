@@ -2,27 +2,20 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -33,6 +26,16 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Build site (Eleventy)
+        # pre-commit で _site は載るが、hook 無し push にも耐えるよう CI でも再生成する
+        run: |
+          npm ci
+          npm run build
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -49,16 +52,15 @@ jobs:
              exercises/03b_forth.ipynb exercises/03a_llm_webllm.ipynb _lite_contents/
           cp grading/autograde.py grading/contracts.py grading/notebook.py _lite_contents/
           cp -r grading/checks _lite_contents/checks
-          # 第2回で使う長文。取れなければノートブック側が代用を作る
           curl -sL --max-time 60 https://www.gutenberg.org/files/11/11-0.txt \
             -o _lite_contents/alice.txt || rm -f _lite_contents/alice.txt
-          jupyter lite build --contents _lite_contents --output-dir lite
+          rm -rf _site/lite
+          jupyter lite build --contents _lite_contents --output-dir _site/lite
           rm -rf _lite_contents .jupyterlite.doit.db
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: '_site'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

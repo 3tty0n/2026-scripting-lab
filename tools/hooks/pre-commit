@@ -1,12 +1,29 @@
 #!/bin/sh
+# commit に handout.pdf と Eleventy 出力 (_site) を載せる。
 set -eu
 
 root=$(git rev-parse --show-toplevel)
 cd "$root"
 
+if [ ! -d node_modules ]; then
+  npm ci
+fi
+# handout を先に更新してから _site へコピーする
 make -B handouts
+npm run build
+
+# JupyterLite / 解答はリポジトリに載せない
+rm -rf _site/lite _site/exercises/solutions
+find _site -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
+
 git add -- \
-  01-basics/handout.pdf \
-  02-text/handout.pdf \
-  03a-llm/handout.pdf \
-  03b-forth/handout.pdf
+  src/01-basics/handout.pdf \
+  src/02-text/handout.pdf \
+  src/03a-llm/handout.pdf \
+  src/03b-forth/handout.pdf \
+  src/01-basics/slides.md \
+  src/02-text/slides.md \
+  src/03a-llm/slides.md \
+  src/03a-llm-webllm/slides.md \
+  src/03b-forth/slides.md \
+  _site

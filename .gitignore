@@ -9,8 +9,11 @@ app.log
 out.txt
 scores.csv
 
-# JupyterLite (CI で組み立てる)
+# JupyterLite (CI で組み立てる。_site に載せるがリポジトリには入れない)
 lite/
+_site/lite/
+_site/exercises/solutions/
+_site/**/__pycache__/
 _lite_contents/
 .jupyterlite.doit.db
 
@@ -18,3 +21,6 @@ _lite_contents/
 
 # 解答ノートブック (git には入れない。教員のみ手元で参照)
 exercises/solutions/
+
+# Eleventy
+node_modules/
