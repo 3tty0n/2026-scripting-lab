@@ -8,237 +8,260 @@ Scripting Languages / Dynamic Languages / 02
 
 ---
 
-## 本日の到達点
+## 今日の道具は、状態・表・ループ
 
-- 手元の文章の特徴の集計
-- 確率による次の語の選択と、文の生成
-- **状態・表・ループ**による生成器の実装
+道具を一度に組み合わせず、4段階に分けて見ていく。
 
-![文章をまねる生成器の流れ](../assets/diagrams/flow-text-generation.svg)
+| 段階 | できるようになること | 主な道具 |
+|---|---|---|
+| 1. 分ける | 文章を単語の列にする | `with`, 正規表現 |
+| 2. 数える | 単語のつながりを表にする | `zip`, `Counter` |
+| 3. 選ぶ | 表から次の状態を決める | `sorted`, 重み付き抽選 |
+| 4. 動かす | 表を引きながら状態を更新する | ループ、スタック |
+
+最後に、同じ道具が文章生成と電卓の両方に使えることを確かめる。
 
 ---
 
-## 文字列の単語分割と字句解析
+## 文章を「数えられる単語」に変える
+### 1. 分ける
 
-- **字句解析**
-  - 問題: `split` による空白分割で文字列は手に入るが記号が残る
-  - 対策: 正規表現 (`re`) で_必要な文字列を抽出する_
+- ファイルを1行ずつ読み、`#` で始まる行は飛ばす
+- 大文字と小文字をそろえ、記号を取り除く
+- `split()` では `world!` の `!` が残るため、正規表現で単語を抜き出す
 
 ```python
 import re
-text = "Hello, world! It's a nice day."
 
-text.split()                        # 記号が残る
-re.findall(r"[a-z']+", text.lower())
+line = "Hello, world! It's a nice day."
+
+line.split()                         # 'world!' が残る
+re.findall(r"[a-z']+", line.lower())
 # ['hello', 'world', "it's", 'a', 'nice', 'day']
 ```
 
 ---
 
-## 隣接する単語の集計
+## ファイルは `with` で開き、行ごとに処理する
+### 1. 分ける
 
-- 1語の出現回数だけでは分からない続き
-- 隣接する2語の集計による次の語の把握
-- `Counter`: 初出の語も0から集計する
-
-```python wrap
+```python
 import re
-from collections import Counter, defaultdict
 
-text = "I like cats. I like dogs. I love cats."
-words = re.findall(r"[a-z']+", text.lower())
-
-following = defaultdict(Counter)
-
-for a, b in zip(words, words[1:]):
-    following[a][b] += 1
-
-print(following["i"])  # Counter({'like': 2, 'love': 1})
+tokens = []
+with open("sample.txt", encoding="utf-8") as f:
+    for line in f:
+        if line.startswith("#"):
+            continue
+        tokens.extend(re.findall(r"[a-z']+", line.lower()))
 ```
 
----
+- `with` を抜けるとファイルは自動で閉じる
+- `append` はリストを1要素として追加する
+- `extend` は取り出した単語を既存のリストへつなぐ
 
-## 文章生成と電卓の共通構造
-
-- **状態**: 機械が現在保持
-- **表**: 次の処理を選ぶためのデータ構造
-- **ループ**: 状態を更新する作業
-
-| 機械 | 状態 | 表に入れるもの | ループで行うこと |
-|---|---|---|---|
-| 文章生成 | 今の単語 | 次に来た語と回数 | 次の語を選ぶ |
-| 電卓 | 数のスタック | 記号と操作の関数 | 1トークンを実行する |
+ファイルを読む処理と単語を抜き出す処理は、別々に試すと確認しやすい。
 
 ---
 
-## 1語だけの状態
+## 隣り合う語を数えると、続きを引ける
+### 2. 数える
 
-- 覚えるのは現在の単語だけ
-- 選んだ次の語を、新たな状態として利用
-- 1語でも残る、元の文章らしい特徴
+1語の出現回数だけでは、その語の後に何が続くか分からない。
+そこで、隣り合う語をペアにして数える。
+
+```python wrap
+from collections import Counter, defaultdict
+
+tokens = ["i", "like", "cats", "i", "like", "dogs"]
+print(list(zip(tokens, tokens[1:])))
+
+table = defaultdict(Counter)
+for current, following in zip(tokens, tokens[1:]):
+    table[current][following] += 1
+
+print(table["i"])  # Counter({'like': 2})
+```
+
+`table["i"]` は「`i` の次に来た語」と、その回数を持つ。
+
+---
+
+## 辞書の中にカウンターを置くと、二段で数えられる
+### 2. 数える
+
+::: hstack 2 3
+- 外側の辞書: 今の語を引く
+- 内側の `Counter`: 次の語を数える
+- `zip(tokens, tokens[1:])`: 隣接ペアを作る
+|||
+```python
+table = defaultdict(Counter)
+table["i"]["like"] += 1
+table["i"]["love"] += 1
+table["i"]["like"] += 1
+```
+:::
+
+```text
+"i"    -> {"like": 2, "love": 1}
+"like" -> {"cats": 1, "dogs": 1}
+```
+
+単語のリストを隣接ペアに変え、そのペアをこの表へ加算する。
+
+---
+
+## 並べ替えると、よく現れる続きが見える
+### 2. 数える
+
+- `Counter.items()` で `(単語, 回数)` の組を取り出す
+- 回数は降順、同数なら単語の辞書順にする
+- 並び順を明示すると、同じ入力から常に同じ結果を得られる
+
+```python
+from collections import Counter
+
+counts = Counter({"cat": 3, "zoo": 1, "ant": 1})
+ranked = sorted(
+    counts.items(),
+    key=lambda item: (-item[1], item[0]),
+)
+print(ranked[:2])  # [('cat', 3), ('ant', 1)]
+```
+
+集計結果は、並べ替えて初めて人が読みやすい情報になる。
+
+---
+
+## 回数は、次の語を選ぶ重みに使える
+### 3. 選ぶ
+
+`i` の次に `like` が2回、`love` が1回あれば、
+`like` を 2/3、`love` を 1/3 の割合で選ぶ。
+
+```python
+import random
+
+words = ["like", "love"]
+weights = [2, 1]
+picked = random.choices(words, weights=weights)[0]
+```
+
+- `random.choice(...)`: 候補を等確率で選ぶ
+- `random.choices(..., weights=...)`: 回数を重みにして選ぶ
+- `choices` の返り値はリストなので、`[0]` で1語を取り出す
+
+---
+
+## ループでは、選んだ語が新しい状態になる
+### 3. 選ぶ
+
+::: hstack wrap 1 2
+- **状態**: 現在の語 `word`
+- **表**: 次の候補を持つ `table`
+- **更新**: 選んだ語を `word` に入れる
+- 次の候補がなければ終了する
+|||
+```python
+word = "i"
+result = [word]
+
+for _ in range(5):
+    # 今の word を使って次の語を選ぶ
+    word = next_word
+    result.append(word)
+```
+:::
 
 ![今の単語を更新する生成ループ](../assets/diagrams/eval-markov.svg)
 
 ---
 
-## 次の語の回数表
+## テキスト処理は、データを一段ずつ変換する
+### ここまでの接続を確認する
 
-::: hstack 2 3
-- 隣接する2語を順に数え、辞書へ加算
-- `table["i"]` に記録する「i の次の語」
-- この例での like が 2/3、love が 1/3
-|||
-```python
-from collections import Counter, defaultdict
-
-def build_table(tokens):
-    table = defaultdict(Counter)
-    for a, b in zip(tokens, tokens[1:]):
-        table[a][b] += 1
-    return table
-
-text = "I like cats. I like dogs. I love cats."
-table = build_table(text.lower().replace(".", "").split())
-# table["i"]    -> Counter({'like': 2, 'love': 1})
-# table["like"] -> Counter({'cats': 1, 'dogs': 1})
-print(table["i"])
+```text
+ファイル
+  ↓ 読み込み・正規表現
+単語のリスト
+  ↓ zip・defaultdict・Counter
+次の語と回数の表
+  ↓ sorted                 表を観察する
+  ↓ random.choices         表を使って選ぶ
+新しい単語列
 ```
-:::
+
+前段の出力が次段の入力になる。
+思った結果にならなければ、一つ前の値へ戻って確認する。
 
 ---
 
-## 回数による次の語の選択
+## 重みを変形すると、選び方の大胆さが変わる
+### 3. 選ぶ — 選び方を調整する
 
-::: hstack 4 5
-- `random.choices`: 重み付きで選ぶ
-  - `random.choice`: 等確率のため使わない
-- `[XXX]`: リストで返る値から取り出す
-  - `[0]` は末尾を取り出す
-
-|||
-```python wrap
-import random
-from collections import Counter, defaultdict
-
-def build_table(tokens):
-    table = defaultdict(Counter)
-    for a, b in zip(tokens, tokens[1:]):
-        table[a][b] += 1
-    return table
-
-def pick_next(counter):
-    words = list(counter.keys())
-    weights = list(counter.values())
-    return random.choices(words, weights=weights)[0]
-
-text = "I like cats. I like dogs. I love cats."
-table = build_table(text.lower().replace(".", "").split())
-
-# 'like' が出やすく、'love' がたまに出る
-print(pick_next(table["i"]))
-```
-:::
-
----
-
-## 状態更新による文章生成
-
-::: hstack wrap 1 2
-- **状態**: 現在の語
-- **表**: `table`
-- **ループ**: 状態を更新する
-  - 次の語が表にない場合に終了
-|||
+重みを `1 / T` 乗してから選ぶと、表を作り直さずに出力を変えられる。
 
 ```python
-import random
-from collections import Counter, defaultdict
-
-def build_table(tokens):
-    table = defaultdict(Counter)
-    for a, b in zip(tokens, tokens[1:]):
-        table[a][b] += 1
-    return table
-
-def pick_next(counter):
-    words = list(counter.keys())
-    weights = list(counter.values())
-    return random.choices(words, weights=weights)[0]
-
-def generate(table, start, n=30):
-    word = start
-    result = [word]
-    for _ in range(n):
-        if word not in table:
-            break
-        word = pick_next(table[word])
-        result.append(word)
-    return " ".join(result)
-
-text = "I like cats. I like dogs. I love cats."
-table = build_table(text.lower().replace(".", "").split())
-print(generate(table, "i"))  # 例: "i like cats"
-```
-:::
-
----
-
-## 温度による意外さの調整
-
-- 重みを `1/T` 乗してから行う次の語の選択
-- 低温での最頻語への偏りと、高温でのばらつき
-- `T = 1` における元の統計
-
-```python
-from collections import Counter
-
-counter = Counter({"like": 3, "love": 1})
-temperature = 0.8
-weights = [c ** (1 / temperature) for c in counter.values()]
-print(weights)  # 温度で重みを調整した例
+counts = [3, 1]
+weights = [count ** (1 / temperature) for count in counts]
 ```
 
 | 温度 | 重み `(3, 1)` | 出力の傾向 |
 |---|---|---|
-| `0.1` | `(59049, 1)` | 最頻語に偏る。安定するが単調 |
-| `1.0` | `(3, 1)` | 元の統計どおり |
-| `5.0` | `(1.25, 1)` | ほぼ等確率。多様だが崩れやすい |
+| `0.1` | `(59049, 1)` | 最頻語に強く偏る |
+| `1.0` | `(3, 1)` | 元の集計どおり |
+| `5.0` | `(1.25, 1)` | 等確率に近づく |
+
+> 変えるのは選び方だけ。生成ループの骨格は変わらない
 
 ---
 
-## 文脈の長さと表の大きさ
+## 状態を長くすると、つながりは自然になる
+### 3. 選ぶ — 状態を増やす
 
-- 直前2語による自然な出力
-- 見る語数とともに急増する組み合わせ
-- 長い文脈で増える、表にない並び
-
-| 見る語数 | 出力の傾向 | 問題 |
+| 見る文脈 | 表のキー | 出力と表の傾向 |
 |---|---|---|
-| 1語 (bigram) | 単語のつながりは自然 | 文の意味は崩れやすい |
-| 2語 (trigram) | かなり自然 | 元の文章を写しやすい |
-| 5語 | ほぼ丸写し | 組み合わせが表に無くなる |
+| 直前1語 | `"the"` | 候補は多いが、意味が崩れやすい |
+| 直前2語 | `("the", "queen")` | 自然になるが、組み合わせが増える |
+| 長い文脈 | 長いタプル | 元文のコピーが増え、未知の並びに弱い |
+
+```python
+for a, b, following in zip(tokens, tokens[1:], tokens[2:]):
+    table[(a, b)][following] += 1
+```
+
+> 状態を1語から2語へ増やしても、表を引いて更新する流れは同じ
 
 ---
 
-## 逆ポーランド記法
+## 状態は、単語だけでなく数の並びにもできる
+### 4. 動かす
 
-- 数を push / 演算子が来たら popして計算
-- Python のリストはそのままスタックとなる
+逆ポーランド記法では、数を積み、演算子で上の数を計算する。
 
-| 読んだもの | やること | スタック |
+| 読んだもの | 処理 | スタック |
 |---|---|---|
-| `3` | 数なので push | `[3]` |
-| `4` | 数なので push | `[3, 4]` |
-| `+` | 2つ pop して足し、結果を push | `[7]` |
+| `3` | 数を push | `[3]` |
+| `4` | 数を push | `[3, 4]` |
+| `+` | 2つ pop し、和を push | `[7]` |
 
-> `10 3 -` の結果は `7`。先に pop される値は `3`
+Python のリストをそのままスタックとして使える。
+
+```python
+stack.append(3)  # push
+value = stack.pop()
+```
+
+> `10 3 -` は `7`。先に pop される `3` が右側の値
 
 ---
 
-## 表に登録する操作関数
+## 表には、数だけでなく関数も登録できる
+### 4. 動かす
 
-- `word` 関数内: 「単語 → 次の候補」から「記号 → 関数」への表の置換
-- `@word`: 第1回の登録デコレータを使う
+文章生成では「語 → 次の語と回数」を登録した。
+電卓では「記号 → スタックを操作する関数」を登録する。
 
 ```python
 WORDS = {}
@@ -255,164 +278,78 @@ def _(stack):
     stack.append(a + b)
 ```
 
+`@word` は第1回と同じ登録デコレータである。
+
 ---
 
-## 拡張可能な評価ループ
+## トークンを読むループが、表から処理を選ぶ
+### 4. 動かす
 
 ::: hstack 2 3
-- 評価の骨格
-  - `text.split()`: トークンへの分割
-  - `WORDS[token]`: 表内の関数の呼び出し
-- ワードの追加は `@word` で行う
-  - 評価の骨格は変わらない
-
+- 空白で入力をトークンに分ける
+- `WORDS` にあれば関数を呼ぶ
+- 整数ならスタックへ積む
+- どちらでもなければ `ValueError`
 |||
 ```python
-WORDS = {}
-
-def word(name):
-    def deco(func):
-        WORDS[name] = func
-        return func
-    return deco
-
-@word("+")
-def _(stack):
-    b, a = stack.pop(), stack.pop()
-    stack.append(a + b)
-
-def evaluate(stack, text):
-    for token in text.split():
-        if token in WORDS:
-            WORDS[token](stack)
-        else:
-            stack.append(int(token))
-
-stack = []
-evaluate(stack, "3 4 +")
-print(stack)  # [7]
+for token in text.split():
+    if token in WORDS:
+        operation = WORDS[token]
+        operation(stack)
+    else:
+        stack.append(int(token))
 ```
 :::
+
+新しいワードを登録しても、`evaluate` は変更しない。
 
 ![スタックを更新する処理の流れ](../assets/diagrams/flow-rpn-loop.svg)
 
 ---
 
-## 2つの機械の共通骨格: 状態・表・ループ
-
-- 文章生成: 語を選ぶ
-- 電卓: 関数を実行する
-
-| | 文章を作る機械 | 計算する機械 |
-|---|---|---|
-| 状態 | 今の単語 | 数のスタック |
-| 表 | 次の語の回数 | 記号と操作 |
-| 更新 | 確率に従って選ぶ | 関数を実行する |
-
----
-
-## 課題一覧
-
-- 課題1〜3: 語を状態にする機械を作成
-- 課題4: スタックへの状態の置換
-- 発展課題: 温度と2語文脈による出力の比較
-
-| # | 課題 | ねらい |
-|---|---|---|
-| 1 | 文章をトークンに分ける | ファイル入出力、正規表現 |
-| 2 | 「次に来る語」の表を作る | `defaultdict`、`Counter`、`zip` |
-| 3 | 表を使って新しい一文を作る | 重み付き抽選、生成ループ |
-| 4 | 表の値を操作に替え、電卓を動かす | スタック、ディスパッチ |
-
----
-
-## 課題の進め方
-
-- 「Colab で開く」から課題を開き、「ドライブにコピーを保存」
-- 準備セルの実行と、各課題の `TODO`
-- 確認セルの保存
-  - 教員は別のテストケースで採点するため、削除しても採点結果は不変
-
----
-
-## `with` によるファイル読み込み
-### Python Tips
-
-- ファイル全体を1つの文字列にする `read()`
-- 大きいファイルに対する行ごとの処理
-- 日本語で指定する `encoding="utf-8"`
-
-```python
-from pathlib import Path
-
-# サンプルファイルを用意（既存なら上書きしない例でも可）
-Path("data.txt").write_text("hello\n# comment\nworld\n", encoding="utf-8")
-
-with open("data.txt", encoding="utf-8") as f:
-    text = f.read()
-print(text)
-
-with open("data.txt", encoding="utf-8") as f:
-    for line in f:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        print(line)
-```
-
-> 省略時に環境によって起こる文字化け
-
----
-
-## 正規表現による必要部分の抽出
-### Python Tips
-
-- `r"..."` で記述するパターン
-- 全件抽出の `findall` と、置換の `sub`
-- マッチしない場合の `match` の `None`
-
-| 記法 | 意味 |
-|---|---|
-| `.` | 任意の1文字 |
-| `\d` `\w` `\s` | 数字 / 英数字と `_` / 空白 |
-| `[abc]` `[^abc]` | いずれか / それ以外 |
-| `*` `+` `?` | 0回以上 / 1回以上 / 0か1回 |
-| `( )` | グループ。取り出したい部分 |
-
-```python
-import re
-
-text = "Hello 123 world"
-s = "2026-08-24"
-print(re.findall(r"[a-z']+", text.lower()))
-print(re.sub(r"\d+", "N", text))
-m = re.match(r"(\d{4})-(\d{2})", s)
-if m:
-    year, month = m.groups()
-    print(year, month)
-```
-
----
-
-## 並べ替えとスタック操作
-### Python Tips
-
-- 回数の降順と、同数時の辞書順
-- スタック上部を操作する `DUP` と `SWAP`
-- 電卓の課題で登録するワード
-
-```python
-from collections import Counter
-
-counts = Counter({"apple": 3, "banana": 2, "cherry": 3})
-print(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
-# [('apple', 3), ('cherry', 3), ('banana', 2)]
-```
+## スタック操作は、入る前と出た後で考える
+### 4. 動かす
 
 | ワード | 動作 | スタックの変化 |
 |---|---|---|
-| `DUP` | 一番上を複製 | (a → a a) |
-| `DROP` | 一番上を捨てる | (a → ) |
-| `SWAP` | 上2つを入れ替え | (a b → b a) |
-| `OVER` | 2番目を上にコピー | (a b → a b a) |
-| `ROT` | 3番目を一番上へ | (a b c → b c a) |
+| `DUP` | 一番上を複製 | `(a → a a)` |
+| `DROP` | 一番上を捨てる | `(a → )` |
+| `SWAP` | 上2つを入れ替える | `(a b → b a)` |
+| `OVER` | 2番目を上にコピー | `(a b → a b a)` |
+| `ROT` | 3番目を一番上へ移す | `(a b c → b c a)` |
+
+すべて `@word(...)` で登録するため、評価ループから見れば同じ関数である。
+
+---
+
+## 道具は違っても、処理の骨格は変わらない
+### 4段階を別の題材へ移す
+
+| | 文章を作る機械 | 計算する機械 |
+|---|---|---|
+| 入力の分割 | 正規表現で単語へ | 空白でトークンへ |
+| 状態 | 今の単語 | 数のスタック |
+| 表 | 次の語と回数 | 記号と操作関数 |
+| 表を引いた結果 | 次の語を選ぶ | 関数を呼ぶ |
+| 更新 | 選んだ語へ進む | スタックを書き換える |
+| 停止 | 次の語がない | 入力を読み終える |
+
+文章と電卓は題材が違う。それでも、表を引いて状態を更新する点は同じである。
+
+---
+
+## 道具を一つずつ確かめてから組み合わせる
+### まとめ
+
+| やりたいこと | 使う道具 |
+|---|---|
+| ファイルを安全に読む | `with open(...)` |
+| 必要な文字だけを抜く | `re.findall(...)` |
+| 隣接する要素を組にする | `zip(xs, xs[1:])` |
+| 二段の表で回数を数える | `defaultdict(Counter)` |
+| 順位を決める | `sorted(..., key=...)` |
+| 回数に応じて選ぶ | `random.choices(..., weights=...)` |
+| 数を積み下ろしする | `append`, `pop` |
+| 記号から処理を引く | 関数を値に持つ辞書 |
+
+課題では、必要な道具を選び、状態・表・ループとして組み合わせる。

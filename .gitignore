@@ -12,10 +12,11 @@ scores.csv
 # JupyterLite (組み立ては .cache。_site へは Eleventy がコピー)
 lite/
 .cache/
-_site/lite/
-_site/exercises/solutions/
-_site/**/__pycache__/
 _lite_contents/
+.jupyterlite.doit.db
+
+# ビルド成果物 (GitHub Pages は CI が組み立てた _site をデプロイする)
+_site/
 .jupyterlite.doit.db
 
 .playwright-mcp/
