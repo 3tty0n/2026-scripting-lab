@@ -1,5 +1,5 @@
 #!/bin/sh
-# push 直前: 課題 Gist を最新のノートブックと同期する。
+# push 直前: Synchronize exercies with gist
 set -eu
 
 root=$(git rev-parse --show-toplevel)
