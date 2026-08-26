@@ -35,7 +35,7 @@ permalink: /
   <p>
     Python の基礎を簡潔に学びます。動的言語としての特徴も学習します。
   </p>
-  <div class="links">
+  <div class="links" data-release="01-basics">
     <a class="primary" href="https://colab.research.google.com/gist/3tty0n/c3f350eac43bfaceee52c4e46211acf8/01_basics.ipynb">Colab で開く</a>
     <a href="01-basics/">スライド</a>
     <a href="01-basics/handout.pdf">ハンドアウト</a>
@@ -50,7 +50,7 @@ permalink: /
     1回目で勉強した内容を少し発展させます。
     テキストのトーカナイズ (字句解析) から文章生成と計算まで行います。
   </p>
-  <div class="links">
+  <div class="links" data-release="02-text">
     <a class="primary" href="https://colab.research.google.com/gist/3tty0n/b22ee21987175a8a41d05effd8a58deb/02_text.ipynb">Colab で開く</a>
     <a href="02-text/">スライド</a>
     <a href="02-text/handout.pdf">ハンドアウト</a>
@@ -74,7 +74,7 @@ permalink: /
     この回はモデルを動かすので Colab が基本です。
     <code>ランタイムのタイプを変更 → T4 GPU</code> にすると速くなります。
   </p>
-  <div class="links">
+  <div class="links" data-release="03a-llm">
     <a class="primary" href="https://colab.research.google.com/gist/3tty0n/1c0f3cf4d3f4fb2f30354677156e75ea/03a_llm.ipynb">Colab で開く</a>
     <a href="03a-llm/">スライド</a>
     <a href="03a-llm/handout.pdf">ハンドアウト</a>
@@ -89,7 +89,7 @@ permalink: /
     第2回の逆ポーランド電卓に <code>: 名前 … ;</code> を足して
     <strong>実行中に語彙を増やせる</strong>ようにすると、電卓が言語になります。
   </p>
-  <div class="links">
+  <div class="links" data-release="03b-forth">
     <a class="primary" href="https://colab.research.google.com/gist/3tty0n/97852f1114d1b445a903b5a641f07ce7/03b_forth.ipynb">Colab で開く</a>
     <a href="03b-forth/">スライド</a>
     <a href="03b-forth/handout.pdf">ハンドアウト</a>
@@ -141,13 +141,40 @@ permalink: /
     (初回だけダウンロード)。
   </p>
   <div class="links">
-    <a href="lite/notebooks/index.html?path=01_basics.ipynb">第1回</a>
-    <a href="lite/notebooks/index.html?path=02_text.ipynb">第2回</a>
-    <a href="lite/notebooks/index.html?path=03a_llm_webllm.ipynb">第3回A (WebLLM 版)</a>
-    <a href="lite/notebooks/index.html?path=03b_forth.ipynb">第3回B</a>
+    <a data-release="01-basics" href="lite/notebooks/index.html?path=01_basics.ipynb">第1回</a>
+    <a data-release="02-text" href="lite/notebooks/index.html?path=02_text.ipynb">第2回</a>
+    <a data-release="03a-llm" href="lite/notebooks/index.html?path=03a_llm_webllm.ipynb">第3回A (WebLLM 版)</a>
+    <a data-release="03b-forth" href="lite/notebooks/index.html?path=03b_forth.ipynb">第3回B</a>
   </div>
 </details>
 
 </div>
+<script>
+(function () {
+  var RELEASE = {{ release | dump | safe }};
+  if (!RELEASE) return;
+  var now = Date.now();
+  function fmt(iso) {
+    return new Date(iso).toLocaleString('ja-JP', {
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+  document.querySelectorAll('[data-release]').forEach(function (el) {
+    var cfg = RELEASE[el.dataset.release];
+    if (!cfg || !cfg.released_at) return;
+    if (now >= new Date(cfg.released_at).getTime()) return;
+    var note = document.createElement('span');
+    note.className = 'lock-note';
+    note.textContent = '公開は ' + fmt(cfg.released_at) + ' までお待ちください';
+    if (el.classList.contains('links')) {
+      el.replaceChildren(note);
+    } else {
+      el.style.display = 'none';
+      el.insertAdjacentElement('afterend', note);
+    }
+  });
+})();
+</script>
 </body>
 </html>
