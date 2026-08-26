@@ -40,7 +40,7 @@ jobs:
       - name: Install pandoc and TeX for handouts
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc texlive-xetex texlive-lang-japanese
+          sudo apt-get install -y pandoc texlive-xetex texlive-lang-japanese librsvg2-bin
       - name: Build JupyterLite
         run: npx slidekit-lite
       - name: Build handouts (PDF)
