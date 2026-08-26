@@ -104,7 +104,7 @@ print("合計:", round(sum(probs), 3))  # 1 になる
 - ストリームの1かたまりが、およそ1トークン
 
 ```python
-reply = await chat_reply(
+reply = chat_reply(
     [{"role": "user", "content": "むかしむかし、あるところに"}],
     max_tokens=16)
 
@@ -124,8 +124,8 @@ print("作ったトークン数:", completion_tokens(reply))
 - 第2回の `pick_next` を `argmax` に置き換えた形
 
 ```python
-print(await ask("好きな食べ物は", temperature=0))
-print(await ask("好きな食べ物は", temperature=0))  # 同じ文字列になる
+print(ask("好きな食べ物は", temperature=0))
+print(ask("好きな食べ物は", temperature=0))  # 同じ文字列になる
 ```
 
 ---
@@ -153,8 +153,8 @@ print(await ask("好きな食べ物は", temperature=0))  # 同じ文字列に�
 
 ```python
 for t in [0.3, 0.8, 1.5]:
-    print(f"T={t}:", await ask("好みの音楽について一言",
-                               temperature=t, top_p=0.9))
+    print(f"T={t}:", ask("好みの音楽について一言",
+                        temperature=t, top_p=0.9))
 ```
 
 > 回数の `c ** (1/T)` と、logits の割り算の対応
@@ -198,7 +198,7 @@ messages = [
     {"role": "user",   "content": "日本の首都は？"},
 ]
 
-print(await chat(messages, max_tokens=32))
+print(chat(messages, max_tokens=32))
 ```
 
 > 実際に渡っているのは下のような形の文字列
@@ -224,7 +224,7 @@ history = [
 ]
 history.append({"role": "user", "content": "日本の首都は？"})
 
-reply = await chat_reply(history, max_tokens=48)
+reply = chat_reply(history, max_tokens=48)
 text = reply_text(reply)
 history.append({"role": "assistant", "content": text})
 print(f"({total_tokens(reply)} トークン)", text)
@@ -237,7 +237,7 @@ print(f"({total_tokens(reply)} トークン)", text)
 ## 注意点
 
 - 長い会話による速度低下と入力上限の超過
-- 0.5B モデルで頻発する、もっともらしい誤り
+- 0.8B モデルで頻発する、もっともらしい誤り
 - ブラウザ版特有の、初回ダウンロードとタブの扱い
 
 | 問題 | 対処 |
@@ -286,8 +286,7 @@ print(f"({total_tokens(reply)} トークン)", text)
 | 1 | `usage` で、入力と出力それぞれのトークン数を表示する |
 | 2 | temperature 0 で、同じ入力から同じ出力が返ることを確かめる |
 | 3 | 温度 0.3 / 0.8 / 1.5 で出力を比べ、違いを一言でまとめる (top-k / top-p) |
-| 4 | 履歴を渡して3往復の会話を作る |
-| 5 | 履歴を保持する簡易チャットアプリ (`make_chat`) を作る |
+| 4 | 履歴を保持する簡易チャットアプリ (`make_chat`) を作る |
 
 > 発展：繰り返し検出 / コンテキスト圧縮 / ストリーミング / エフォート。
 > ブラウザ版はノートブックの `score()` で自己確認できる
