@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const yaml = require('js-yaml');
 
 const KIT = __dirname;
 const DECK_PAGE = fs.readFileSync(path.join(KIT, 'templates/deck.njk'), 'utf8');
@@ -15,6 +16,8 @@ function slidekit(eleventyConfig, opts = {}) {
   const decksFile = opts.decksFile || path.join(cwd, src, '_data/decks.json');
   const decks = opts.decks || JSON.parse(fs.readFileSync(decksFile, 'utf8'));
 
+  eleventyConfig.addDataExtension('yaml', (contents) => yaml.load(contents));
+
   eleventyConfig.addPassthroughCopy({
     [path.join(KIT, 'assets')]: 'assets',
     [path.join(KIT, 'runtime')]: 'runtime',
@@ -23,6 +26,10 @@ function slidekit(eleventyConfig, opts = {}) {
 
   eleventyConfig.setTemplateFormats(['njk', 'html', 'liquid', 'md', '11ty.js']);
   eleventyConfig.ignores.add('**/slides.md');
+  eleventyConfig.addFilter('deckNum', (dir) => {
+    const m = String(dir).match(/^\d+/);
+    return m ? m[0] : '';
+  });
   eleventyConfig.addTemplate('_includes/slidekit-home.njk', HOME_LAYOUT);
 
   const srcDir = path.join(cwd, src);

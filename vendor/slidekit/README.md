@@ -2,42 +2,52 @@
 
 [日本語](README.ja.md)
 
-Eleventy plugin. Lecture slides stay Markdown. The plugin turns them into Reveal.js decks. The same tree can produce an A4 PDF and a JupyterLite site.
+Eleventy plugin for lecture slides.
+Write Markdown, get Reveal.js decks.
+The same project can also build an A4 PDF and a JupyterLite site.
+
+## Prerequisite
+
+- `Node`
+- `Python3`
+- `XeLaTeX`
+- `Pandoc`
+
 
 ## Install
 
-```json
-{ "dependencies": { "slidekit": "github:3tty0n/slidekit" } }
+First, clone this repo and work there:
+
+```
+git clone https://github.com/3tty0n/slidekit.git
+cd slidekit
 ```
 
-Needs Node for Eleventy, and Pandoc plus XeLaTeX if you build handouts. JupyterLite needs Python 3.
+Then, you can scaffold:
 
-## New course
 
 ```sh
-npx --yes -p github:3tty0n/slidekit slidekit init "My course"
+./bin/slidekit init "My course"
 cd my-course
-npm install
-npx slidekit create 01
+./bin/slidekit create 01 "Lecture 1"
 ```
 
-`init` takes the course title. The directory is a slug of that title, or a second argument. `create 01` writes `src/01/slides.md` and appends the deck so the home page lists it. Optional title: `slidekit create 01 "Lecture 1"`. `--code` is `python` (default), `webllm`, or `none`.
+- `bin/slidekit init`: copies slidekit into `vendor/slidekit` and runs `npm install`.
+- `bin/slidekit create 01`: writes `src/01/slides.md` and adds it to the home page.
+  - `--code` is `python` (default), `webllm`, or `none`.
 
-Home page: `src/index.md` (intro text) plus a layout that lists every entry in `decks.json`. Edit the markdown for intro text. The deck list is filled from `decks.json`.
+Home page text is in `src/index.md`. The deck list is in `decks.json`.
 
-## What stays in the course repo
+## Course files
 
 | Path | Role |
 |---|---|
 | `src/_data/decks.json` | Deck list: `dir`, `title`, `code` |
+| `src/_data/release.yaml` | Scheduled release times (optional) |
 | `src/<dir>/slides.md` | Slide text |
-| `src/_data/lite.json` | JupyterLite contents (optional) |
-| `assets/` | Course figures. From a slide, link as `../assets/...` |
-| `src/index.md` | Home page copy. The deck list comes from `decks.json` |
-
-`code` is `python` (Ace + Pyodide), `webllm` (Ace + WebLLM, from `contrib/`), or `none` (highlight only).
-
-For `webllm`, set `model` to a WebLLM model id. Omit it to keep `Qwen2.5-0.5B-Instruct-q4f16_1-MLC`. `models` is an optional list for the on-slide picker; if omitted, the picker uses WebLLM's prebuilt catalog. Override for one session with `?model=...`. Cells receive `MODEL` and `getEngine(id)`.
+| `src/_data/lite.json` | JupyterLite files (optional) |
+| `assets/` | Figures. From a slide, link as `../assets/...` |
+| `src/index.md` | Home page text. The deck list is in `decks.json` |
 
 `decks.json` example:
 
@@ -53,6 +63,23 @@ For `webllm`, set `model` to a WebLLM model id. Omit it to keep `Qwen2.5-0.5B-In
 ]
 ```
 
+## Scheduled release
+
+Write a per-deck release time in `src/_data/release.yaml`, and the home page list
+replaces a deck link with a "coming soon" note until that time, then shows it.
+
+```yaml
+01-basics:
+  released_at: 2026-04-01T10:30:00+09:00
+02-text:
+  released_at: 2026-04-08T10:30:00+09:00
+```
+
+Decks without an entry (or with a past time) stay public. This hides links using
+the browser clock; the assets themselves (`/<dir>/`, `slides.md`, `.ipynb`) are
+still reachable if the URL is known. For a hard gate, drop unreleased decks at
+build time instead, driven by a scheduled CI run.
+
 ## Eleventy
 
 ```js
@@ -63,17 +90,11 @@ module.exports = (eleventyConfig) => {
 };
 ```
 
-The plugin copies `assets/`, `runtime/`, and `contrib/` into `_site/`, copies each `slides.md`, and writes `/<dir>/index.html`. If `.cache/jupyterlite` exists, it copies that tree to `_site/lite`.
+## Markdown
 
-Default layout: Eleventy `input` is `src/`, `output` is `_site/`. Override with `slidekit(eleventyConfig, { src, root, decksFile, liteCache })`.
+A line with only `---` starts a new horizontal slide. A line with only `--` starts a vertical slide.
 
-Open a deck at `/01-basics/`. `file://` will not load `slides.md`.
-
-## Markdown on slides
-
-Horizontal break: a line that is only `---`. Vertical break: a line that is only `--`.
-
-`#` / `##` are titles. An `###` next to `##` becomes a red subtitle.
+`#` and `##` are titles. An `###` right before or after `##` becomes a red subtitle.
 
 ````markdown
 ::: hstack
@@ -87,9 +108,11 @@ right column
 :::
 ````
 
-Options: `::: hstack wrap`, `::: hstack 2 1`, `::: hstack wrap 2 1`. Column breaks (`|||`) must sit outside fenced code. Close each fence before `|||` or `:::`.
+Also valid: `::: hstack wrap`, `::: hstack 2 1`, `::: hstack wrap 2 1`.
 
-Line wrap on one fence:
+Put `|||` outside fenced code. Close each fence before `|||` or `:::`.
+
+Wrap one fence:
 
 ````markdown
 ```python wrap
@@ -97,21 +120,21 @@ long_name = something_very_long(...)
 ```
 ````
 
-`::: hstack wrap` also continues Ace line numbers across the columns, left to right.
+With `::: hstack wrap`, Ace line numbers continue from the left column to the right.
 
-This layout syntax is not part of Reveal Markdown. `reveal-init.js` expands it before Reveal parses the file.
+Reveal Markdown does not include this layout. `reveal-init.js` expands it when the deck loads.
 
 ## Handouts
 
 ```sh
-npx slidekit-handout 01-basics
+./bin/slidekit-handout 01-basics # ==> src/01-basics/handout.pdf
 ```
-
-Writes `src/01-basics/handout.pdf`. The same Markdown is flattened first (`hstack` / `wrap` dropped), then Pandoc + XeLaTeX. Run from the course root.
 
 ## JupyterLite
 
-`src/_data/lite.json` lists what goes into the notebook tree. The scaffold starts with `"contents": []`. Missing file, or empty `contents` and `fetch`, means `slidekit-lite` does nothing.
+List notebook files in `src/_data/lite.json`. The scaffold starts with `"contents": []`.
+
+If the file is missing, or both `contents` and `fetch` are empty, `slidekit-lite` does nothing.
 
 ```json
 {
@@ -123,16 +146,3 @@ Writes `src/01-basics/handout.pdf`. The same Markdown is flattened first (`hstac
   ]
 }
 ```
-
-A string copies to the notebook root under its basename. `{ "from", "to" }` sets the destination name. `fetch` downloads a URL unless `local` already exists.
-
-Grading scripts are not part of slidekit. Keep them in the course repo. If the Lite kernel should import them, add those paths to `contents` and copy the directory from `eleventy.config.js`.
-
-```sh
-npx slidekit-lite
-npx eleventy
-```
-
-Build order matters: Lite first (`.cache/jupyterlite`), then Eleventy (`_site/lite`). Eleventy wipes `_site` on each run, so a Lite tree written only into `_site/lite` would disappear.
-
-Serve with Eleventy (`--serve`). Open `http://127.0.0.1:8000/lite/lab/index.html`.

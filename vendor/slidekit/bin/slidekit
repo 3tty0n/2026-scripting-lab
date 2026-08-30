@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 const KIT = path.join(__dirname, '..');
 const COURSE = path.join(KIT, 'templates/course');
@@ -15,10 +16,10 @@ function fail(msg) {
 
 function usage() {
   console.log(`Usage:
-  slidekit init "title" [dir]
-  slidekit create 01 [title] [--code python|webllm|none] [--model ID] [--models ID,ID]
+  ./bin/slidekit init "title" [dir]
+  ./bin/slidekit create 01 [title] [--code python|webllm|none] [--model ID] [--models ID,ID]
 
-init    new course directory (slug from title unless dir is given)
+init    new course, with this package copied into vendor/slidekit
 create  add src/<id>/slides.md and list it on the home page`);
 }
 
@@ -78,6 +79,21 @@ function relTemplate(abs) {
   return rel === 'gitignore' ? '.gitignore' : rel;
 }
 
+function copyKit(from, to) {
+  const src = path.resolve(from);
+  const dest = path.resolve(to);
+  if (dest === src || dest.startsWith(src + path.sep)) {
+    fail('refusing to copy kit into itself');
+  }
+  fs.cpSync(src, dest, {
+    recursive: true,
+    filter: (p) => {
+      const base = path.basename(p);
+      return base !== '.git' && base !== 'node_modules';
+    },
+  });
+}
+
 function init(title, dir) {
   if (!title) fail('slidekit init "title"');
   const dest = path.resolve(dir || slug(title));
@@ -88,7 +104,20 @@ function init(title, dir) {
     writeFile(path.join(dest, relTemplate(file)), fill(fs.readFileSync(file, 'utf8'), vars));
   }
   writeFile(path.join(dest, 'assets/.gitkeep'), '');
-  console.log('\nNext:\n  cd ' + dest + '\n  npm install\n  npx slidekit create 01');
+  const vendor = path.join(dest, 'vendor/slidekit');
+  if (!fs.existsSync(vendor)) {
+    copyKit(KIT, vendor);
+    console.log('write ' + vendor);
+  } else {
+    console.log('skip  ' + vendor);
+  }
+  const npm = spawnSync('npm', ['install'], { cwd: dest, stdio: 'inherit' });
+  if (npm.status !== 0) fail('npm install failed');
+  for (const name of ['slidekit', 'slidekit-handout', 'slidekit-lite']) {
+    const p = path.join(dest, 'bin', name);
+    if (fs.existsSync(p)) fs.chmodSync(p, 0o755);
+  }
+  console.log('\nNext:\n  cd ' + dest + '\n  ./bin/slidekit create 01');
 }
 
 function readDecks(root) {

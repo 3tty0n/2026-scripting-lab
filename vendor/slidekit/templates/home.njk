@@ -1,20 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ site.lang or 'ja' }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title or site.title }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+.lock-note { display: inline-block; padding: 8px 2px; color: var(--muted, #888); font-size: 0.9rem; }
+</style>
 </head>
 <body>
-<h1>{{ site.title }}</h1>
+<div class="wrap">
+<header>
+  {% if site.kicker %}<p class="kicker">{{ site.kicker }}</p>{% endif %}
+  <h1>{{ site.title }}</h1>
+  {% if site.subtitle %}<p class="sub">{{ site.subtitle }}</p>{% endif %}
+  {% if site.credit %}<p class="sub">{{ site.credit }}</p>{% endif %}
+</header>
 {{ content | safe }}
-{% if decks.length %}
-<ul>
 {% for deck in decks %}
-  <li><a href="{{ deck.dir }}/">{{ deck.title }}</a></li>
+<h2><span class="n">{{ deck.dir | deckNum }}</span> {{ deck.title }} <span class="bar"></span></h2>
+<div class="card">
+  <div class="links" data-release="{{ deck.dir }}">
+    <a class="primary" href="{{ deck.dir }}/">スライド</a>
+    <a href="{{ deck.dir }}/handout.pdf">ハンドアウト</a>
+  </div>
+</div>
 {% endfor %}
-</ul>
-{% endif %}
+</div>
+<script>
+(function () {
+  var RELEASE = {% if release %}{{ release | dump | safe }}{% else %}null{% endif %};
+  if (!RELEASE) return;
+  var now = Date.now();
+  function fmt(iso) {
+    return new Date(iso).toLocaleString(undefined, {
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+  function cfgFor(key) {
+    if (Object.prototype.hasOwnProperty.call(RELEASE, key)) return RELEASE[key];
+    var num = parseInt(key, 10);
+    if (!isNaN(num) && Object.prototype.hasOwnProperty.call(RELEASE, String(num))) {
+      return RELEASE[String(num)];
+    }
+    return undefined;
+  }
+  document.querySelectorAll('[data-release]').forEach(function (el) {
+    var cfg = cfgFor(el.dataset.release);
+    if (!cfg || !cfg.released_at) return;
+    if (now >= new Date(cfg.released_at).getTime()) return;
+    var note = document.createElement('span');
+    note.className = 'lock-note';
+    note.textContent = '公開は ' + fmt(cfg.released_at) + ' までお待ちください';
+    el.replaceChildren(note);
+  });
+})();
+</script>
 </body>
 </html>

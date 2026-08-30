@@ -3,3 +3,4 @@ node_modules/
 _site/
 .jupyterlite.doit.db
 .DS_Store
+src/*/handout.pdf

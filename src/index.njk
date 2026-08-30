@@ -160,8 +160,16 @@ permalink: /
       hour: '2-digit', minute: '2-digit'
     });
   }
+  function cfgFor(key) {
+    if (Object.prototype.hasOwnProperty.call(RELEASE, key)) return RELEASE[key];
+    var num = parseInt(key, 10);
+    if (!isNaN(num) && Object.prototype.hasOwnProperty.call(RELEASE, String(num))) {
+      return RELEASE[String(num)];
+    }
+    return undefined;
+  }
   document.querySelectorAll('[data-release]').forEach(function (el) {
-    var cfg = RELEASE[el.dataset.release];
+    var cfg = cfgFor(el.dataset.release);
     if (!cfg || !cfg.released_at) return;
     if (now >= new Date(cfg.released_at).getTime()) return;
     var note = document.createElement('span');
