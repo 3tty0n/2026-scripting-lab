@@ -1,8 +1,8 @@
 SLIDEKIT := bin
-DECKS := $(shell node -p "JSON.parse(require('fs').readFileSync('src/_data/decks.json','utf8')).map(d=>d.dir).join(' ')")
+DECKS := $(patsubst src/%/slides.md,%,$(wildcard src/*/slides.md))
 HANDOUTS := $(DECKS:%=src/%/handout.pdf)
 
-.PHONY: build serve lite handouts clean-handouts
+.PHONY: build serve jupyter-lite handouts clean-handouts
 
 build:
 	npm run build
@@ -10,8 +10,8 @@ build:
 serve:
 	npm run serve
 
-lite:
-	$(SLIDEKIT)/slidekit-lite
+jupyter-lite:
+	$(SLIDEKIT)/slidekit-jupyter-lite
 
 handouts: $(HANDOUTS)
 

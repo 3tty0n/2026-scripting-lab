@@ -2,15 +2,12 @@
   "name": "2026-scripting-lang",
   "private": true,
   "scripts": {
-    "build": "eleventy",
-    "serve": "eleventy --serve --port=8000",
+    "build": "slidekit build",
+    "serve": "slidekit serve",
     "handout": "slidekit-handout",
-    "lite": "slidekit-lite"
+    "jupyter-lite": "slidekit-jupyter-lite"
   },
   "dependencies": {
     "slidekit": "file:vendor/slidekit"
-  },
-  "devDependencies": {
-    "@11ty/eleventy": "^3.1.2"
   }
 }

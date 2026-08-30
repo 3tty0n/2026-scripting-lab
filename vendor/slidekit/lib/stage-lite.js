@@ -34,7 +34,7 @@ function stage(cfg, dest, root) {
     const to = typeof item === 'string' ? path.basename(item) : item.to;
     const src = path.resolve(root, from);
     if (!fs.existsSync(src)) {
-      throw new Error('slidekit-lite: missing ' + src);
+      throw new Error('slidekit-jupyter-lite: missing ' + src);
     }
     copy(src, path.join(dest, to));
   }
@@ -47,7 +47,7 @@ function stage(cfg, dest, root) {
     }
     fs.mkdirSync(path.dirname(out), { recursive: true });
     if (!fetchFile(item.url, out)) {
-      console.warn('slidekit-lite: skip fetch ' + item.url);
+      console.warn('slidekit-jupyter-lite: skip fetch ' + item.url);
     }
   }
 }

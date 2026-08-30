@@ -4,9 +4,10 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const yaml = require('js-yaml');
 
 const KIT = path.join(__dirname, '..');
-const COURSE = path.join(KIT, 'templates/course');
+const COURSE = path.join(KIT, 'scaffold');
 const CODES = new Set(['python', 'webllm', 'none']);
 
 function fail(msg) {
@@ -16,18 +17,22 @@ function fail(msg) {
 
 function usage() {
   console.log(`Usage:
-  ./bin/slidekit init "title" [dir]
-  ./bin/slidekit create 01 [title] [--code python|webllm|none] [--model ID] [--models ID,ID]
+  slidekit init "title" [dir]
+  slidekit create <id> [title] [--code python|webllm|none] [--model ID] [--models ID,ID]
+  slidekit build
+  slidekit serve [--port N]
 
 init    new course, with this package copied into vendor/slidekit
-create  add src/<id>/slides.md and list it on the home page`);
+create  add src/<id>/slides.md (Reveal). A dir with only PDFs is served as-is.
+build   write _site
+serve   build and serve _site`);
 }
 
 function parse(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--title' || a === '--code' || a === '--model' || a === '--models') {
+    if (a === '--title' || a === '--code' || a === '--model' || a === '--models' || a === '--port') {
       const v = argv[++i];
       if (!v) fail('missing value for ' + a);
       out[a.slice(2)] = v;
@@ -113,17 +118,15 @@ function init(title, dir) {
   }
   const npm = spawnSync('npm', ['install'], { cwd: dest, stdio: 'inherit' });
   if (npm.status !== 0) fail('npm install failed');
-  for (const name of ['slidekit', 'slidekit-handout', 'slidekit-lite']) {
+  for (const name of ['slidekit', 'slidekit-handout', 'slidekit-jupyter-lite']) {
     const p = path.join(dest, 'bin', name);
     if (fs.existsSync(p)) fs.chmodSync(p, 0o755);
   }
-  console.log('\nNext:\n  cd ' + dest + '\n  ./bin/slidekit create 01');
+  console.log('\nNext:\n  cd ' + dest + '\n  slidekit create 01');
 }
 
-function readDecks(root) {
-  const file = path.join(root, 'src/_data/decks.json');
-  if (!fs.existsSync(file)) fail('no src/_data/decks.json (run slidekit init)');
-  return { file, decks: JSON.parse(fs.readFileSync(file, 'utf8')) };
+function dumpYaml(obj) {
+  return yaml.dump(obj, { lineWidth: 80 }).trim() + '\n';
 }
 
 function create(id, title, code, model, models) {
@@ -132,38 +135,52 @@ function create(id, title, code, model, models) {
   }
   if (!CODES.has(code)) fail('--code must be python, webllm, or none');
   const root = process.cwd();
-  const { file, decks } = readDecks(root);
-  if (decks.some((d) => d.dir === id)) fail('already exists: ' + id);
+  const dir = path.join(root, 'src', id);
+  const slides = path.join(dir, 'slides.md');
+  if (fs.existsSync(slides)) fail('already exists: ' + slides);
   const heading = title || id;
-  const slides = path.join(root, 'src', id, 'slides.md');
   writeFile(
     slides,
-    fill(fs.readFileSync(path.join(KIT, 'templates/deck/slides.md'), 'utf8'), {
+    fill(fs.readFileSync(path.join(KIT, 'theme/slides.md'), 'utf8'), {
       TITLE: heading,
     }),
   );
-  const row = { dir: id, title: heading, code };
-  if (model) row.model = model;
+  const meta = {};
+  if (code !== 'python') meta.code = code;
+  if (model) meta.model = model;
   if (models) {
-    row.models = models.split(',').map((s) => s.trim()).filter(Boolean);
+    meta.models = models.split(',').map((s) => s.trim()).filter(Boolean);
   }
-  decks.push(row);
-  fs.writeFileSync(file, JSON.stringify(decks, null, 2) + '\n');
-  console.log('update ' + file);
+  if (Object.keys(meta).length) {
+    writeFile(path.join(dir, 'deck.yaml'), dumpYaml(meta));
+  }
 }
 
-const argv = parse(process.argv.slice(2));
-const cmd = argv._[0];
-if (cmd === 'init') init(argv._[1], argv._[2]);
-else if (cmd === 'create' || cmd === 'deck') {
-  if (!argv._[1]) fail('slidekit create <id>');
-  create(
-    argv._[1],
-    argv._[2] || argv.title,
-    argv.code || 'python',
-    argv.model,
-    argv.models,
-  );
+const raw = process.argv.slice(2);
+const cmd = raw[0];
+if (cmd === 'init' || cmd === 'create' || cmd === 'deck') {
+  const argv = parse(raw);
+  if (cmd === 'init') init(argv._[1], argv._[2]);
+  else {
+    if (!argv._[1]) fail('slidekit create <id>');
+    create(
+      argv._[1],
+      argv._[2] || argv.title,
+      argv.code || 'python',
+      argv.model,
+      argv.models,
+    );
+  }
+} else if (cmd === 'build') {
+  require('../lib/build.cjs').build();
+} else if (cmd === 'serve') {
+  let port = 8000;
+  const rest = raw.slice(1);
+  for (let i = 0; i < rest.length; i++) {
+    if (rest[i] === '--port') port = Number(rest[++i]) || 8000;
+    else if (rest[i].startsWith('--port=')) port = Number(rest[i].slice(7)) || 8000;
+  }
+  require('../lib/build.cjs').serve({ port });
 } else {
   usage();
   process.exit(cmd ? 1 : 0);

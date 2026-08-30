@@ -1,0 +1,13 @@
+{
+  "name": "__NAME__",
+  "private": true,
+  "scripts": {
+    "build": "slidekit build",
+    "serve": "slidekit serve",
+    "handout": "slidekit-handout",
+    "jupyter-lite": "slidekit-jupyter-lite"
+  },
+  "dependencies": {
+    "slidekit": "file:vendor/slidekit"
+  }
+}

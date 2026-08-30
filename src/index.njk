@@ -1,27 +1,14 @@
----
-permalink: /
----
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>スクリプト言語演習 2026 (TMU)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="wrap">
-
+{% extends "page.njk" %}
+{% block title %}スクリプト言語演習 2026 (TMU){% endblock %}
+{% block header %}
 <header>
   <p class="kicker">Scripting Languages &middot; 2026</p>
   <h1>スクリプト言語演習 (CS, EECS) 2026</h1>
   <p class="sub">Python 演習 全3回</p>
   <p class="sub">担当: 伊澤 侑祐 (情報科学科、助教、yizawa _at_ tmu.ac.jp)</p>
 </header>
-
+{% endblock %}
+{% block content %}
 <p>
 課題は <strong>Google Colab</strong> で進めます。
 <strong>「Colab で開く」</strong>を押し、Colab の
@@ -147,42 +134,4 @@ permalink: /
     <a data-release="03b-forth" href="lite/notebooks/index.html?path=03b_forth.ipynb">第3回B</a>
   </div>
 </details>
-
-</div>
-<script>
-(function () {
-  var RELEASE = {{ release | dump | safe }};
-  if (!RELEASE) return;
-  var now = Date.now();
-  function fmt(iso) {
-    return new Date(iso).toLocaleString('ja-JP', {
-      year: 'numeric', month: 'long', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-  }
-  function cfgFor(key) {
-    if (Object.prototype.hasOwnProperty.call(RELEASE, key)) return RELEASE[key];
-    var num = parseInt(key, 10);
-    if (!isNaN(num) && Object.prototype.hasOwnProperty.call(RELEASE, String(num))) {
-      return RELEASE[String(num)];
-    }
-    return undefined;
-  }
-  document.querySelectorAll('[data-release]').forEach(function (el) {
-    var cfg = cfgFor(el.dataset.release);
-    if (!cfg || !cfg.released_at) return;
-    if (now >= new Date(cfg.released_at).getTime()) return;
-    var note = document.createElement('span');
-    note.className = 'lock-note';
-    note.textContent = '公開は ' + fmt(cfg.released_at) + ' までお待ちください';
-    if (el.classList.contains('links')) {
-      el.replaceChildren(note);
-    } else {
-      el.style.display = 'none';
-      el.insertAdjacentElement('afterend', note);
-    }
-  });
-})();
-</script>
-</body>
-</html>
+{% endblock %}

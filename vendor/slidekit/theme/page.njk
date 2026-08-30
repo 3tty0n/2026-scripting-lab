@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ title or site.title }}</title>
+<title>{% block title %}{{ title or site.title }}{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -11,25 +11,19 @@
 <style>
 .lock-note { display: inline-block; padding: 8px 2px; color: var(--muted, #888); font-size: 0.9rem; }
 </style>
+{% block head %}{% endblock %}
 </head>
 <body>
 <div class="wrap">
+{% block header %}
 <header>
   {% if site.kicker %}<p class="kicker">{{ site.kicker }}</p>{% endif %}
   <h1>{{ site.title }}</h1>
   {% if site.subtitle %}<p class="sub">{{ site.subtitle }}</p>{% endif %}
   {% if site.credit %}<p class="sub">{{ site.credit }}</p>{% endif %}
 </header>
-{{ content | safe }}
-{% for deck in decks %}
-<h2><span class="n">{{ deck.dir | deckNum }}</span> {{ deck.title }} <span class="bar"></span></h2>
-<div class="card">
-  <div class="links" data-release="{{ deck.dir }}">
-    <a class="primary" href="{{ deck.dir }}/">スライド</a>
-    <a href="{{ deck.dir }}/handout.pdf">ハンドアウト</a>
-  </div>
-</div>
-{% endfor %}
+{% endblock %}
+{% block content %}{% endblock %}
 </div>
 <script>
 (function () {
@@ -37,7 +31,7 @@
   if (!RELEASE) return;
   var now = Date.now();
   function fmt(iso) {
-    return new Date(iso).toLocaleString(undefined, {
+    return new Date(iso).toLocaleString('{{ site.lang or "ja" }}' === 'ja' ? 'ja-JP' : undefined, {
       year: 'numeric', month: 'long', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
@@ -57,9 +51,15 @@
     var note = document.createElement('span');
     note.className = 'lock-note';
     note.textContent = '公開は ' + fmt(cfg.released_at) + ' までお待ちください';
-    el.replaceChildren(note);
+    if (el.classList.contains('links')) {
+      el.replaceChildren(note);
+    } else {
+      el.style.display = 'none';
+      el.insertAdjacentElement('afterend', note);
+    }
   });
 })();
 </script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

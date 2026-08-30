@@ -42,10 +42,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pandoc texlive-xetex texlive-lang-japanese librsvg2-bin
       - name: Build JupyterLite
-        run: npx slidekit-lite
+        run: npx slidekit-jupyter-lite
       - name: Build handouts (PDF)
         run: make handouts
-      - name: Build site (Eleventy)
+      - name: Build site
         run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

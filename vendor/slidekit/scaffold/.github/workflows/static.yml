@@ -1,5 +1,5 @@
 # Deploy the course to GitHub Pages.
-# Handouts (PDF), JupyterLite, and the Eleventy site are built on CI.
+# Handouts (PDF), JupyterLite, and the site are built on CI.
 name: Deploy __NAME__ to Pages
 
 on:
@@ -43,10 +43,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pandoc texlive-xetex texlive-lang-japanese librsvg2-bin
       - name: Build JupyterLite
-        run: make lite
+        run: make jupyter-lite
       - name: Build handouts (PDF)
         run: make handouts
-      - name: Build site (Eleventy)
+      - name: Build site
         run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

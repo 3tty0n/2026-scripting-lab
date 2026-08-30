@@ -35,7 +35,7 @@ output="$output_dir/$(basename -- "$output")"
 tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
 
-node "$kit/scripts/flatten-slides-dsl.js" "$source_file" \
+node "$kit/lib/flatten-slides-dsl.js" "$source_file" \
   | sed "s|](\\./\\.\\./assets/|]($root/assets/|g; s|](\\.\\./assets/|]($root/assets/|g" \
   > "$tmp"
 
@@ -52,8 +52,8 @@ pandoc "$tmp" \
   --variable=classoption:xelatex,ja=standard \
   --variable=papersize:a4 \
   --variable=mainfont:IBMPlexSansJP \
-  --variable="mainfontoptions:Path=$kit/assets/fonts/,Extension=.ttf,UprightFont=*-Regular,BoldFont=*-Bold" \
-  --resource-path="$root:$root/assets:$kit/assets:$root/$deck_dir" \
-  --include-in-header="$kit/templates/handout.tex" \
+  --variable="mainfontoptions:Path=$kit/theme/assets/fonts/,Extension=.ttf,UprightFont=*-Regular,BoldFont=*-Bold" \
+  --resource-path="$root:$root/assets:$kit/theme/assets:$root/$deck_dir" \
+  --include-in-header="$kit/theme/handout.tex" \
   --output="$output"
 printf '%s\n' "$output"

@@ -1,4 +1,4 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
-exec npx slidekit-lite "$@"
+exec npx slidekit-jupyter-lite "$@"

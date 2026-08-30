@@ -2,93 +2,87 @@
 
 [日本語](README.ja.md)
 
-Eleventy plugin for lecture slides.
-Write Markdown, get Reveal.js decks.
-The same project can also build an A4 PDF and a JupyterLite site.
+Static site generator for lecture slides.
+A directory in `src/` is a Reveal.js deck, or a place to put a Beamer / PowerPoint PDF.
 
 ## Prerequisite
 
 - `Node`
-- `Python3`
-- `XeLaTeX`
-- `Pandoc`
-
+- `Python3` (JupyterLite only)
+- `XeLaTeX` / `Pandoc` (handouts only)
 
 ## Install
 
-First, clone this repo and work there:
-
-```
+```sh
 git clone https://github.com/3tty0n/slidekit.git
 cd slidekit
-```
-
-Then, you can scaffold:
-
-
-```sh
 ./bin/slidekit init "My course"
 cd my-course
 ./bin/slidekit create 01 "Lecture 1"
+npm run serve
 ```
 
-- `bin/slidekit init`: copies slidekit into `vendor/slidekit` and runs `npm install`.
-- `bin/slidekit create 01`: writes `src/01/slides.md` and adds it to the home page.
-  - `--code` is `python` (default), `webllm`, or `none`.
+`slidekit init` copies this package into `vendor/slidekit` and runs `npm install`.
+`slidekit create 01` writes `src/01/slides.md`.
 
-Home page text is in `src/index.md`. The deck list is in `decks.json`.
+## Course layout
 
-## Course files
-
-| Path | Role |
-|---|---|
-| `src/_data/decks.json` | Deck list: `dir`, `title`, `code` |
-| `src/_data/release.yaml` | Scheduled release times (optional) |
-| `src/<dir>/slides.md` | Slide text |
-| `src/_data/lite.json` | JupyterLite files (optional) |
-| `assets/` | Figures. From a slide, link as `../assets/...` |
-| `src/index.md` | Home page text. The deck list is in `decks.json` |
-
-`decks.json` example:
-
-```json
-[
-  { "dir": "01-basics", "title": "Lecture 1: Python", "code": "python" },
-  {
-    "dir": "03-llm",
-    "title": "Lecture 3",
-    "code": "webllm",
-    "model": "Qwen3.5-0.8B-q4f16_1-MLC"
-  }
-]
 ```
+src/
+  index.md                 home (optional; kit supplies one)
+  _data/site.json          title, kicker, …
+  _data/release.yaml       scheduled release (optional)
+  _data/lite.json          JupyterLite files (optional)
+  01-intro/
+    slides.md              Reveal.js
+    deck.yaml              extra metadata (optional)
+  02-guest/
+    slides.pdf             Beamer / PowerPoint, served as-is
+assets/                    figures; from a slide, link as `../assets/...`
+```
+
+`src/<dir>/` is the unit. If it has `slides.md`, it becomes a Reveal deck.
+If it only has PDFs, `/<dir>/` embeds the PDF.
+Optional `deck.yaml`:
+
+```yaml
+title: Lecture 3
+code: webllm
+model: Qwen3.5-0.8B-q4f16_1-MLC
+```
+
+Without `deck.yaml`, the title is the first `# heading` (or the directory name).
+Reveal decks default to `code: python`.
+
+A real course using this kit: [2026-scripting-lang](https://github.com/3tty0n/2026-scripting-lang).
 
 ## Scheduled release
 
-Write a per-deck release time in `src/_data/release.yaml`, and the home page list
-replaces a deck link with a "coming soon" note until that time, then shows it.
-
 ```yaml
-01-basics:
+01-intro:
   released_at: 2026-04-01T10:30:00+09:00
-02-text:
-  released_at: 2026-04-08T10:30:00+09:00
 ```
 
-Decks without an entry (or with a past time) stay public. This hides links using
-the browser clock; the assets themselves (`/<dir>/`, `slides.md`, `.ipynb`) are
-still reachable if the URL is known. For a hard gate, drop unreleased decks at
-build time instead, driven by a scheduled CI run.
+The home list shows “coming soon” until that time. URLs still work if known.
 
-## Eleventy
+## Build
+
+```sh
+slidekit build    # → _site/
+slidekit serve    # http://127.0.0.1:8000/
+```
+
+Course extras (files next to `src/`) are listed in `slidekit.config.js`:
 
 ```js
-const slidekit = require('slidekit');
-
-module.exports = (eleventyConfig) => {
-  slidekit(eleventyConfig);
+module.exports = {
+  copy: ['grade.html', 'exercises'],
 };
 ```
+
+`style.css` and `assets/` are copied when they exist.
+
+The home page is `src/index.njk`. It can `{% extends "page.njk" %}` (kit chrome) and fill `{% block header %}` / `{% block content %}`. If you omit it, the kit lists decks from `src/`. `src/index.md` is extra HTML in that default list.
 
 ## Markdown
 
@@ -127,22 +121,22 @@ Reveal Markdown does not include this layout. `reveal-init.js` expands it when t
 ## Handouts
 
 ```sh
-./bin/slidekit-handout 01-basics # ==> src/01-basics/handout.pdf
+slidekit-handout 01-intro   # => src/01-intro/handout.pdf
 ```
 
 ## JupyterLite
 
-List notebook files in `src/_data/lite.json`. The scaffold starts with `"contents": []`.
-
-If the file is missing, or both `contents` and `fetch` are empty, `slidekit-lite` does nothing.
-
 ```json
 {
-  "contents": [
-    "exercises/01_basics.ipynb"
-  ],
+  "contents": ["exercises/01_basics.ipynb"],
   "fetch": [
     { "url": "https://example.com/data.txt", "as": "data.txt", "local": "data.txt" }
   ]
 }
 ```
+
+```sh
+slidekit-jupyter-lite
+```
+
+If the file is missing, or both `contents` and `fetch` are empty, `slidekit-jupyter-lite` does nothing.

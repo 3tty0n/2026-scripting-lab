@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang or 'ja' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }}</title>
+<style>
+html, body { margin: 0; height: 100%; background: #111; color: #eee; font-family: sans-serif; }
+nav { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 12px; background: #1c1c1c; }
+nav a { color: #fff; }
+iframe { display: block; width: 100%; height: calc(100% - 40px); border: 0; }
+</style>
+</head>
+<body>
+{% if pdfs.length > 1 %}
+<nav>
+  {% for pdf in pdfs %}
+  <a href="{{ pdf }}">{{ pdf }}</a>
+  {% endfor %}
+</nav>
+{% endif %}
+<iframe src="{{ primary }}" title="{{ title }}"></iframe>
+</body>
+</html>

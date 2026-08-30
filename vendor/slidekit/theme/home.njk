@@ -1,0 +1,17 @@
+{% extends "page.njk" %}
+{% block content %}
+{{ content | safe }}
+{% for deck in decks %}
+<h2><span class="n">{{ deck.dir | deckNum }}</span> {{ deck.title }} <span class="bar"></span></h2>
+<div class="card">
+  <div class="links" data-release="{{ deck.dir }}">
+    {% if deck.kind == 'pdf' %}
+    <a class="primary" href="{{ deck.dir }}/">スライド (PDF)</a>
+    {% else %}
+    <a class="primary" href="{{ deck.dir }}/">スライド</a>
+    <a href="{{ deck.dir }}/handout.pdf">ハンドアウト</a>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -42,7 +42,7 @@ sh tools/sync-gists.sh
 Colab が使えないときは JupyterLite。手元:
 
 #+begin_src sh
-npx slidekit-lite
+npx slidekit-jupyter-lite
 npm run serve
 #+end_src
 
@@ -71,14 +71,17 @@ python3 grading/grade.py 03a 提出物/ --csv 結果.csv --check-timeout 300
 
 * フレームワーク
 
-スライドの実行・ビルドは =vendor/slidekit= に同梱した slidekit。
-npm は GitHub を見ない (=file:vendor/slidekit=)。
-コース固有の中身だけ =src/= と =assets/diagrams/= に置く。
+スライドの実行・ビルドは slidekit (静的サイトジェネレータ)。
+このリポジトリでは =vendor/slidekit= に同梱し、npm は GitHub を見ない
+(=file:vendor/slidekit=)。
+=src/<回>/= が 1 デッキ。=slides.md= があれば Reveal、PDF だけならその置き場。
+=03a-llm-webllm= だけ =deck.yaml= で =code: webllm= を指定している。
+コース固有の中身は =src/= と =assets/diagrams/= と =slidekit.config.js= の追加コピー。
 
 * 編集
 
 スライドの中身は =src/<回>/slides.md=。壳 HTML は触らない。
-サイト全体は Eleventy でビルドする (=src/= → =_site/=)。
+サイト全体は slidekit でビルドする (=src/= → =_site/=)。
 公開 URL は従来どおり =/01-basics/= など (ソースだけ =src/= 配下)。
 
 #+begin_src sh
@@ -91,9 +94,9 @@ sh tools/serve.sh
 リポジトリ直下で =python3 -m http.server= してもスライドは出ない
 (=src/= はソース、公開物は =_site/=)。
 
-=file://= では開けない。Reveal・Ace など共通壳は slidekit の =assets/deck.js=。
-各回の =index.html= は slidekit が =src/_data/decks.json= から生成する。
-トップページは =src/index.njk=。
+=file://= では開けない。Reveal・Ace など共通壳は slidekit の =theme/assets/deck.js=。
+各回の =index.html= は slidekit が =src/<回>/= から生成する。
+トップページは =src/index.njk= (キットの =page.njk= を extends)。
 
 =main= への push で GitHub Pages に載る (CI が =npm run build= と JupyterLite を実行)。
 スライド PDF は各デッキの先頭と末尾の「PDF として保存」から、ブラウザの印刷で落とす。
@@ -123,7 +126,7 @@ Reveal 標準の要素属性も使える。
 #+end_src
 
 スタイル用クラス (=key-box= / =warn-box= / =highlight-box= など) は
-リストや段落に付く。詳細は slidekit の =assets/slides.css= と =assets/reveal-init.js=。
+リストや段落に付く。詳細は slidekit の =theme/assets/slides.css= と =theme/assets/reveal-init.js=。
 
 *** Markdown DSL (slidekit)
 
