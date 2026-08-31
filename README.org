@@ -96,7 +96,7 @@ sh tools/serve.sh
 
 =file://= では開けない。Reveal・Ace など共通壳は slidekit の =theme/assets/deck.js=。
 各回の =index.html= は slidekit が =src/<回>/= から生成する。
-トップページは =src/index.njk= (キットの =page.njk= を extends)。
+トップページは =src/index.md= (キットがカード型の HTML にする)。
 
 =main= への push で GitHub Pages に載る (CI が =npm run build= と JupyterLite を実行)。
 スライド PDF は各デッキの先頭と末尾の「PDF として保存」から、ブラウザの印刷で落とす。

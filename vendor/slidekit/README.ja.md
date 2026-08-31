@@ -40,14 +40,18 @@ model: Qwen3.5-0.8B-q4f16_1-MLC
 
 実コースの使用例: [2026-scripting-lang](https://github.com/3tty0n/2026-scripting-lang)。
 
-## 時限公開
+## 公開 / 非公開 / 時限公開
+
+`src/_data/release.yaml`:
 
 ```yaml
-01-intro:
+01-intro: public          # または 公開
+02-draft: private         # または 非公開。_site に出さない
+03-next:
   released_at: 2026-04-01T10:30:00+09:00
 ```
 
-トップのリンクだけ隠す。実体の URL は知っていれば開ける。
+時限公開はトップのリンクだけ隠す（ファイルはビルドされる）。`private` はデッキごと出さない。書いていない回は公開。
 
 ## ビルド
 
@@ -66,7 +70,7 @@ module.exports = {
 
 `style.css` と `assets/` はあればコピーする。
 
-トップは `src/index.njk`。`{% extends "page.njk" %}` でキットの壳を使い、`{% block header %}` / `{% block content %}` に本文を書く。無ければ `src/` のデッキ一覧。`src/index.md` はその一覧に足す HTML。
+トップは `src/index.md`。YAML フロントマターがヘッダ (`title` / `kicker` / `heading` / `subtitle` / `credit`)。`## 01` と `### 見出し` がカードになる。リンクだけの行がボタン（先頭が primary、`.ipynb` は download）。`###` の `{A}` `{B}` がバリアント。`>` が強調枠。HTML はそのまま。`##` が無ければ `src/` のデッキ一覧。
 
 ## スライドの Markdown
 

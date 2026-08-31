@@ -9,13 +9,15 @@ const env = createEnv(path.join(__dirname, '../theme'));
 const html = env.render('home.njk', {
   site: { title: 'T', kicker: 'K', lang: 'ja' },
   decks: [{ dir: '01-hello', title: 'Hello', kind: 'reveal' }],
-  content: '<p>hi</p>',
+  intro: '<p>hi</p>',
+  sections: [],
   title: 'T',
   release: { '01-hello': { released_at: '2026-01-01T00:00:00Z' } },
 });
 if (!html.includes('<p>hi</p>')) throw new Error('content');
 if (!html.includes('href="01-hello/"')) throw new Error('link');
 if (!html.includes('"released_at"')) throw new Error('release dump');
+if (!html.includes('非公開です')) throw new Error('private copy');
 if (html.includes('{%')) throw new Error('unexpanded ' + html);
 
 const deck = env.render('deck.njk', {

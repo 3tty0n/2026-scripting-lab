@@ -56,14 +56,18 @@ Reveal decks default to `code: python`.
 
 A real course using this kit: [2026-scripting-lang](https://github.com/3tty0n/2026-scripting-lang).
 
-## Scheduled release
+## Visibility
+
+`src/_data/release.yaml`:
 
 ```yaml
-01-intro:
+01-intro: public          # or 公開
+02-draft: private         # or 非公開 — omitted from _site
+03-next:
   released_at: 2026-04-01T10:30:00+09:00
 ```
 
-The home list shows “coming soon” until that time. URLs still work if known.
+Timed entries hide home links until that instant (the files are still built). `private` does not emit the deck at all. Missing keys are public.
 
 ## Build
 
@@ -82,7 +86,7 @@ module.exports = {
 
 `style.css` and `assets/` are copied when they exist.
 
-The home page is `src/index.njk`. It can `{% extends "page.njk" %}` (kit chrome) and fill `{% block header %}` / `{% block content %}`. If you omit it, the kit lists decks from `src/`. `src/index.md` is extra HTML in that default list.
+The home page is `src/index.md`. Front matter fills the header (`title`, `kicker`, `heading`, `subtitle`, `credit`). `## 01` / `### Title` become the numbered cards; a line that is only `[label](url)` becomes a button (first link is primary, `.ipynb` gets `download`). `{A}` / `{B}` on `###` mark variants. `>` is a callout. Raw HTML is kept. If `index.md` has no `##` sections, the kit lists decks from `src/`.
 
 ## Markdown
 

@@ -18,7 +18,7 @@
 {% block header %}
 <header>
   {% if site.kicker %}<p class="kicker">{{ site.kicker }}</p>{% endif %}
-  <h1>{{ site.title }}</h1>
+  <h1>{{ site.heading or site.title }}</h1>
   {% if site.subtitle %}<p class="sub">{{ site.subtitle }}</p>{% endif %}
   {% if site.credit %}<p class="sub">{{ site.credit }}</p>{% endif %}
 </header>
@@ -46,11 +46,17 @@
   }
   document.querySelectorAll('[data-release]').forEach(function (el) {
     var cfg = cfgFor(el.dataset.release);
-    if (!cfg || !cfg.released_at) return;
-    if (now >= new Date(cfg.released_at).getTime()) return;
+    if (!cfg) return;
+    var status = cfg.status || (cfg.released_at ? 'scheduled' : 'public');
+    if (status === 'public') return;
+    var until = cfg.released_at;
+    if (status === 'scheduled' && until && now >= new Date(until).getTime()) return;
     var note = document.createElement('span');
     note.className = 'lock-note';
-    note.textContent = '公開は ' + fmt(cfg.released_at) + ' までお待ちください';
+    note.textContent =
+      status === 'private' || !until
+        ? '非公開です'
+        : '公開は ' + fmt(until) + ' までお待ちください';
     if (el.classList.contains('links')) {
       el.replaceChildren(note);
     } else {

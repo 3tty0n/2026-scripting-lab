@@ -1,6 +1,25 @@
 {% extends "page.njk" %}
 {% block content %}
-{{ content | safe }}
+{{ intro | safe }}
+{% for s in sections %}
+<h2>{% if s.num %}<span class="n">{{ s.num }}</span>{% if s.heading %} {{ s.heading }}{% endif %}{% else %}{{ s.heading }}{% endif %}</h2>
+{{ s.lead | safe }}
+{% for c in s.cards %}
+<div class="card{% if c.variant %} variant{% if c.variant == 'B' %} b{% endif %}{% endif %}">
+  <h3>{{ c.title | safe }}{% if c.variant %}<span class="tag{% if c.variant == 'B' %} b{% endif %}">{{ c.variant }}</span>{% endif %}</h3>
+  {% if c.body %}<p>{{ c.body | safe }}</p>{% endif %}
+  {% for n in c.notes %}<p class="note">{{ n | safe }}</p>{% endfor %}
+  {% if c.links.length %}
+  <div class="links"{% if c.release %} data-release="{{ c.release }}"{% endif %}>
+    {% for a in c.links %}
+    <a{% if loop.first %} class="primary"{% endif %} href="{{ a.href }}"{% if a.download %} download{% endif %}>{{ a.text }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+{{ s.tail | safe }}
+{% else %}
 {% for deck in decks %}
 <h2><span class="n">{{ deck.dir | deckNum }}</span> {{ deck.title }} <span class="bar"></span></h2>
 <div class="card">
@@ -13,5 +32,6 @@
     {% endif %}
   </div>
 </div>
+{% endfor %}
 {% endfor %}
 {% endblock %}

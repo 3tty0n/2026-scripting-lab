@@ -1,4 +1,1 @@
----
-layout: slidekit-home
-permalink: /
----
+講義資料です。

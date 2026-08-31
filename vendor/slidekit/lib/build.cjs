@@ -6,6 +6,8 @@ const http = require('http');
 const yaml = require('js-yaml');
 const { discover } = require('./discover.cjs');
 const { createEnv, splitFrontmatter } = require('./render.cjs');
+const { parseHome } = require('./home.cjs');
+const { normalizeRelease, isPrivate } = require('./release.cjs');
 
 const KIT = path.join(__dirname, '..');
 
@@ -66,6 +68,7 @@ function build(opts = {}) {
   const outDir = path.join(cwd, out);
   const cfg = opts.config || loadConfig(cwd);
   const data = loadData(path.join(srcDir, '_data'));
+  if (data.release) data.release = normalizeRelease(data.release);
   const decks = opts.decks || discover(srcDir);
   const site = data.site || {};
   const env = createEnv([srcDir, path.join(KIT, 'theme')]);
@@ -86,6 +89,7 @@ function build(opts = {}) {
   if (fs.existsSync(liteCache)) copy(liteCache, path.join(outDir, 'lite'));
 
   for (const deck of decks) {
+    if (isPrivate(data.release, deck.dir)) continue;
     const dir = path.join(srcDir, deck.dir);
     for (const name of fs.readdirSync(dir)) {
       if (name === 'deck.yaml' || name.startsWith('.')) continue;
@@ -104,18 +108,29 @@ function build(opts = {}) {
     write(path.join(outDir, deck.dir, 'index.html'), page);
   }
 
-  if (fs.existsSync(path.join(srcDir, 'index.njk'))) {
+  const indexMd = path.join(srcDir, 'index.md');
+  const indexNjk = path.join(srcDir, 'index.njk');
+  if (fs.existsSync(indexMd)) {
+    const home = parseHome(fs.readFileSync(indexMd, 'utf8'), decks);
+    const fm = home.data || {};
+    const merged = { ...site, ...fm };
+    write(
+      path.join(outDir, 'index.html'),
+      env.render('home.njk', {
+        ...ctx,
+        site: merged,
+        title: fm.title || merged.heading || merged.title,
+        intro: home.intro,
+        sections: home.sections,
+      }),
+    );
+  } else if (fs.existsSync(indexNjk)) {
     write(path.join(outDir, 'index.html'), env.render('index.njk', ctx));
   } else if (fs.existsSync(path.join(srcDir, 'index.html'))) {
     const { body } = splitFrontmatter(fs.readFileSync(path.join(srcDir, 'index.html'), 'utf8'));
     write(path.join(outDir, 'index.html'), env.renderString(body, ctx));
   } else {
-    let content = '';
-    const indexMd = path.join(srcDir, 'index.md');
-    if (fs.existsSync(indexMd)) {
-      content = splitFrontmatter(fs.readFileSync(indexMd, 'utf8')).body;
-    }
-    write(path.join(outDir, 'index.html'), env.render('home.njk', { ...ctx, content, title: site.title }));
+    write(path.join(outDir, 'index.html'), env.render('home.njk', { ...ctx, intro: '', sections: [], title: site.title }));
   }
 
   return { outDir, decks };

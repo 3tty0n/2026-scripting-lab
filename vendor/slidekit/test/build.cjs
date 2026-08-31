@@ -11,12 +11,18 @@ fs.mkdirSync(path.join(root, 'src/01-hello'), { recursive: true });
 fs.writeFileSync(path.join(root, 'src/01-hello/slides.md'), '# Hello\n');
 fs.mkdirSync(path.join(root, 'src/02-talk'), { recursive: true });
 fs.writeFileSync(path.join(root, 'src/02-talk/slides.pdf'), '%PDF-1.4\n');
+fs.mkdirSync(path.join(root, 'src/03-secret'), { recursive: true });
+fs.writeFileSync(path.join(root, 'src/03-secret/slides.md'), '# Secret\n');
 fs.mkdirSync(path.join(root, 'src/_data'), { recursive: true });
 fs.writeFileSync(path.join(root, 'src/_data/site.json'), '{"title":"T","lang":"ja"}');
+fs.writeFileSync(
+  path.join(root, 'src/_data/release.yaml'),
+  '01-hello: public\n03-secret: private\n',
+);
 fs.writeFileSync(path.join(root, 'style.css'), 'body{}');
 fs.writeFileSync(
-  path.join(root, 'src/index.njk'),
-  '{% extends "page.njk" %}\n{% block title %}Custom{% endblock %}\n{% block content %}<p>BODY</p>{% endblock %}\n',
+  path.join(root, 'src/index.md'),
+  '---\ntitle: Custom\n---\n\n<p>BODY</p>\n',
 );
 
 const { outDir, decks } = build({ root });
@@ -32,5 +38,7 @@ if (!home.includes('BODY') || !home.includes('<title>Custom</title>')) throw new
 if (home.includes('{%')) throw new Error('extends leftover ' + home);
 if (!fs.existsSync(path.join(outDir, 'style.css'))) throw new Error('style');
 if (!fs.existsSync(path.join(outDir, 'assets/deck.js'))) throw new Error('kit assets');
+if (fs.existsSync(path.join(outDir, '03-secret'))) throw new Error('private emitted');
+if (!home.includes('"status":"private"')) throw new Error('private dump ' + home);
 fs.rmSync(root, { recursive: true, force: true });
 console.log('ok');
