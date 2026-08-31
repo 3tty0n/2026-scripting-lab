@@ -1,11 +1,8 @@
 # 公開 / 非公開 / 時限公開
-# public（または 公開）: すぐ出す
-# private（または 非公開）: トップから隠し、_site にも出さない
-# released_at: その時刻までトップのリンクを隠す（ファイルはビルドされる）
 01-basics: public
-02-text:
-  released_at: 2027-04-01T10:30:00+09:00
-03a-llm:
-  released_at: 2027-04-01T10:30:00+09:00
-03b-forth:
-  released_at: 2027-04-01T10:30:00+09:00
+02-text: public
+  # released_at: 2027-04-01T10:30:00+09:00
+03a-llm: public
+  # released_at: 2027-04-01T10:30:00+09:00
+03b-forth: public
+  # released_at: 2027-04-01T10:30:00+09:00
