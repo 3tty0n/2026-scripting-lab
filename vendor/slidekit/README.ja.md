@@ -22,7 +22,7 @@ src/
   index.md
   _data/site.json
   _data/release.yaml       # 任意
-  _data/lite.json          # 任意
+  _data/jupyter-lite.json  # 任意
   01-intro/slides.md       # Reveal
   02-guest/slides.pdf      # Beamer / PowerPoint
 ```
@@ -109,3 +109,5 @@ slidekit-handout 01-intro
 ```sh
 slidekit-jupyter-lite
 ```
+
+設定は `src/_data/jupyter-lite.json`。無いか中身が空なら何もしない。公開先は `/jupyter-lite/`。

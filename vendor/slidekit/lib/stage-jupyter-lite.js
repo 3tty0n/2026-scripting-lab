@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** lite.json の contents を JupyterLite 用ディレクトリへ展開する。 */
+/** jupyter-lite.json の contents を JupyterLite 用ディレクトリへ展開する。 */
 'use strict';
 
 const fs = require('fs');

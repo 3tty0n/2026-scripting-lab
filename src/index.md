@@ -87,9 +87,9 @@ API キーなど特別な準備は不要です。
     (初回だけダウンロード)。
   </p>
   <div class="links">
-    <a data-release="01-basics" href="lite/notebooks/index.html?path=01_basics.ipynb">第1回</a>
-    <a data-release="02-text" href="lite/notebooks/index.html?path=02_text.ipynb">第2回</a>
-    <a data-release="03a-llm" href="lite/notebooks/index.html?path=03a_llm_webllm.ipynb">第3回A (WebLLM 版)</a>
-    <a data-release="03b-forth" href="lite/notebooks/index.html?path=03b_forth.ipynb">第3回B</a>
+    <a data-release="01-basics" href="jupyter-lite/notebooks/index.html?path=01_basics.ipynb">第1回</a>
+    <a data-release="02-text" href="jupyter-lite/notebooks/index.html?path=02_text.ipynb">第2回</a>
+    <a data-release="03a-llm" href="jupyter-lite/notebooks/index.html?path=03a_llm_webllm.ipynb">第3回A (WebLLM 版)</a>
+    <a data-release="03b-forth" href="jupyter-lite/notebooks/index.html?path=03b_forth.ipynb">第3回B</a>
   </div>
 </details>

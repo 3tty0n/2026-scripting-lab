@@ -9,8 +9,9 @@ app.log
 out.txt
 scores.csv
 
-# JupyterLite (組み立ては .cache。_site へは Eleventy がコピー)
+# JupyterLite (組み立ては .cache。_site へは slidekit がコピー)
 lite/
+jupyter-lite/
 .cache/
 _lite_contents/
 .jupyterlite.doit.db

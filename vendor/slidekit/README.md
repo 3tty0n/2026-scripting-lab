@@ -32,7 +32,7 @@ src/
   index.md                 home (optional; kit supplies one)
   _data/site.json          title, kicker, …
   _data/release.yaml       scheduled release (optional)
-  _data/lite.json          JupyterLite files (optional)
+  _data/jupyter-lite.json  JupyterLite files (optional)
   01-intro/
     slides.md              Reveal.js
     deck.yaml              extra metadata (optional)
@@ -143,4 +143,4 @@ slidekit-handout 01-intro   # => src/01-intro/handout.pdf
 slidekit-jupyter-lite
 ```
 
-If the file is missing, or both `contents` and `fetch` are empty, `slidekit-jupyter-lite` does nothing.
+Put that in `src/_data/jupyter-lite.json`. If the file is missing, or both `contents` and `fetch` are empty, `slidekit-jupyter-lite` does nothing. The built site is at `/jupyter-lite/`.

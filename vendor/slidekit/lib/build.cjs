@@ -85,8 +85,13 @@ function build(opts = {}) {
     copy(path.join(cwd, rel), path.join(outDir, rel));
   }
 
-  const liteCache = opts.liteCache || path.join(cwd, '.cache/jupyterlite');
-  if (fs.existsSync(liteCache)) copy(liteCache, path.join(outDir, 'lite'));
+  const jupyterLiteCache =
+    opts.jupyterLiteCache ||
+    opts.liteCache ||
+    (fs.existsSync(path.join(cwd, '.cache/jupyter-lite'))
+      ? path.join(cwd, '.cache/jupyter-lite')
+      : path.join(cwd, '.cache/jupyterlite'));
+  if (fs.existsSync(jupyterLiteCache)) copy(jupyterLiteCache, path.join(outDir, 'jupyter-lite'));
 
   for (const deck of decks) {
     if (isPrivate(data.release, deck.dir)) continue;

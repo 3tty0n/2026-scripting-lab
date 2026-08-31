@@ -1,7 +1,7 @@
 #!/bin/sh
 # JupyterLite を組み立てる。カレントはコースルート。
 # usage: slidekit-jupyter-lite [OUTPUT]
-# 既定の出力は .cache/jupyterlite（slidekit build が _site/lite へコピーする）
+# 既定の出力は .cache/jupyter-lite（slidekit build が _site/jupyter-lite へコピーする）
 set -eu
 
 self=$0
@@ -19,15 +19,21 @@ while [ -L "$self" ]; do
 done
 kit=$(CDPATH= cd -- "$(dirname -- "$self")/.." && pwd)
 root=$(pwd)
-config=${LITE_CONFIG:-"$root/src/_data/lite.json"}
-out=${1:-"$root/.cache/jupyterlite"}
+if [ -n "${JUPYTER_LITE_CONFIG:-${LITE_CONFIG:-}}" ]; then
+  config=${JUPYTER_LITE_CONFIG:-$LITE_CONFIG}
+elif [ -f "$root/src/_data/jupyter-lite.json" ]; then
+  config="$root/src/_data/jupyter-lite.json"
+else
+  config="$root/src/_data/lite.json"
+fi
+out=${1:-"$root/.cache/jupyter-lite"}
 
 if [ ! -f "$config" ]; then
   echo "slidekit-jupyter-lite: no $config, skip"
   exit 0
 fi
-if ! node "$kit/lib/stage-lite.js" --check "$config"; then
-  echo "slidekit-jupyter-lite: lite.json has no contents, skip"
+if ! node "$kit/lib/stage-jupyter-lite.js" --check "$config"; then
+  echo "slidekit-jupyter-lite: jupyter-lite.json has no contents, skip"
   exit 0
 fi
 
@@ -39,11 +45,11 @@ python3 -m pip install -q \
 contents=$(mktemp -d)
 trap 'rm -rf "$contents" "$root/.jupyterlite.doit.db"' EXIT
 
-node "$kit/lib/stage-lite.js" "$config" "$contents"
+node "$kit/lib/stage-jupyter-lite.js" "$config" "$contents"
 rm -rf "$out"
 mkdir -p "$(dirname -- "$out")"
 jupyter lite build --contents "$contents" --output-dir "$out"
 
 echo "Built JupyterLite: $out"
 echo "  npm run build && npm run serve"
-echo "  Open: http://127.0.0.1:8000/lite/lab/index.html"
+echo "  Open: http://127.0.0.1:8000/jupyter-lite/lab/index.html"

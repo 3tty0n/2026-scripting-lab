@@ -46,9 +46,9 @@ npx slidekit-jupyter-lite
 npm run serve
 #+end_src
 
-http://127.0.0.1:8000/lite/lab/index.html
+http://127.0.0.1:8000/jupyter-lite/lab/index.html
 
-中身の指定は =src/_data/lite.json=。第3回A の torch 版は含めず WebLLM 版だけ入れる。
+中身の指定は =src/_data/jupyter-lite.json=。第3回A の torch 版は含めず WebLLM 版だけ入れる。
 
 提出は kibaco。=grade.html= へのアップロードは提出ではない。
 
@@ -224,4 +224,4 @@ Git hook (=tools/install-hooks.sh=) を入れると:
 sh tools/install-hooks.sh
 #+end_src
 
-=_site/lite/= (JupyterLite) は CI だけが組み立て、リポジトリには入れない。
+=_site/jupyter-lite/= (JupyterLite) は CI だけが組み立て、リポジトリには入れない。
