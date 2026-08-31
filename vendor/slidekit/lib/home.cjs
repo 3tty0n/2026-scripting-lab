@@ -1,6 +1,7 @@
 'use strict';
 
 const { splitFrontmatter } = require('./render.cjs');
+const { expandHref } = require('./gist.cjs');
 
 const LINK = /^\[([^\]]+)\]\(([^)]+)\)\s*$/;
 
@@ -91,7 +92,7 @@ function readHtml(lines, i) {
   return { html: s + '\n', i };
 }
 
-function parseHome(raw, decks) {
+function parseHome(raw, decks, gists) {
   const { data, body } = splitFrontmatter(raw);
   const lines = String(body).replace(/\r\n/g, '\n').split('\n');
   let intro = '';
@@ -160,7 +161,8 @@ function parseHome(raw, decks) {
       const { out, i: next } = readWhile(lines, i, (ln) => kind(ln) === 'link');
       const links = out.map((ln) => {
         const m = ln.trim().match(LINK);
-        return { text: m[1], href: m[2], download: /\.ipynb(\?|$)/i.test(m[2]) && !/^[a-z]+:/i.test(m[2]) };
+        const href = expandHref(m[2], gists);
+        return { text: m[1], href, download: /\.ipynb(\?|$)/i.test(href) && !/^[a-z]+:/i.test(href) };
       });
       i = next;
       if (card) card.links.push(...links);

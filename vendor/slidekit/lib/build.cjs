@@ -8,6 +8,7 @@ const { discover } = require('./discover.cjs');
 const { createEnv, splitFrontmatter } = require('./render.cjs');
 const { parseHome } = require('./home.cjs');
 const { normalizeRelease, isPrivate } = require('./release.cjs');
+const { loadGists } = require('./gist.cjs');
 
 const KIT = path.join(__dirname, '..');
 
@@ -69,6 +70,7 @@ function build(opts = {}) {
   const cfg = opts.config || loadConfig(cwd);
   const data = loadData(path.join(srcDir, '_data'));
   if (data.release) data.release = normalizeRelease(data.release);
+  const gists = loadGists(data.gists);
   const decks = opts.decks || discover(srcDir);
   const site = data.site || {};
   const env = createEnv([srcDir, path.join(KIT, 'theme')]);
@@ -116,7 +118,7 @@ function build(opts = {}) {
   const indexMd = path.join(srcDir, 'index.md');
   const indexNjk = path.join(srcDir, 'index.njk');
   if (fs.existsSync(indexMd)) {
-    const home = parseHome(fs.readFileSync(indexMd, 'utf8'), decks);
+    const home = parseHome(fs.readFileSync(indexMd, 'utf8'), decks, gists);
     const fm = home.data || {};
     const merged = { ...site, ...fm };
     write(

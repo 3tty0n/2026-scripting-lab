@@ -17,7 +17,7 @@
     "bin"
   ],
   "scripts": {
-    "test": "node test/discover.cjs && node test/render.cjs && node test/home.cjs && node test/release.cjs && node test/theme.cjs && node test/build.cjs"
+    "test": "node test/discover.cjs && node test/render.cjs && node test/home.cjs && node test/gist.cjs && node test/release.cjs && node test/theme.cjs && node test/build.cjs"
   },
   "repository": {
     "type": "git",

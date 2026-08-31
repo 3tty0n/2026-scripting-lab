@@ -19,11 +19,13 @@ function usage() {
   console.log(`Usage:
   slidekit init "title" [dir]
   slidekit create <id> [title] [--code python|webllm|none] [--model ID] [--models ID,ID]
+  slidekit gist [--check | hook | add <file>]
   slidekit build
   slidekit serve [--port N]
 
 init    new course, with this package copied into vendor/slidekit
 create  add src/<id>/slides.md (Reveal). A dir with only PDFs is served as-is.
+gist    sync notebooks to GitHub Gists (Colab)
 build   write _site
 serve   build and serve _site`);
 }
@@ -181,6 +183,8 @@ if (cmd === 'init' || cmd === 'create' || cmd === 'deck') {
     else if (rest[i].startsWith('--port=')) port = Number(rest[i].slice(7)) || 8000;
   }
   require('../lib/build.cjs').serve({ port });
+} else if (cmd === 'gist') {
+  require('../lib/gist.cjs').cli(raw.slice(1));
 } else {
   usage();
   process.exit(cmd ? 1 : 0);

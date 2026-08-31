@@ -33,6 +33,7 @@ src/
   _data/site.json          title, kicker, …
   _data/release.yaml       scheduled release (optional)
   _data/jupyter-lite.json  JupyterLite files (optional)
+  _data/gists.yaml         gist ids for Colab (optional)
   01-intro/
     slides.md              Reveal.js
     deck.yaml              extra metadata (optional)
@@ -144,3 +145,23 @@ slidekit-jupyter-lite
 ```
 
 Put that in `src/_data/jupyter-lite.json`. If the file is missing, or both `contents` and `fetch` are empty, `slidekit-jupyter-lite` does nothing. The built site is at `/jupyter-lite/`.
+
+## Gists (Colab)
+
+`src/_data/gists.yaml`:
+
+```yaml
+user: 3tty0n
+01_basics.ipynb: c3f350eac43bfaceee52c4e46211acf8
+```
+
+In `index.md`, `[Colab で開く](gist:01_basics.ipynb)` becomes a Colab URL. Files without a slash live in `exercises/`.
+
+```sh
+slidekit gist            # push local notebooks to GitHub Gists
+slidekit gist --check    # report drift, do not upload
+slidekit gist add exercises/01_basics.ipynb
+slidekit gist hook       # install a pre-push hook
+```
+
+Needs `gh`. `tools/gists.txt` (`filename id` per line) still works if the YAML is missing.

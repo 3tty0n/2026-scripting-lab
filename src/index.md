@@ -17,7 +17,7 @@ credit: "担当: 伊澤 侑祐 (情報科学科、助教、yizawa _at_ tmu.ac.jp
 
 Python の基礎を簡潔に学びます。動的言語としての特徴も学習します。
 
-[Colab で開く](https://colab.research.google.com/gist/3tty0n/c3f350eac43bfaceee52c4e46211acf8/01_basics.ipynb)
+[Colab で開く](gist:01_basics.ipynb)
 [スライド](01-basics/)
 [ハンドアウト](01-basics/handout.pdf)
 [.ipynb を保存](exercises/01_basics.ipynb)
@@ -29,7 +29,7 @@ Python の基礎を簡潔に学びます。動的言語としての特徴も学�
 1回目で勉強した内容を少し発展させます。
 テキストのトーカナイズ (字句解析) から文章生成と計算まで行います。
 
-[Colab で開く](https://colab.research.google.com/gist/3tty0n/b22ee21987175a8a41d05effd8a58deb/02_text.ipynb)
+[Colab で開く](gist:02_text.ipynb)
 [スライド](02-text/)
 [ハンドアウト](02-text/handout.pdf)
 [.ipynb を保存](exercises/02_text.ipynb)
@@ -47,7 +47,7 @@ API キーなど特別な準備は不要です。
 この回はモデルを動かすので Colab が基本です。
 `ランタイムのタイプを変更 → T4 GPU` にすると速くなります。
 
-[Colab で開く](https://colab.research.google.com/gist/3tty0n/1c0f3cf4d3f4fb2f30354677156e75ea/03a_llm.ipynb)
+[Colab で開く](gist:03a_llm.ipynb)
 [スライド](03a-llm/)
 [ハンドアウト](03a-llm/handout.pdf)
 [.ipynb を保存](exercises/03a_llm.ipynb)
@@ -58,7 +58,7 @@ API キーなど特別な準備は不要です。
 第2回の逆ポーランド電卓に `: 名前 … ;` を足して
 **実行中に語彙を増やせる**ようにすると、電卓が言語になります。
 
-[Colab で開く](https://colab.research.google.com/gist/3tty0n/97852f1114d1b445a903b5a641f07ce7/03b_forth.ipynb)
+[Colab で開く](gist:03b_forth.ipynb)
 [スライド](03b-forth/)
 [ハンドアウト](03b-forth/handout.pdf)
 [.ipynb を保存](exercises/03b_forth.ipynb)
@@ -71,9 +71,6 @@ API キーなど特別な準備は不要です。
 - 確認セル (`# [CHECK]`) は自分で確かめる用。
       **消しても教員の採点は別のテストで行う**が、自分では確かめられなくなるので残すこと。
       書き換えても点は変わりません
-
-> **正式な提出は kibaco から。**
-> 採点ページは出来具合いを確かめるための場所で、そこに置いても提出したことにはなりません。
 
 ## どうしても Colab を使いたくない人向け
 

@@ -81,4 +81,15 @@ if (sub.heading !== '提出' || !sub.lead.includes('<ul>') || !sub.lead.includes
 }
 if (!extra.lead.includes('<details class="alt">')) throw new Error('html ' + extra.lead);
 
+const { loadGists } = require('../lib/gist.cjs');
+const gistHome = parseHome(
+  '## 01\n\n### Hello\n\n[Colab で開く](gist:01_basics.ipynb)\n[スライド](01-basics/)\n',
+  decks,
+  loadGists({ user: '3tty0n', '01_basics.ipynb': 'c3f350eac43bfaceee52c4e46211acf8' }),
+);
+const colab = gistHome.sections[0].cards[0].links[0].href;
+if (!colab.includes('colab.research.google.com/gist/3tty0n/c3f350eac43bfaceee52c4e46211acf8/01_basics.ipynb')) {
+  throw new Error('gist link ' + colab);
+}
+
 console.log('ok');

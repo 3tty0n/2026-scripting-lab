@@ -23,6 +23,7 @@ src/
   _data/site.json
   _data/release.yaml       # 任意
   _data/jupyter-lite.json  # 任意
+  _data/gists.yaml         # 任意 (Colab)
   01-intro/slides.md       # Reveal
   02-guest/slides.pdf      # Beamer / PowerPoint
 ```
@@ -111,3 +112,23 @@ slidekit-jupyter-lite
 ```
 
 設定は `src/_data/jupyter-lite.json`。無いか中身が空なら何もしない。公開先は `/jupyter-lite/`。
+
+## Gist (Colab)
+
+`src/_data/gists.yaml`:
+
+```yaml
+user: 3tty0n
+01_basics.ipynb: c3f350eac43bfaceee52c4e46211acf8
+```
+
+`index.md` の `[Colab で開く](gist:01_basics.ipynb)` が Colab の URL になる。スラッシュなしのファイルは `exercises/` 配下。
+
+```sh
+slidekit gist            # 手元のノートを Gist へ送る
+slidekit gist --check    # 差分だけ見る
+slidekit gist add exercises/01_basics.ipynb
+slidekit gist hook       # pre-push を入れる
+```
+
+`gh` が必要。YAML が無ければ `tools/gists.txt` (`ファイル名 id`) も読む。

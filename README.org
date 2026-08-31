@@ -34,10 +34,12 @@
 課題を直したら Gist にも送る (push フック)。
 
 #+begin_src sh
-sh tools/install-hooks.sh        # 1回だけ
-sh tools/sync-gists.sh --check
-sh tools/sync-gists.sh
+npx slidekit gist hook     # 1回だけ
+npx slidekit gist --check
+npx slidekit gist
 #+end_src
+
+対応表は =src/_data/gists.yaml=。トップの =gist:ファイル名= が Colab の URL になる。
 
 Colab が使えないときは JupyterLite。手元:
 

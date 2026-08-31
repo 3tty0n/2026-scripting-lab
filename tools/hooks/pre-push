@@ -1,12 +1,9 @@
 #!/bin/sh
-# push 直前: Synchronize exercies with gist
+# slidekit gist
 set -eu
-
-root=$(git rev-parse --show-toplevel)
-cd "$root"
-
+cd "$(git rev-parse --show-toplevel)"
 if command -v gh >/dev/null 2>&1; then
-  sh tools/sync-gists.sh || {
+  npx slidekit gist || {
     echo "Failed to update gists" >&2
     exit 1
   }

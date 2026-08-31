@@ -5,7 +5,8 @@
     "build": "slidekit build",
     "serve": "slidekit serve",
     "handout": "slidekit-handout",
-    "jupyter-lite": "slidekit-jupyter-lite"
+    "jupyter-lite": "slidekit-jupyter-lite",
+    "gist": "slidekit gist"
   },
   "dependencies": {
     "slidekit": "file:vendor/slidekit"
