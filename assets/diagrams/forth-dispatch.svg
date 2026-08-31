@@ -1,15 +1,59 @@
-<?xml-stylesheet type="text/css" href="diagram-font.css"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
-  <title id="title">Forthのディスパッチループ</title>
-  <desc id="desc">トークンを読み、辞書を引き、数値やワードに応じて処理する</desc>
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
-      markerWidth="8" markerHeight="8" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f4a40"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/css" href="diagram-font.css"?><svg
+   viewBox="0 0 1023 306"
+   role="img"
+   aria-labelledby="title desc"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="forth-dispatch.svg"
+   width="1023"
+   height="306"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview10"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.73333333"
+     inkscape:cx="561.13636"
+     inkscape:cy="175.90909"
+     inkscape:window-width="1761"
+     inkscape:window-height="1219"
+     inkscape:window-x="1096"
+     inkscape:window-y="309"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg10" />
+  <title
+     id="title">Forthのディスパッチループ</title>
+  <desc
+     id="desc">トークンを読み、辞書を引き、数値やワードに応じて処理する</desc>
+  <defs
+     id="defs1">
+    <marker
+       id="arrow"
+       viewBox="0 0 10 10"
+       refX="8"
+       refY="5"
+       markerWidth="8"
+       markerHeight="8"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#4f4a40"
+         id="path1" />
     </marker>
   </defs>
-  <style>
-    text { font-family: "IBM Plex Sans JP", "Hiragino Sans", sans-serif; }
+  <style
+     id="style1">
+    text { font-family: &quot;IBM Plex Sans JP&quot;, &quot;Hiragino Sans&quot;, sans-serif; }
     .box { stroke: #14140f; stroke-width: 3; }
     .main { font-size: 26px; font-weight: 600; text-anchor: middle; }
     .small { font-size: 22px; text-anchor: middle; }
@@ -20,28 +64,134 @@
     .action-text { fill: #faf8f4; font-size: 22px; text-anchor: middle; }
     .arrow { stroke: #4f4a40; stroke-width: 4; marker-end: url(#arrow); }
   </style>
-  <rect class="box read" x="40" y="35" width="270" height="85"/>
-  <text class="main" x="175" y="88">トークンを読む</text>
-  <line class="arrow" x1="330" y1="77" x2="375" y2="77"/>
-  <rect class="box get" x="395" y="35" width="270" height="85"/>
-  <text class="main" x="530" y="88">辞書を引く</text>
-  <line class="arrow" x1="685" y1="77" x2="730" y2="77"/>
-  <rect class="box eval" x="750" y="35" width="310" height="85"/>
-  <text class="main" x="905" y="88">スタックを操作する</text>
-  <path class="arrow" fill="none" d="M905 135 V175 H200 V135"/>
-  <line class="arrow" x1="200" y1="190" x2="200" y2="235"/>
-  <line class="arrow" x1="530" y1="190" x2="530" y2="235"/>
-  <line class="arrow" x1="860" y1="190" x2="860" y2="235"/>
-  <rect class="box" fill="#faf8f4" x="70" y="255" width="260" height="65"/>
-  <text class="small" x="200" y="295">数値だった</text>
-  <rect class="action" x="70" y="335" width="260" height="55"/>
-  <text class="action-text" x="200" y="370">スタックに push</text>
-  <rect class="box" fill="#faf8f4" x="400" y="255" width="260" height="65"/>
-  <text class="small" x="530" y="295">ワードだった</text>
-  <rect class="action" x="400" y="335" width="260" height="55"/>
-  <text class="action-text" x="530" y="370">対応する関数を呼ぶ</text>
-  <rect class="box" fill="#faf8f4" x="730" y="255" width="260" height="65"/>
-  <text class="small" x="860" y="295">未知のワード</text>
-  <rect class="action" x="730" y="335" width="260" height="55"/>
-  <text class="action-text" x="860" y="370">エラー</text>
+  <rect
+     class="box read"
+     x="1.5"
+     y="1.5"
+     width="270"
+     height="85"
+     id="rect1" />
+  <text
+     class="main"
+     x="136.5"
+     y="54.5"
+     id="text1">トークンを読む</text>
+  <line
+     class="arrow"
+     x1="291.5"
+     y1="43.5"
+     x2="336.5"
+     y2="43.5"
+     id="line1" />
+  <rect
+     class="box get"
+     x="356.5"
+     y="1.5"
+     width="270"
+     height="85"
+     id="rect2" />
+  <text
+     class="main"
+     x="491.5"
+     y="54.5"
+     id="text2">辞書を引く</text>
+  <line
+     class="arrow"
+     x1="646.5"
+     y1="43.5"
+     x2="691.5"
+     y2="43.5"
+     id="line2" />
+  <rect
+     class="box eval"
+     x="711.5"
+     y="1.5"
+     width="310"
+     height="85"
+     id="rect3" />
+  <text
+     class="main"
+     x="866.5"
+     y="54.5"
+     id="text3">スタックを操作する</text>
+  <path
+     class="arrow"
+     fill="none"
+     d="m 866.5,101.5 v 40 h -705 v -40"
+     id="path3" />
+  <rect
+     class="box"
+     fill="#faf8f4"
+     x="31.5"
+     y="169.5"
+     width="260"
+     height="65"
+     id="rect5" />
+  <text
+     class="small"
+     x="161.5"
+     y="209.5"
+     id="text5">数値だった</text>
+  <rect
+     class="action"
+     x="31.5"
+     y="249.5"
+     width="260"
+     height="55"
+     id="rect6" />
+  <text
+     class="action-text"
+     x="161.5"
+     y="284.5"
+     id="text6">スタックに push</text>
+  <rect
+     class="box"
+     fill="#faf8f4"
+     x="361.5"
+     y="169.5"
+     width="260"
+     height="65"
+     id="rect7" />
+  <text
+     class="small"
+     x="491.5"
+     y="209.5"
+     id="text7">ワードだった</text>
+  <rect
+     class="action"
+     x="361.5"
+     y="249.5"
+     width="260"
+     height="55"
+     id="rect8" />
+  <text
+     class="action-text"
+     x="491.5"
+     y="284.5"
+     id="text8">対応する関数を呼ぶ</text>
+  <rect
+     class="box"
+     fill="#faf8f4"
+     x="691.5"
+     y="169.5"
+     width="260"
+     height="65"
+     id="rect9" />
+  <text
+     class="small"
+     x="821.5"
+     y="209.5"
+     id="text9">未知のワード</text>
+  <rect
+     class="action"
+     x="691.5"
+     y="249.5"
+     width="260"
+     height="55"
+     id="rect10" />
+  <text
+     class="action-text"
+     x="821.5"
+     y="284.5"
+     id="text10">エラー</text>
 </svg>

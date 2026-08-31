@@ -1,31 +1,143 @@
-<?xml-stylesheet type="text/css" href="diagram-font.css"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 190" role="img" aria-labelledby="title desc">
-  <title id="title">文字列から命令を実行する流れ</title>
-  <desc id="desc">文字列を分割し、辞書から対応する関数を引いて実行する</desc>
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
-      markerWidth="8" markerHeight="8" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f4a40"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/css" href="diagram-font.css"?><svg
+   viewBox="0 0 1200 190"
+   role="img"
+   aria-labelledby="title desc"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="lexer-command.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.0370899"
+     inkscape:cx="599.75512"
+     inkscape:cy="94.977297"
+     inkscape:window-width="2122"
+     inkscape:window-height="1234"
+     inkscape:window-x="8"
+     inkscape:window-y="30"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg6" />
+  <title
+     id="title">文字列から命令を実行する流れ</title>
+  <desc
+     id="desc">文字列を分割し、辞書から対応する関数を引いて実行する</desc>
+  <defs
+     id="defs1">
+    <marker
+       id="arrow"
+       viewBox="0 0 10 10"
+       refX="8"
+       refY="5"
+       markerWidth="8"
+       markerHeight="8"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#4f4a40"
+         id="path1" />
     </marker>
   </defs>
-  <style>
-    text { font-family: "IBM Plex Sans JP", "Hiragino Sans", sans-serif; }
+  <style
+     id="style1">
+    text { font-family: &quot;IBM Plex Sans JP&quot;, &quot;Hiragino Sans&quot;, sans-serif; }
     .box { stroke: #14140f; stroke-width: 3; }
     .main { font-size: 26px; font-weight: 600; text-anchor: middle; }
     .sub { fill: #4f4a40; font-size: 20px; text-anchor: middle; }
     .arrow { stroke: #4f4a40; stroke-width: 4; marker-end: url(#arrow); }
   </style>
-  <rect class="box" fill="#f6e9c6" x="20" y="48" width="250" height="88"/>
-  <text class="main" x="145" y="101">"shout hello"</text>
-  <line class="arrow" x1="290" y1="92" x2="325" y2="92"/>
-  <rect class="box" fill="#d5e8e5" x="345" y="48" width="185" height="88"/>
-  <text class="main" x="437" y="88">split</text>
-  <text class="sub" x="437" y="116">字句解析</text>
-  <line class="arrow" x1="550" y1="92" x2="585" y2="92"/>
-  <rect class="box" fill="#d5e8e5" x="605" y="48" width="250" height="88"/>
-  <text class="main" x="730" y="88">COMMANDS[name]</text>
-  <text class="sub" x="730" y="116">ディスパッチ</text>
-  <line class="arrow" x1="875" y1="92" x2="910" y2="92"/>
-  <rect class="box" fill="#f7ded2" x="930" y="48" width="240" height="88"/>
-  <text class="main" x="1050" y="101">HELLO!!</text>
+  <rect
+     class="box"
+     fill="#f6e9c6"
+     x="4"
+     y="48"
+     width="250"
+     height="88"
+     id="rect1" />
+  <text
+     class="main"
+     x="129"
+     y="101"
+     id="text1">&quot;shout hello&quot;</text>
+  <line
+     class="arrow"
+     x1="270"
+     y1="92"
+     x2="305"
+     y2="92"
+     id="line1" />
+  <rect
+     class="box"
+     fill="#d5e8e5"
+     x="325"
+     y="48"
+     width="185"
+     height="88"
+     id="rect2" />
+  <text
+     class="main"
+     x="417"
+     y="88"
+     id="text2">split</text>
+  <text
+     class="sub"
+     x="417"
+     y="116"
+     id="text3">字句解析</text>
+  <line
+     class="arrow"
+     x1="522"
+     y1="92"
+     x2="557"
+     y2="92"
+     id="line3" />
+  <rect
+     class="box"
+     fill="#d5e8e5"
+     x="574.30762"
+     y="48.16317"
+     width="308.4921"
+     height="87.67366"
+     id="rect3" />
+  <text
+     class="main"
+     x="730"
+     y="88"
+     id="text4">COMMANDS[name]</text>
+  <text
+     class="sub"
+     x="730"
+     y="116"
+     id="text5">ディスパッチ</text>
+  <line
+     class="arrow"
+     x1="899"
+     y1="92"
+     x2="934"
+     y2="92"
+     id="line5" />
+  <rect
+     class="box"
+     fill="#f7ded2"
+     x="958"
+     y="48"
+     width="240"
+     height="88"
+     id="rect5" />
+  <text
+     class="main"
+     x="1078"
+     y="101"
+     id="text6">HELLO!!</text>
 </svg>
