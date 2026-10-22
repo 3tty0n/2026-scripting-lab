@@ -1,6 +1,6 @@
 DECKS := 01-basics 02-text 03a-llm 03b-forth
 HANDOUTS := $(DECKS:%=src/%/handout.pdf)
-BEAMERS := $(DECKS:%=src/%/beamer.pdf)
+BEAMERS := $(foreach d,$(DECKS),src/$(d)/$(d)-beamer.pdf)
 
 .PHONY: handouts beamer pdfs clean-handouts build serve jupyter-lite
 
@@ -21,8 +21,12 @@ src/%/handout.pdf: src/%/slides.md
 # Beamer (LuaLaTeX)。同じ slides.md から作る
 beamer: $(BEAMERS)
 
-src/%/beamer.pdf: src/%/slides.md tools/build-beamer.sh tools/beamer-prep.py tools/beamer-overflow.py tools/beamer-header.tex
-	tools/build-beamer.sh $* $@
+# 出力名は <回>-beamer.pdf。ダウンロードしても他の回と名前が重ならない
+define BEAMER_RULE
+src/$(1)/$(1)-beamer.pdf: src/$(1)/slides.md tools/build-beamer.sh tools/beamer-prep.py tools/beamer-overflow.py tools/beamer-header.tex
+	tools/build-beamer.sh $(1) $$@
+endef
+$(foreach d,$(DECKS),$(eval $(call BEAMER_RULE,$(d))))
 
 # レジュメ (A4) と Beamer を一度に作る
 pdfs: handouts beamer

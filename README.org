@@ -222,7 +222,7 @@ make handouts                    # 全4回
 Web のスライドと内容がずれない。レジュメ (A4) と一緒に作るなら =make pdfs=。
 
 #+begin_src sh
-tools/build-beamer.sh 01-basics    # 1回分 → src/01-basics/beamer.pdf
+tools/build-beamer.sh 01-basics    # 1回分 → src/01-basics/01-basics-beamer.pdf
 make beamer                        # 全4回
 make pdfs                          # レジュメ (A4) と Beamer を一度に
 #+end_src
@@ -232,7 +232,8 @@ make pdfs                          # レジュメ (A4) と Beamer を一度に
 - =::: hstack= は Beamer の段組みになる。1枚に収まらないフレームは、自動で次のページへ続く
   (検出に =pdftotext= を使う。無ければ続きの処理は行わない)
 - 見た目は =tools/beamer-header.tex=、変換は =tools/beamer-prep.py=
-- 出力は =src/<回>/beamer.pdf= (git には入れない。CI が作って公開する)
+- 出力は =src/<回>/<回>-beamer.pdf= (例: =01-basics-beamer.pdf=。ダウンロードしても名前が重ならない)。
+  git には入れず、CI が作って公開する
 
 Git hook (=tools/install-hooks.sh=) を入れると:
 

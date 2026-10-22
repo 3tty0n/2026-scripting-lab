@@ -1,5 +1,5 @@
 #!/bin/sh
-# usage: tools/build-beamer.sh DECK [OUTPUT.pdf]
+# usage: tools/build-beamer.sh DECK [OUTPUT.pdf]   (既定の出力: src/DECK/DECK-beamer.pdf)
 # slides.md (Reveal 用 DSL) から Beamer の PDF を作る。DECK は 01-basics または src/01-basics。
 # Web のスライドと同じ slides.md から作るので、内容がずれない。
 set -eu
@@ -13,7 +13,7 @@ case "$deck" in
   *) deck_dir=src/$deck ;;
 esac
 source_file=$root/$deck_dir/slides.md
-output=${2:-$root/$deck_dir/beamer.pdf}
+output=${2:-$root/$deck_dir/$(basename "$deck_dir")-beamer.pdf}
 test -f "$source_file"
 
 tmp=$(mktemp -d)

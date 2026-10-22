@@ -19,7 +19,7 @@ _lite_contents/
 # ビルド成果物 (GitHub Pages は CI が組み立てた _site をデプロイする)
 _site/
 src/*/handout.pdf
-src/*/beamer.pdf
+src/*/*-beamer.pdf
 
 .playwright-mcp/
 
