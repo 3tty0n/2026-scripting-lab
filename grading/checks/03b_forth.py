@@ -8,7 +8,6 @@ grading/grade.py が読み込み、学生の名前空間に対して実行する
 CHECKS = [
     ('q1', '算術', 20, [
         "need('WORDS', kind=dict)",
-        "need('word', arity=1)",
         "need('evaluate', arity=2)",
         "need('forth_eval', arity=2)",
         "need('run', arity=1)",
@@ -34,12 +33,12 @@ CHECKS = [
         'else:',
         "    raise AssertionError('知らないワードは ValueError を出すこと')",
         '',
-        '# word() はデコレータとして働き、関数を壊さないこと',
-        "@word('NEG')",
+        '# WORDS に後から足したワードも、evaluate を変えずに使えること',
         'def _neg(s):',
         '    s.append(-s.pop())',
+        "WORDS['NEG'] = _neg",
         "assert run('5 NEG') == [-5], '実行中にワードを増やせること'",
-        "assert callable(_neg), 'word は関数をそのまま返すこと'",
+        "del WORDS['NEG']",
         "print('OK')",
     ]),
     ('q2', 'スタック操作ワード', 20, [

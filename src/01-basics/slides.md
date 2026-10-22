@@ -1,6 +1,6 @@
 Scripting Languages / Dynamic Languages / 01
 
-# Python 入門: 関数とデコレータ
+# Python 入門: 関数と辞書
 
 ### スクリプト言語演習
 
@@ -15,11 +15,11 @@ Scripting Languages / Dynamic Languages / 01
 | 0. 復習 | 値・リスト・辞書を使う | `list`, `dict`, `for` | |
 | 1. 関数を書く | 定義し、呼び、自分自身も呼ぶ | `def`, 引数, 再帰 | 0, 1 |
 | 2. 関数を値にする | 変数・辞書に入れて選ぶ | 関数を入れた辞書 | 2 |
-| 3. 関数を包む | 本体を変えずに機能を足す | デコレータ | 3 |
-| 4. 表に登録する | 文字列から関数を実行する | 登録デコレータ | 4 |
+| 3. 答えを覚える | 同じ計算をくり返さない | 答えを入れた辞書 | 3 |
+| 4. 表に登録する | 文字列から関数を実行する | 関数を入れた辞書 | 4, 4-b |
 
 - 今日のゴール: 関数を「部品」として、変数や辞書に入れて使えるようになる
-- 流れ: 関数を書く → 関数を辞書に入れる → 関数を包む → 文字列から呼ぶ
+- 流れ: 関数を書く → 関数を辞書に入れる → 答えを辞書に覚える → 文字列から呼ぶ
 - 各スライドの右側に、コードの読み方を書いてある
 
 ---
@@ -272,121 +272,83 @@ calc("add", 2, 3)    # 5
 
 ---
 
-## デコレータ: 関数を包んで、機能を足す
-### 3. 関数を包む
+## 答えを辞書に覚えて、同じ計算をしない
+### 3. 答えを覚える — 課題3
 
 ::: hstack wrap 3 2
 ```python
-def logged(func):
-    def wrapper(*args):
-        print(f"{func.__name__}{args}")
-        return func(*args)
-    return wrapper
+TARAI_CACHE = {}
 
-def add(a, b):
-    return a + b
-
-add = logged(add)
-add(2, 3)    # add(2, 3) と表示され、5 を返す
-```
-|||
-**コードの読み方**
-
-1. `logged` は、関数 `func` を受け取る
-2. 中で、新しい関数 `wrapper` を作る。`wrapper` は「名前と引数を表示する → 元の `func` を呼ぶ」
-3. `wrapper` を返す
-4. `add = logged(add)` で、`add` が「表示つきの add」に入れ替わる
-5. `*args` は、受け取った引数をそのまま元の関数へ渡すための書き方
-:::
-
-- `add = logged(add)` は、`def add` の上に `@logged` と書いても同じ意味
-- 元の関数 `add` の中身は書き換えない
-- 外側の `func` を `wrapper` が覚えている仕組み (クロージャ) は付録。「そういうものだ」で進めてよい
-
----
-
-## デコレータによる計算結果の再利用
-### 3. 関数を包む — 課題3
-
-::: hstack wrap 3 2
-```python
-def memo(func):
-    cache = {}
-    def wrapper(*args):
-        if args not in cache:
-            cache[args] = func(*args)
-        return cache[args]
-    return wrapper
-
-@memo
-def tarai(x, y, z):
+def tarai_memo(x, y, z):
+    key = (x, y, z)
+    if key in TARAI_CACHE:
+        return TARAI_CACHE[key]
     if x <= y:
-        return y
-    return tarai(tarai(x-1, y, z),
-                 tarai(y-1, z, x),
-                 tarai(z-1, x, y))
+        result = y
+    else:
+        result = tarai_memo(
+            tarai_memo(x-1, y, z),
+            tarai_memo(y-1, z, x),
+            tarai_memo(z-1, x, y))
+    TARAI_CACHE[key] = result
+    return result
 ```
 |||
 **コードの読み方**
 
-1. `cache = {}`: 計算結果を書きとめる空のメモ帳 (辞書)
-2. 引数 `args` が、メモ帳に無ければ、元の関数を呼んで、答えを書きとめる
-3. メモ帳にあれば、元の関数は呼ばずに、書きとめた答えを返す
-4. `@memo` を付けると、`tarai` の呼び出しが、すべてメモ帳を通る
-
-- `tarai` の中身は変えていない
+1. `TARAI_CACHE = {}`: 答えを書きとめる、空のメモ帳 (辞書)
+2. `key = (x, y, z)`: 3 つの引数を 1 組にして、メモ帳の見出しにする
+3. メモ帳に見出しがあれば、計算せずに、書きとめた答えを返す
+4. 無ければ、`tarai` と同じ計算をする。呼ぶ相手は `tarai_memo`
+5. 答えをメモ帳に書いてから返す
 :::
 
 ---
 
-## 1行で得られる効果
-### 3. 関数を包む — 課題3-b
+## 答えを覚えるだけで、計算が 5 万分の 1 になる
+### 3. 答えを覚える — 課題3
 
-- `tarai` の本文は変更不要
-- 同じ引数に対する再計算の削減
-- 1行の追加による、呼び出し回数の約5万分の1への削減
-
-| `tarai(12, 6, 0)` | 呼び出し回数 | 時間 |
+| `tarai(12, 6, 0)` | 計算する回数 | 時間 |
 |---|---|---|
-| `@memo` なし | 12,604,861 回 | 約 1 秒 |
-| `@memo` あり | **225 回** | 一瞬 |
+| 覚えない (課題1) | 12,604,861 回 | 約 1 秒 |
+| 辞書に覚える (課題3) | **225 回** | 一瞬 |
 
-> 同じ計算の繰り返しでは、一度求めた答えを保存し再利用するのが最適化のポイント
+- 225 は、課題1-b で数えた「引数の組の数」と同じ
+- 同じ引数の組は、2 回目からメモ帳を見るだけで終わる
+
+> 同じ計算をくり返すなら、一度求めた答えを保存して使い回す
 
 ---
 
-## 関数を定義と同時に、表へ登録する
+## 命令の名前と関数を、表に登録する
 ### 4. 表に登録する — 課題4
 
 ::: hstack wrap 3 2
 ```python
 COMMANDS = {}
 
-def command(name):
-    def deco(func):
-        COMMANDS[name] = func
-        return func
-    return deco
-
-@command("shout")
 def shout(text):
     return text.upper() + "!!"
+
+def rev(text):
+    return text[::-1]
+
+COMMANDS["shout"] = shout
+COMMANDS["rev"] = rev
 ```
 |||
 **コードの読み方**
 
 - `COMMANDS = {}`: 「命令の名前 → 関数」の表。最初は空
-- `@command("shout")` を関数の上に書くと、その関数が `"shout"` という名前で表に入る
-- 登録しても、関数は元のまま使える
-- `command` の書き方は、**写して使ってよい**。名前を受け取り、関数を表に入れて、そのまま返す
+- `shout`, `rev` は、ふつうの関数
+- `COMMANDS["shout"] = shout`: 名前 `"shout"` で、関数 `shout` を表に入れる (課題2 の `OPS` と同じ形)
+- 命令を増やすときは、関数を書いて 1 行登録するだけ
 :::
-
-> 関数の定義位置がそのままコマンド表になる
 
 ---
 
 ## 文字列による命令実行
-### 4. 表に登録する — 課題4
+### 4. 表に登録する — 課題4-b
 
 ::: hstack wrap 3 2
 ```python
@@ -415,13 +377,13 @@ run("shout hello")    # 'HELLO!!'
 
 - **関数は値**: 変数や辞書に入れたり、引数に渡したりできる
 - **辞書に関数を入れる**: `if` の連鎖が、表の参照になる
-- **デコレータ**: 関数の中身を変えずに、前後の処理を足せる
+- **答えを辞書に覚える**: 同じ計算をくり返さずに済む
 
 ---
 
 ## 課題一覧
 
-- 必須課題: 0〜4
+- 必須課題: 0〜4-b
 - 発展課題: 任意 (講義では扱わない)
 
 | # | 課題 | ねらい | 対応する段階 |
@@ -429,8 +391,8 @@ run("shout hello")    # 'HELLO!!'
 | 0 | 関数を書く・渡す | 引数、デフォルト値、関数を引数に | 1, 2 |
 | 1 | 竹内関数を実装し、呼び出し回数を数える | 再帰、爆発する計算量 | 1 |
 | 2 | 辞書に関数を入れて電卓 | 辞書に関数を入れる | 2 |
-| 3 | `@memo` を書き、課題1 に組み込む | デコレータ (関数を包む) | 3 |
-| 4 | `@command` と `run()` でコマンド表 | 文字列から関数を実行する | 4 |
+| 3 | `tarai_memo` で答えを辞書に覚える | 同じ計算をくり返さない | 3 |
+| 4, 4-b | `COMMANDS` に登録し、`run()` で実行 | 文字列から関数を実行する | 4 |
 
 ---
 
@@ -448,11 +410,109 @@ run("shout hello")    # 'HELLO!!'
 
 発展的な内容や復習。時間があるときや、質問が出たときに使う。
 
+- デコレータ: 関数を包んで、機能を足す (`@memo`, `@command`)
+- クロージャ: 外側の引数を覚えた関数を返す
 - 復習: 値と変数
 - 復習: 型・文字列・演算子
 - 実行時の機能追加
 - よくある落とし穴: 新しく値を返すか、元を書き換えるか
-- クロージャ: 外側の引数を覚えた関数を返す
+
+---
+
+## デコレータ: 関数を包んで、機能を足す
+### 付録
+
+::: hstack wrap 3 2
+```python
+def logged(func):
+    def wrapper(*args):
+        print(f"{func.__name__}{args}")
+        return func(*args)
+    return wrapper
+
+def add(a, b):
+    return a + b
+
+add = logged(add)
+add(2, 3)    # add(2, 3) と表示され、5 を返す
+```
+|||
+**コードの読み方**
+
+1. `logged` は、関数 `func` を受け取る
+2. 中で、新しい関数 `wrapper` を作る。`wrapper` は「名前と引数を表示する → 元の `func` を呼ぶ」
+3. `wrapper` を返す
+4. `add = logged(add)` で、`add` が「表示つきの add」に入れ替わる
+5. `*args` は、受け取った引数をそのまま元の関数へ渡すための書き方
+:::
+
+- `add = logged(add)` は、`def add` の上に `@logged` と書いても同じ意味
+- 元の関数 `add` の中身は書き換えない
+- 外側の `func` を `wrapper` が覚えている仕組みは、次の「クロージャ」のスライド
+
+---
+
+## デコレータによる計算結果の再利用
+### 付録
+
+::: hstack wrap 3 2
+```python
+def memo(func):
+    cache = {}
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    return wrapper
+
+@memo
+def tarai(x, y, z):
+    if x <= y:
+        return y
+    return tarai(tarai(x-1, y, z),
+                 tarai(y-1, z, x),
+                 tarai(z-1, x, y))
+```
+|||
+**コードの読み方**
+
+1. `cache = {}`: 計算結果を書きとめる空のメモ帳 (辞書)
+2. 引数 `args` が、メモ帳に無ければ、元の関数を呼んで、答えを書きとめる
+3. メモ帳にあれば、元の関数は呼ばずに、書きとめた答えを返す
+4. `@memo` を付けると、`tarai` の呼び出しが、すべてメモ帳を通る
+
+- `tarai` の中身は変えていない。本編の `TARAI_CACHE` と同じことを、`@memo` の1行で行う
+:::
+
+---
+
+## 関数を定義と同時に、表へ登録する
+### 付録
+
+::: hstack wrap 3 2
+```python
+COMMANDS = {}
+
+def command(name):
+    def deco(func):
+        COMMANDS[name] = func
+        return func
+    return deco
+
+@command("shout")
+def shout(text):
+    return text.upper() + "!!"
+```
+|||
+**コードの読み方**
+
+- `COMMANDS = {}`: 「命令の名前 → 関数」の表。最初は空
+- `@command("shout")` を関数の上に書くと、その関数が `"shout"` という名前で表に入る
+- 登録しても、関数は元のまま使える
+- 本編の `COMMANDS["shout"] = shout` を、定義と同時に行う書き方
+:::
+
+> 関数の定義位置がそのままコマンド表になる
 
 ---
 

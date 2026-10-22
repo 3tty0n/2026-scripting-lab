@@ -304,35 +304,21 @@ def _probe_01_q2():
 
 
 def _probe_01_q3():
-    ran = []
-
-    @memo
-    def _f(x):
-        ran.append(x)
-        return x + 1
-
-    _f(1); _f(1); _f(1)
-    if len(ran) > 1:
-        return "同じ引数で3回呼んだのに本体が動いている。cache にある値をそのまま返すこと"
-    if not hasattr(_f, "cache"):
-        return "包んだ関数に cache を持たせること (wrapper.cache = cache)"
-    return ""
-
-
-def _probe_01_q3b():
-    if "tarai_memo" not in globals() or not hasattr(tarai_memo, "cache"):
-        return "tarai_memo に @memo が付いていない"
-    tarai_memo.cache.clear()
+    TARAI_CACHE.clear()
     tarai_memo(12, 6, 0)
-    n = len(tarai_memo.cache)
+    n = len(TARAI_CACHE)
+    if Ellipsis in TARAI_CACHE.values() or tarai_memo(1, 2, 3) is Ellipsis:
+        return "TODO の ... が残っている。3か所とも埋めること"
+    if n == 0:
+        return "TARAI_CACHE が空のまま。TARAI_CACHE[key] = result で答えを覚えること"
     if n != 225:
-        return f"cache に {n} 件しか残っていない (引数の組は 225 通り)。鍵の作り方を見直すこと"
+        return f"TARAI_CACHE に {n} 件 (引数の組は 225 通り)。再帰で tarai_memo を呼んでいるか確かめること"
     return ""
 
 
 def _probe_01_q4():
     if not COMMANDS:
-        return "COMMANDS が空。@command('名前') を付けたときに表へ入れること"
+        return "COMMANDS が空。COMMANDS['shout'] = cmd_shout のように登録すること"
     return ""
 
 
@@ -368,7 +354,6 @@ _PROBES = {
     ("01", "q1"): _probe_01_q1,
     ("01", "q2"): _probe_01_q2,
     ("01", "q3"): _probe_01_q3,
-    ("01", "q3b"): _probe_01_q3b,
     ("01", "q4"): _probe_01_q4,
     ("02", "q1"): _probe_02_q1,
     ("02", "q3"): _probe_02_q3,
@@ -393,17 +378,17 @@ _HINTS = {
     ("01", "q1"): "x <= y なら y。そうでなければ tarai を3回呼んで、その結果でまた tarai を呼ぶ",
     ("01", "q1b"): "呼び出し回数ではなく、現れた (x, y, z) の種類を数える。set に入れること",
     ("01", "q2"): "OPS は演算子から関数への表。calc は表から引いて呼ぶだけにする",
-    ("01", "q3"): "cache を作り、引数を鍵にして結果を覚える。wrapper.cache = cache も忘れずに",
-    ("01", "q3b"): "tarai と同じ中身に @memo を付けるだけ。再帰も tarai_memo を呼ぶこと",
-    ("01", "q4"): "@command('名前') は関数を COMMANDS に入れて、そのまま返す",
+    ("01", "q3"): "覚えていれば TARAI_CACHE[key] を返す。なければ計算して TARAI_CACHE[key] = result。再帰も tarai_memo を呼ぶ",
+    ("01", "q4"): "COMMANDS['shout'] = cmd_shout のように、名前と関数を辞書に入れる",
+    ("01", "q4b"): "name, *args = line.split() で分け、COMMANDS[name](*args) を返す。無い名前は ValueError",
     ("01", "b1"): "深さは大域の変数で持ち、呼ぶ前に増やして、終わったら必ず戻す",
     ("01", "b2"): "COMMANDS を sorted() で回し、docstring と引数名を並べる",
     ("02", "q1"): "# で始まる行は飛ばし、小文字にして、英字以外を区切りにする",
     ("02", "q2"): "隣り合う2語を zip(toks, toks[1:]) で取り出し、Counter に足す",
     ("02", "q2b"): "回数の多い順、同数なら語の辞書順。sorted のキーを (-回数, 語) にする",
     ("02", "q3"): "random.choices の weights に回数を渡す。次が無い語なら止める",
-    ("02", "q4"): "数なら積む、ワードなら WORDS から引いてスタックを渡して呼ぶ。@word は WORDS に入れて func をそのまま返す",
-    ("02", "q4b"): "@word('DUP') のように登録する。関数はスタック s を受け取り、s.append / s.pop で組み替える",
+    ("02", "q4"): "数なら積む、ワードなら WORDS から引いてスタックを渡して呼ぶ。- * / は + と同じ形で関数を書き、WORDS['-'] = sub のように入れる",
+    ("02", "q4b"): "関数を書いて WORDS['DUP'] = dup のように入れる。関数はスタック s を受け取り、s.append / s.pop で組み替える",
     ("02", "b1"): "回数を 1/温度 乗して重みにする。低温ほど差が開く",
     ("02", "b2"): "鍵を2語の組にする。それ以外は bigram と同じ",
     ("03a", "q1"): "スコアを温度で割り、最大値を引いて exp を取り、合計で割る",
@@ -411,8 +396,8 @@ _HINTS = {
     ("03a", "q2"): "毎回いちばん確率の高い1語を選び、入力の末尾に足してもう一度通す",
     ("03a", "q3"): "scores の先頭 k 件を残し、softmax で確率にして random.choices で1語引く",
     ("03a", "q4"): "chat テンプレートを通してから生成し、応答の部分だけ切り出す",
-    ("03b", "q1"): "evaluate は、WORDS にあれば呼ぶ・数なら積む・それ以外は ValueError。word は WORDS に入れて func を返す。- * / も登録する。順序に注意",
-    ("03b", "q2"): "@word('DUP') のように大文字の名前で登録する。関数はスタックを受け取り、append / pop で組み替える",
+    ("03b", "q1"): "evaluate は、WORDS にあれば呼ぶ・数なら積む・それ以外は ValueError。- * / も関数を書いて WORDS に入れる。順序に注意",
+    ("03b", "q2"): "WORDS['DUP'] = dup のように大文字の名前で入れる。関数はスタックを受け取り、append / pop で組み替える",
     ("03b", "q3"): "tokens.index(';', i) で ; の位置を探し、名前 tokens[i+1] と本体のスライスを切り出す",
     ("03b", "q3b"): "USER_WORDS[word] は本体のリスト。forth_eval(stack, 本体) を呼ぶだけ (自分を呼ぶ再帰)",
     ("03b", "q4"): "1行ずつ処理して結果を文字列で返す。スタックとワードは行をまたいで残す",

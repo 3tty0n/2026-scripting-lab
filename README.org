@@ -62,8 +62,16 @@ python3 grading/grade.py 01 提出物/ --csv 結果.csv
 python3 grading/grade.py 01 --check-setup
 #+end_src
 
+kibaco の一括ダウンロードの zip や、学生ごとのフォルダもそのまま渡せる。
+
+#+begin_src sh
+python3 grading/grade.py 01 kibaco一括.zip --csv 結果.csv
+#+end_src
+
 確認セルを直したら =python3 grading/build_checks.py=。
-模範解答は =exercises/solutions/= (Pages には出さない)。
+模範解答は =instructor/solutions/= (Pages には出さない)。
+=--check-setup= は配布版が 0 点、模範解答が満点になることを確かめる。
+担当者向けの当日の手順は =instructor/README.md=。
 
 第3回A は 1件 1〜2分。タイムアウトを伸ばす。
 

@@ -266,23 +266,19 @@ value = stack.pop()
 ```python
 WORDS = {}
 
-def word(name):
-    def deco(func):
-        WORDS[name] = func
-        return func
-    return deco
-
-@word("+")
-def _(stack):
+def add(stack):
     b, a = stack.pop(), stack.pop()
     stack.append(a + b)
+
+WORDS["+"] = add
 ```
 |||
 **コードの読み方**
 
-- `WORDS`: 「記号 → 関数」の表
-- `@word("+")` を関数の上に書くと、その関数が `"+"` として表に入る (第1回の `@command` と同じ形)
-- `+` の関数: 上から 2 つ取り出し (`b` が先、`a` が次)、足して積む
+- `WORDS`: 「記号 → 関数」の表 (普通の辞書)
+- `add`: 上から 2 つ取り出し (`b` が先、`a` が次)、足して積む
+- `WORDS["+"] = add`: 関数を `"+"` という名前で表に入れる (第1回の、辞書に関数を入れる形と同じ)
+- `add` の後ろに `()` を付けない。呼ぶのではなく、関数そのものを入れる
 :::
 
 ---
@@ -324,7 +320,7 @@ for token in text.split():
 | `ROT` | 3番目を一番上へ移す | `(a b c → b c a)` |
 
 - `(a b → b a)` は、左が実行前、右が実行後のスタック
-- すべて `@word(...)` で登録するため、評価ループから見れば同じ関数
+- どれも関数を書いて `WORDS["DUP"] = dup` のように入れる。評価ループは変えなくてよい
 - 例: `3 DUP *` は、3 を複製して掛けるので `9`
 
 ---
@@ -344,7 +340,7 @@ for token in text.split():
 文章と電卓は題材が違う。それでも、表を引いて状態を更新する点は同じである。
 
 次回 (第3回B) は、この電卓に「新しいワードを定義する」仕組みを足して、小さな言語を作る。
-課題4・4-b のコード (`WORDS` / `word` / `evaluate`) は、そのまま土台に使う。
+課題4・4-b のコード (`WORDS` / `evaluate` と各ワード) は、そのまま土台に使う。
 
 ---
 
@@ -373,7 +369,7 @@ for token in text.split():
 | 1 | `tokenize_file` | 1. 分ける |
 | 2, 2-b | `build_table`, `top_following` | 2. 数える |
 | 3 | `pick_next`, `generate` | 3. 選ぶ |
-| 4, 4-b | `word`, `evaluate`, スタック操作ワード | 4. 動かす |
+| 4, 4-b | `evaluate`, 四則演算, スタック操作ワード | 4. 動かす |
 | 発展 | 温度、trigram | 3. 選ぶ (発展) |
 
 - 各課題は「例題セルを実行 → `TODO` の手順を埋める → 確認セルが `OK`」

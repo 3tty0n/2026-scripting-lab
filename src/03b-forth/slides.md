@@ -161,24 +161,19 @@ stack.append(a - b)
 ```python
 WORDS = {}
 
-def word(name):
-    def deco(func):
-        WORDS[name] = func
-        return func
-    return deco
-
-@word("+")
-def _(stack):
+def add(stack):
     b, a = stack.pop(), stack.pop()
     stack.append(a + b)
+
+WORDS["+"] = add
 ```
 |||
 **コードの読み方**
 
-- `WORDS`: 「ワードの名前 → 関数」の表
-- `@word("+")` を関数の上に書くと、その関数が `"+"` として表に入る
-- `+` の関数は、スタックを受け取り、上から 2 つ取り出して、足して積む
-- `@word` は第2回で書いた登録の書き方。課題1 では `- * /` を同じ形で足す
+- `WORDS`: 「ワードの名前 → 関数」の表 (普通の辞書)
+- `add` は、スタックを受け取り、上から 2 つ取り出して、足して積む
+- `WORDS["+"] = add`: 関数を、`"+"` という名前で表に入れる
+- 第2回と同じ書き方。課題1 では `- * /` を同じ形で足す
 :::
 
 ---
@@ -223,13 +218,15 @@ def evaluate(stack, text):
 
 ::: hstack wrap 3 2
 ```python
-@word("DUP")
-def _(stack):
+def dup(stack):
     stack.append(stack[-1])
+
+WORDS["DUP"] = dup
 ```
 |||
 - `(a b → b a)` は、左が実行前、右が実行後のスタック
 - `stack[-1]` は、一番上の値。それを積み足すと複製になる
+- 書いた関数は、`WORDS["DUP"] = dup` で表に入れる
 - `.` (一番上を出力して取り除く) は、この回で新しく足すワード
 :::
 
@@ -430,7 +427,7 @@ Forthの実装は小さいが、字句解析・評価・定義・対話という
 -5 ABS .     \ 5
 ```
 
-- 比較演算子 `<` `>` `=`: 真は `-1`、偽は `0` (`@word` で登録する)
+- 比較演算子 `<` `>` `=`: 真は `-1`、偽は `0` (`WORDS` に入れる)
 - `IF ... ELSE ... THEN`: 対応する `THEN` を、入れ子の深さを数えて探す
 - `forth_eval` の `# 発展2` の目印に、`:` の枝と同じ形で足す
 

@@ -4,6 +4,9 @@
 使い方:
     python3 grading/grade.py 01 提出物/*.ipynb
     python3 grading/grade.py 02 提出物/ --csv 結果.csv
+    python3 grading/grade.py 02 kibaco一括.zip --csv 結果.csv
+
+ディレクトリと zip は中のフォルダもたどる (kibaco の一括ダウンロードをそのまま渡せる)。
 
 学生のノートブック内の確認セル (先頭が "# [CHECK]") は実行しない。
 代わりに grading/checks/ にある正式な採点コードを、学生の名前空間に対して走らせる。
@@ -11,6 +14,7 @@
 """
 import argparse
 import contextlib
+import importlib.util
 import io
 import json
 import linecache
@@ -177,8 +181,31 @@ def grade(nb_path, task, cell_timeout=60, check_timeout=120):
     }
 
 
+def collect(paths, tmp):
+    """(表示名, パス) の組を返す。表示名は渡したフォルダや zip からの相対パス"""
+    import zipfile
+
+    files = []
+    for p in map(pathlib.Path, paths):
+        if p.suffix == ".zip":
+            root = pathlib.Path(tmp) / p.stem
+            # kibaco の zip は日本語名を cp932 で入れてくることがある
+            with zipfile.ZipFile(p, metadata_encoding="cp932") as z:
+                z.extractall(root)
+        elif p.is_dir():
+            root = p
+        else:
+            files.append((p.name, p))
+            continue
+        for f in sorted(root.rglob("*.ipynb")):
+            if "__MACOSX" in f.parts or ".ipynb_checkpoints" in f.parts:
+                continue
+            files.append((str(f.relative_to(root)), f))
+    return files
+
+
 def print_report(r, verbose):
-    name = pathlib.Path(r["file"]).name
+    name = r.get("student") or pathlib.Path(r["file"]).name
     if r.get("format_error"):
         print(f"\n{'=' * 72}\n{name}   フォーマットエラー\n{'=' * 72}")
         print("  " + str(r["format_error"]).replace("\n", "\n  "))
@@ -213,7 +240,7 @@ def post_results(url, task, reports):
 
     ok = 0
     for r in reports:
-        student = pathlib.Path(r["file"]).stem
+        student = r.get("student") or pathlib.Path(r["file"]).stem
         body = json.dumps({
             "student": student, "task": task,
             "score": r["score"], "total": r["total"],
@@ -229,10 +256,10 @@ def post_results(url, task, reports):
 
 
 def check_setup(task):
-    """配布状態のノートブックを採点する。全項目 0 点なら配線は正しい。
+    """配布状態のノートブックが 0 点、模範解答が満点なら、採点器は正しく動いている。
 
-    模範解答はこのリポジトリに置いていない (公開されるため)。
-    採点器そのものが動くかどうかだけを、ここで確かめる。
+    模範解答は instructor/solutions/ (Pages には出さない)。
+    第3回A の模範解答はモデルを読み込むので、torch が無ければ飛ばす。
     """
     nb = HERE.parent / "exercises" / f"{TASKS[task]}.ipynb"
     if not nb.exists():
@@ -246,7 +273,18 @@ def check_setup(task):
     if r["score"] != 0:
         print(f"\n異常: 白紙のはずが {r['score']} 点。項目 {ng} を見直すこと")
         return 1
-    print("\n正常: 白紙は 0 点。採点器は動いている")
+    print("\n正常: 白紙は 0 点")
+
+    sol = HERE.parent / "instructor" / "solutions" / f"{TASKS[task]}_solution.ipynb"
+    if task == "03a" and importlib.util.find_spec("torch") is None:
+        print(f"torch が無いので {sol.name} は確かめない")
+        return 0
+    r = grade(sol, task)
+    if r["score"] != r["total"]:
+        print_report(r, verbose=True)
+        print(f"\n異常: 模範解答が {r['score']} / {r['total']} 点")
+        return 1
+    print(f"正常: 模範解答 {sol.name} は満点。採点器は動いている")
     return 0
 
 
@@ -273,33 +311,33 @@ def main():
     if not args.paths:
         sys.exit("採点する .ipynb を指定すること (確認だけなら --check-setup)")
 
-    files = []
-    for p in args.paths:
-        p = pathlib.Path(p)
-        files.extend(sorted(p.glob("*.ipynb")) if p.is_dir() else [p])
+    import tempfile
+    tmp = tempfile.TemporaryDirectory()
+    files = collect(args.paths, tmp.name)
     if not files:
         sys.exit("採点対象の .ipynb が見つからない")
 
     reports = []
-    for f in files:
+    for label, f in files:
         try:
             r = grade(f, args.task, args.cell_timeout, args.check_timeout)
         except Exception:
             traceback.print_exc()
             r = {"file": str(f), "task": args.task, "score": 0, "total": 0,
                  "results": [], "cell_errors": ["採点自体が失敗"]}
+        r["student"] = label
         reports.append(r)
         print_report(r, args.verbose)
 
     if args.csv:
         import csv
         qids = [q for q, *_ in load_checks(args.task)]
-        with open(args.csv, "w", newline="", encoding="utf-8") as fp:
+        with open(args.csv, "w", newline="", encoding="utf-8-sig") as fp:  # Excel で文字化けしないよう BOM 付き
             w = csv.writer(fp)
             w.writerow(["file", "score", "total", "format_error"] + qids)
             for r in reports:
                 got = {q: g for q, _t, g, _p, _m in r["results"]}
-                w.writerow([pathlib.Path(r["file"]).name, r["score"], r["total"],
+                w.writerow([r["student"], r["score"], r["total"],
                             r.get("format_error", "")]
                            + [got.get(q, 0) for q in qids])
         print(f"\nCSV を書き出した: {args.csv}")
