@@ -6,6 +6,18 @@ grading/grade.py が読み込み、学生の名前空間に対して実行する
 """
 
 CHECKS = [
+    ('q0', '関数を書く・渡す', 10, [
+        "need('greet', arity=2)",
+        "need('apply_twice', arity=2)",
+        '',
+        "assert greet('Alice') == 'Hello, Alice!'",
+        "assert greet('Bob', '.') == 'Hello, Bob.'",
+        "assert greet(name='Eve', suffix='?') == 'Hello, Eve?', '名前付きの引数でも呼べること'",
+        'assert apply_twice(lambda x: x + 1, 0) == 2',
+        'assert apply_twice(lambda x: x * 3, 2) == 18',
+        "assert apply_twice(str.upper, 'ab') == 'AB'",
+        "print('OK')",
+    ]),
     ('q1', '竹内関数', 10, [
         "need('tarai', arity=3)",
         "need('CALLS', kind=int)",
@@ -30,7 +42,7 @@ CHECKS = [
         'assert distinct_args(12, 6, 0) == 225, distinct_args(12, 6, 0)',
         "print('OK  1,260万回の呼び出しに対して、引数の組はたった 225 通り')",
     ]),
-    ('q2', 'ディスパッチテーブル', 20, [
+    ('q2', 'ディスパッチテーブル', 15, [
         "need('OPS', kind=dict)",
         "need('calc', arity=3)",
         '',
@@ -90,7 +102,7 @@ CHECKS = [
         'assert one(5) == 10 and one(5) == 10',
         "print('OK')",
     ]),
-    ('q3b', 'memo を tarai に適用', 15, [
+    ('q3b', 'memo を tarai に適用', 10, [
         "need('tarai_memo', arity=3)",
         '',
         'MEMO_CALLS = 0',

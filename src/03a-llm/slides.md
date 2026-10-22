@@ -13,16 +13,23 @@ Scripting Languages / Transformer / 03-A
 | 段階 | 問い | 主な道具 |
 |---|---|---|
 | 1. 表現する | 文字列をどうモデルへ渡すか | トークン、ID |
-| 2. 予測する | モデルは何を返すか | logits、softmax |
+| 2. 予測する | モデルは何を返すか | スコア、softmax |
 | 3. 選んでつなぐ | どう文章を伸ばすか | greedy、温度、top-k |
 | 4. 会話にする | なぜ対話が続いて見えるか | テンプレート、履歴 |
 
 モデルの内部をすべて理解する前に、入出力を確かめる。
+自分で書くのは、リスト・`math`・`random` だけの普通の Python である。
 
 ---
 
 ## 言語モデルとは
 ### 導入
+
+- それまでの文字列から、**次に来るトークンを予測する**仕組み
+- 返すのは文章ではなく、次の候補すべてへの「点数」
+- 文章は、その予測を何度も繰り返してつなげて作る
+
+> 巨大に見えても、外側のプログラムは「変換」と「ループ」でできている
 
 ---
 
@@ -31,7 +38,7 @@ Scripting Languages / Transformer / 03-A
 
 | | マルコフ連鎖 | 言語モデル |
 |---|---|---|
-| 次の候補 | `table[word]` | `model(ids)` |
+| 次の候補 | `table[word]` | `next_scores(ids)` |
 | 根拠 | 数えた回数 | 学習済みの重み |
 | 見る範囲 | 直前1〜2語 | 直前の多くのトークン |
 | 選び方 | 重み付き抽選 | greedy、温度、top-k |
@@ -42,24 +49,21 @@ Scripting Languages / Transformer / 03-A
 
 ---
 
-## PyTorchとTransformersでモデルを準備する
+## 準備されている道具
 ### 実行準備
 
-```python
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+ノートブックの先頭のセルが、モデルを読み込んで次の道具を用意する。
+中身は PyTorch だが、**自分で PyTorch を書く必要はない**。
 
-name = "Qwen/Qwen2.5-0.5B-Instruct"
-tok = AutoTokenizer.from_pretrained(name)
-model = AutoModelForCausalLM.from_pretrained(name)
-model.eval()
+```python
+tok                      # 文字列 <-> トークンID を変換する
+encode("むかしむかし")     # [..., ...]   ID の整数リスト
+next_scores(ids)         # [(ID, スコア), ...]  スコアの高い順に100件
 ```
 
-- `tok` は文字列とトークンIDを相互に変換する
-- `model` はID列からlogitsを計算する
-- `eval()` はモデルを推論用の動作へ切り替える
-
-以降はこの `tok` と `model` を準備済みとして進める。
+- `encode` は文字列を、ID のリストへ変える
+- `next_scores` は、ID のリストを渡すと、次の候補とスコアを返す
+- 以降は、この3つと普通の Python だけで進める
 
 ---
 
@@ -72,7 +76,7 @@ model.eval()
 
 ```python
 text = "言語モデルを動かす"
-ids = tok(text).input_ids
+ids = encode(text)
 pieces = tok.convert_ids_to_tokens(ids)
 
 print(ids)
@@ -83,81 +87,61 @@ print(pieces)
 
 ---
 
-## IDはモデルの中で変換されたベクトル
-### 1. 表現する
-
-```text
-文字列 → トークンID → ベクトル → Transformer → logits
-```
-
-- ベクトルは、各トークンを数値の並びで表したもの
-- 注意機構は、前にあるトークンの情報を混ぜる
-- 最後に、語彙中の各トークンへ1つずつスコアを出す
-
-![Transformerの処理の流れ](../assets/diagrams/transformer-pipeline.svg)
-
-> 内部の数式より先に、入力と出力の形を押さえる
-
----
-
 ## 言語モデルの出力: 次の候補すべてのスコア
 ### 2. 予測する
 
-`logits` は確率になる前の値で、語彙中の各候補に対応する。
+`next_scores` は、次のトークンの候補を **(ID, スコア) の組のリスト**で返す。
+スコアの高い順に並んでいる。
 
 ```python
-ids = tok("むかしむかし", return_tensors="pt").input_ids
+scores = next_scores(encode("日本の首都は"))
 
-with torch.no_grad():
-    output = model(ids)
-
-print(output.logits.shape)
-# [バッチ数, 入力の長さ, 語彙数]
+print(scores[:3])
+# [(100562, 22.4), (3583, 20.9), (7814, 18.1)]
+print(tok.decode([scores[0][0]]))
+# '東京'
 ```
 
-次のトークンの予測には、バッチ0の末尾を使う。
-`[0, -1]` はこの位置を指定している。
-
-```python
-next_logits = output.logits[0, -1]
-```
+- 先頭の `scores[0]` がもっともスコアの高い候補
+- ID は `tok.decode([ID])` で文字列に戻せる
+- スコアは**確率ではない**。比べる前に確率へ直す
 
 ---
 
-## 添字と`dim`: テンソルのどこを操作するか表現
-### 2. 予測する — PyTorchの記法
-
-```python
-logits = output.logits       # shape: [1, 系列長, 語彙数]
-next_logits = logits[0, -1]  # shape: [語彙数]
-probs = torch.softmax(next_logits, dim=-1)
-```
-
-| 記法 | 意味 |
-|---|---|
-| `[0, -1]` | バッチ0、系列の末尾を選ぶ |
-| `dim=-1` | 最後の軸、ここでは語彙軸を操作する |
-| `.shape` | 各軸の長さを確認する |
-| `.item()` | 1要素のTensorをPythonの数へ変える |
-
-PyTorchでは、値だけでなくshapeと操作する軸を確認する。
-
----
-
-## softmaxを通すと候補を確率として比較可能
+## スコアは確率ではないので、softmax で確率に直す
 ### 2. 予測する
 
 ```python
-probs = torch.softmax(next_logits, dim=-1)
-top = torch.topk(probs, 5)
+import math
 
-for token_id, prob in zip(top.indices, top.values):
-    print(tok.decode([token_id]), prob.item())
+scores = [3.0, 1.0]
+exps = [math.exp(s) for s in scores]     # 大きいほど、より大きく
+probs = [e / sum(exps) for e in exps]    # 合計で割って、合計を1にする
+print(probs)                             # [0.88, 0.12]
 ```
 
-- `softmax` 後の値は0以上で、合計が1になる
-- `topk` は確率の高い候補だけを取り出す
-- まず候補を観察すると、選び方の違いを理解しやすい
+- 手順は3つ: `exp` を取る → 合計で割る → 確率のリスト
+- 確率は0以上で、合計が1になる
+- スコアが大きいと `math.exp` があふれる。**先に最大値を引く**と確率は変わらずに安全
+
+> 課題1: `softmax(scores, temperature)` を書く
+
+---
+
+## 確率にすると、上位の候補を観察できる
+### 2. 予測する
+
+```python
+scores = next_scores(encode("日本の首都は"))
+probs = softmax([s for _, s in scores])
+
+for (token_id, _), prob in list(zip(scores, probs))[:5]:
+    print(tok.decode([token_id]), prob)
+```
+
+- `zip` で ID と確率を対にして、先頭の5件を見る
+- `scores` は高い順に並んでいるので、並べ替えは要らない
+- まず候補を観察すると、選び方の違いが理解しやすい
 
 > モデルは文章ではなく、まず「次の1トークンの分布」を返す
 
@@ -167,17 +151,13 @@ for token_id, prob in zip(top.indices, top.values):
 ### 3. 選んでつなぐ
 
 ```python
-next_id = torch.argmax(next_logits, dim=-1)
-next_id = next_id.view(1, 1)
-ids = torch.cat([ids, next_id], dim=1)
+scores = next_scores(ids)
+next_id = scores[0][0]      # 先頭がいちばん高い
+ids.append(next_id)         # 末尾に連結する
 ```
 
-- `argmax(..., dim=-1)` は語彙軸で最大のIDを選ぶ
-- `view(1, 1)` は `[バッチ数, 系列長]` の形へ合わせる
-- `cat(..., dim=1)` は系列長の軸へ新しいIDを連結する
-
 1. 現在のID列をモデルへ渡す
-2. 最大のlogitを持つIDを選ぶ
+2. 最大のスコアを持つIDを選ぶ
 3. 選んだIDを末尾へ追加する
 4. 終端IDが出るまで繰り返す
 
@@ -205,13 +185,12 @@ ids = torch.cat([ids, next_id], dim=1)
 ### 3. 選んでつなぐ
 
 ```python
-temperature = 0.8
-k = 50
+import random
 
-probs = torch.softmax(next_logits / temperature, dim=-1)
-top = torch.topk(probs, k)
-index = torch.multinomial(top.values, 1)
-next_id = top.indices[index]
+top = scores[:k]                                   # 上位 k 件だけ残す
+probs = softmax([s for _, s in top], temperature)  # 温度で割って確率に
+next_id = random.choices([i for i, _ in top],
+                         weights=probs)[0]         # 確率に比例して1つ引く
 ```
 
 | 操作 | 小さくする | 大きくする |
@@ -219,34 +198,7 @@ next_id = top.indices[index]
 | 温度 | 上位へ強く偏る | 候補間の差が縮む |
 | `k` | 安全な候補に絞る | 低確率の候補も残す |
 
-第2回の温度と役割は同じで、logitsでは割り算として現れる
-
----
-
-## top-pは確率分布に合わせて候補数を変える
-### 3. 選んでつなぐ — 発展
-
-- 候補を確率の高い順に並べる
-- 確率の合計が `p` に達するまで候補を残す
-- 1つが突出すれば少数、拮抗すれば多数の候補が残る
-
-```text
-分布A: 0.80 0.10 0.05 ... → p=0.9 なら2候補
-分布B: 0.25 0.20 0.18 ... → p=0.9 なら多くの候補
-```
-
-```python
-sorted_probs, sorted_ids = torch.sort(probs, descending=True)
-cumulative = torch.cumsum(sorted_probs, dim=-1)
-keep = cumulative - sorted_probs < p
-
-kept_probs = sorted_probs[keep]
-kept_ids = sorted_ids[keep]
-index = torch.multinomial(kept_probs, 1)
-next_id = kept_ids[index]
-```
-
-`top-k` は候補数を固定し、`top-p` は確率の合計を固定する
+第2回の `random.choices` と同じ形。温度は、スコアを割る数として現れる
 
 ---
 
@@ -255,15 +207,15 @@ next_id = kept_ids[index]
 
 ```text
 文字列
-  ↓ tokenizer
-トークンID列
-  ↓ model
-次の候補の logits
+  ↓ encode
+トークンID のリスト
+  ↓ next_scores
+次の候補のスコア
   ↓ greedy または sampling
 次のトークンID
-  ↓ 末尾へ連結して繰り返す
-長くなったトークンID列
-  ↓ decode
+  ↓ ids.append して繰り返す
+長くなったID のリスト
+  ↓ tok.decode
 生成された文字列
 ```
 
@@ -288,6 +240,7 @@ prompt = tok.apply_chat_template(
 ```
 
 `apply_chat_template` は役割と発言をモデル用の文字列へ変換する。
+生成は、この `prompt` の続きを `encode` して作るだけ。
 
 ---
 
@@ -318,9 +271,9 @@ assistant:
 | 会話が次第に遅くなる | 履歴が長くなる | 古い履歴を削る・要約する |
 | 同じ表現を繰り返す | 選択が狭い | 温度や候補数を調整する |
 | もっともらしく誤る | 次の語の予測器である | 事実を別の資料で確認する |
-| 素朴なループが遅い | 毎回すべて再計算する | `generate`やKVキャッシュを使う |
+| 素朴なループが遅い | 毎回すべて再計算する | 実用では計算の使い回しを入れる |
 
-0.7Bモデルは仕組みの観察には向くが実応用には向かない
+0.8Bモデルは仕組みの観察には向くが実応用には向かない
 
 ---
 
@@ -328,9 +281,78 @@ assistant:
 
 | 段階 | 押さえること |
 |---|---|
-| 1. 表現する | 文字列はトークンID列へ変換される |
-| 2. 予測する | モデルは次の候補のlogitsを返す |
+| 1. 表現する | 文字列はトークンIDのリストへ変換される |
+| 2. 予測する | モデルは次の候補のスコアを返し、softmax で確率になる |
 | 3. 選んでつなぐ | 選択したIDを連結し、再び予測する |
 | 4. 会話にする | 役割付きの履歴を毎回入力へ含める |
 
 言語モデルは巨大でも外側のプログラムは変換とループで組み立てられる
+
+---
+
+## 演習の進め方
+
+| 課題 | 書くもの | 使う道具 |
+|---|---|---|
+| 1 | `softmax`、`top_candidates` | `math.exp`、`zip`、`tok.decode` |
+| 2 | `generate_greedy` | `next_scores`、`ids.append` |
+| 3 | `sample_next`、`sample_next_top_p` | `softmax`、`random.choices` |
+| 4 | `chat`、`chat_session` | `apply_chat_template`、履歴のリスト |
+| 5 | `make_chat` | 関数の中に履歴を持たせる |
+
+- PyTorch は書かない。リスト・辞書・`for`・関数で組み立てる
+- 各課題の `TODO` を埋めて、直下の確認セルが `OK` になるのを確かめる
+
+---
+
+## 付録: 講義では扱わない補足
+
+発展的な内容や復習。時間があるときや、質問が出たときに使う。
+
+- IDはモデルの中で変換されたベクトル
+- top-pは確率分布に合わせて候補数を変える
+
+---
+
+## IDはモデルの中で変換されたベクトル
+### 付録
+
+```text
+文字列 → トークンID → ベクトル → Transformer → スコア
+```
+
+- ベクトルは、各トークンを数値の並びで表したもの
+- 注意機構は、前にあるトークンの情報を混ぜる
+- 最後に、語彙中の各トークンへ1つずつスコアを出す
+
+![Transformerの処理の流れ](../assets/diagrams/transformer-pipeline.svg)
+
+> 内部の数式より先に、入力と出力の形を押さえる
+
+---
+
+## top-pは確率分布に合わせて候補数を変える
+### 付録
+
+- 候補を確率の高い順に並べる
+- 確率の合計が `p` に達するまで候補を残す
+- 1つが突出すれば少数、拮抗すれば多数の候補が残る
+
+```text
+分布A: 0.80 0.10 0.05 ... → p=0.9 なら2候補
+分布B: 0.25 0.20 0.18 ... → p=0.9 なら多くの候補
+```
+
+```python
+probs = softmax([s for _, s in scores], temperature)
+
+keep, cum = 0, 0.0
+for prob in probs:
+    if cum >= p:         # 足す前の合計が p に達していたら打ち切り
+        break
+    keep += 1
+    cum += prob
+# scores[:keep] が残った候補
+```
+
+`top-k` は候補数を固定し、`top-p` は確率の合計を固定する

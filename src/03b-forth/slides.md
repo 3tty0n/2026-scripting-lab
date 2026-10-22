@@ -10,12 +10,12 @@ Scripting Languages / Dynamic Languages / 03-B
 
 ## 電卓から小さな言語まで、4段階で組み立てる
 
-| 段階 | できるようになること | 中心となる道具 |
-|---|---|---|
-| 1. 読む | 入力をワードへ分ける | `split` |
-| 2. 実行する | ワードに対応する処理を呼ぶ | スタック、辞書 |
-| 3. 定義する | 新しいワードを追加する | `: 名前 ... ;` |
-| 4. 対話する | 入力と実行を繰り返す | REPL |
+| 段階 | できるようになること | 中心となる道具 | 課題 |
+|---|---|---|---|
+| 1. 読む | 入力をワードへ分ける | `split` | 用意済み |
+| 2. 実行する | ワードに対応する処理を呼ぶ | スタック、辞書 (第2回の電卓) | 1, 2 |
+| 3. 定義する | 新しいワードを追加する | `: 名前 ... ;` | 3, 3-b |
+| 4. 対話する | 入力と実行を繰り返す | REPL | 4 |
 
 第2回の電卓に「新しい命令を定義する仕組み」を加えると、言語になる。
 
@@ -72,6 +72,25 @@ Scripting Languages / Dynamic Languages / 03-B
 
 ---
 
+## 演習の地図: 骨組みは用意済み、★だけ自分で書く
+### 全体像
+
+```text
+forth_eval(stack, text)          用意済み: ワードを左から1つずつ取り出す
+ ├─ read_definition(tokens, i)   ★課題3    : 名前 本体 ; を読む
+ ├─ eval_user(stack, word)       ★課題3-b  自作ワードの本体を実行する
+ └─ evaluate(stack, text)        ★課題1    第2回の電卓: WORDS を引いて実行する
+                                 ★課題2    WORDS のワードを増やす
+repl(lines)                      ★課題4    1行ずつ評価する対話ループ
+```
+
+- 課題1・2 は**第2回の課題4・4-b と同じ**。第2回のコードをそのまま貼ってよい
+- ループ本体を一から書くのではなく、**小さな関数を1つずつ**埋めていく
+- 1つ埋めるたびに確認セルで確かめられる
+- うまく動かないときは `trace("3 4 +")` で、1語ごとのスタックを見る
+
+---
+
 ## 最初の字句解析は、空白で分けるだけ
 ### 1. 読む
 
@@ -86,6 +105,7 @@ print(tokens)
 - Pythonの字句解析より単純で、括弧や演算子の優先順位を扱わない
 - 左から右へ読めば、実行順序もそのまま決まる
 - ワード名は大文字にそろえると、大文字小文字を区別せずに済む
+  - 用意済みの `forth_eval` が `token.upper()` を通してから渡す
 
 > 小さな構文なので、実行の仕組みに集中できる
 
@@ -102,6 +122,7 @@ print(tokens)
 | `2` | 2をpush | `[7, 2]` |
 | `*` | 2つpopし、積をpush | `[14]` |
 
+スタックはただのリスト。`append` が push、`pop` が pop。
 スタック全体が、実行途中の状態を表す。
 
 ---
@@ -130,47 +151,48 @@ stack.append(a - b)
 ### 2. 実行する
 
 ```python
-import operator
+WORDS = {}
 
-def binop(fn):
-    def run(stack):
-        b, a = stack.pop(), stack.pop()
-        stack.append(fn(a, b))
-    return run
+def word(name):
+    def deco(func):
+        WORDS[name] = func
+        return func
+    return deco
 
-WORDS = {
-    "+": binop(operator.add),
-    "-": binop(operator.sub),
-}
+@word("+")
+def _(stack):
+    b, a = stack.pop(), stack.pop()
+    stack.append(a + b)
 ```
 
 関数を辞書の値にすると、長い条件分岐を表の参照へ置き換えられる。
+`@word` は第2回で書いた登録デコレータ。課題1 では `- * /` を同じ形で足す。
 
 ---
 
-## ディスパッチは、ワードの種類に応じて処理を選ぶ
-### 2. 実行する
+## `evaluate`: 表にあれば呼び、数なら積む
+### 2. 実行する — 課題1
 
 ```python
-for token in code.split():
-    word = token.upper()
-    if word in WORDS:
-        operation = WORDS[word]
-        operation(stack)
-    elif token.lstrip("-").isdigit():
-        stack.append(int(token))
-    else:
-        raise ValueError(f"知らないワード: {token}")
+def evaluate(stack, text):
+    for token in text.split():
+        if token in WORDS:
+            WORDS[token](stack)
+        elif token.lstrip("-").isdigit():
+            stack.append(int(token))
+        else:
+            raise ValueError(f"知らないワード: {token}")
 ```
 
 ![Forthのディスパッチループ](../assets/diagrams/forth-dispatch.svg)
 
-ワードが増えても、辞書へ登録すればループ本体は変わらない。
+ワードが増えても、辞書へ登録すれば関数本体は変わらない。
+先に表を引く順序にしておくと、数かどうかは表に無いときだけ調べればよい。
 
 ---
 
 ## スタック操作は、入る前と出た後で考える
-### 2. 実行する
+### 2. 実行する — 課題2
 
 | ワード | 意味 | スタックの変化 |
 |---|---|---|
@@ -181,6 +203,14 @@ for token in code.split():
 | `ROT` | 3番目を一番上へ移動 | `(a b c → b c a)` |
 
 `(a b → b a)` の表記は、左が実行前、右が実行後を表す。
+
+```python
+@word("DUP")
+def _(stack):
+    stack.append(stack[-1])      # 上を覗いて、同じ値を積む
+```
+
+`.` (一番上を出力して取り除く) は、この回で新しく足すワード。
 
 ---
 
@@ -220,8 +250,29 @@ for token in code.split():
 
 ---
 
+## `read_definition`: `;` の位置を探して切り出す
+### 3. 定義する — 課題3
+
+```text
+tokens = [':', 'SQUARE', 'DUP', '*', ';', '5', 'SQUARE']
+添字       0      1        2     3    4    5     6
+```
+
+```python
+j = tokens.index(";", i)    # ';' の位置 (無ければ ValueError)
+tokens[i + 1]               # 'SQUARE'          名前
+tokens[i + 2 : j]           # ['DUP', '*']      本体
+j + 1                       # 5                 定義の次の位置
+```
+
+- 返すのは `(名前を大文字にしたもの, 本体, 次の位置)` の3つ組
+- 用意済みの `forth_eval` が、これを `USER_WORDS` に登録して先へ進む
+- 読み取るだけで、定義は**実行しない**
+
+---
+
 ## 保存した本体を評価すれば、自作ワードを実行できる
-### 3. 定義する
+### 3. 定義する — 課題3-b
 
 ```forth
 : SQUARE DUP * ;
@@ -230,10 +281,15 @@ for token in code.split():
 
 ```text
 SQUAREを読む
-  ↓ 辞書から本体 [DUP, *] を取得
+  ↓ USER_WORDS から本体 ['DUP', '*'] を取得
 DUPを実行
   ↓
 *を実行
+```
+
+```python
+def eval_user(stack, word):
+    forth_eval(stack, USER_WORDS[word])   # 本体 (リスト) をそのまま評価する
 ```
 
 組み込みワードはPython関数、自作ワードはワード列だが、
@@ -253,6 +309,7 @@ DUPを実行
 
 - `QUADRUPLE` の本体に `DOUBLE` を2回保存する
 - 実行時には、通常のディスパッチで `DOUBLE` を引く
+- `forth_eval` が自分自身を呼ぶので、入れ子にもそのまま対応できる
 - 小さなワードを組み合わせて、大きな処理を作れる
 
 語彙が増えるにつれて、電卓がプログラミング言語へ近づく。
@@ -265,18 +322,25 @@ DUPを実行
 REPLは Read–Eval–Print Loop の略である。
 
 ```python
-while True:
-    line = input(">> ")
-    if line.strip().upper() == "BYE":
-        break
-    # lineを評価する
-    print(stack)
+def repl_interactive():
+    stack = []                              # ループの外で作る
+    while True:
+        line = input(">> ")
+        if line.strip().lower() == "bye":
+            break
+        try:
+            forth_eval(stack, line)
+            print(stack)
+        except Exception as e:
+            print("error:", e)
 ```
 
 - Read: 1行の入力を読む
 - Eval: 現在の辞書とスタックを使って評価する
 - Print: 結果またはスタックを表示する
 - Loop: 次の入力へ戻る
+
+課題4 は、採点のため `input()` ではなく行のリストを受け取る `repl(lines)` を書く。
 
 ---
 
@@ -295,6 +359,7 @@ while True:
 ```
 
 スタックとワード辞書を毎回作り直さないため、前の入力結果と定義が残る。
+エラーが起きた行は `error: ...` と表示して、ループは続ける。
 この「実行中に状態と語彙が変わる」性質が、動的な処理系の核になる。
 
 ---
@@ -302,12 +367,36 @@ while True:
 ## 4段階をつなぐと、小さな言語処理系になる
 ### まとめ
 
-| 段階 | 入力から起きること |
-|---|---|
-| 1. 読む | 文字列をワードの列へ分ける |
-| 2. 実行する | 数を積むか、辞書の操作を呼ぶ |
-| 3. 定義する | ワード列に名前を付け、辞書へ加える |
-| 4. 対話する | 状態を保ったまま入力を繰り返す |
+| 段階 | 入力から起きること | 書いたもの |
+|---|---|---|
+| 1. 読む | 文字列をワードの列へ分ける | (用意済み) |
+| 2. 実行する | 数を積むか、辞書の操作を呼ぶ | `evaluate`、`WORDS` (第2回の電卓) |
+| 3. 定義する | ワード列に名前を付け、辞書へ加える | `read_definition`、`eval_user` |
+| 4. 対話する | 状態を保ったまま入力を繰り返す | `repl` |
 
 Forthの実装は小さいが、字句解析・評価・定義・対話という
 インタプリタの主要部分をすべて含んでいる。
+
+---
+
+## 付録: 講義では扱わない補足
+
+発展的な内容や復習。時間があるときや、質問が出たときに使う。
+
+- 発展: 比較と条件分岐
+
+---
+
+## 発展: 比較と条件分岐
+### 付録
+
+```forth
+: ABS DUP 0 < IF 0 SWAP - THEN ;
+-5 ABS .     \ 5
+```
+
+- 比較演算子 `<` `>` `=`: 真は `-1`、偽は `0` (`@word` で登録する)
+- `IF ... ELSE ... THEN`: 対応する `THEN` を、入れ子の深さを数えて探す
+- `forth_eval` の `# 発展2` の目印に、`:` の枝と同じ形で足す
+
+語彙と制御構造が揃うと、小さな言語として実用的なプログラムが書ける。

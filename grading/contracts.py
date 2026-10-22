@@ -359,9 +359,8 @@ def _probe_02_q3():
 
 
 def _probe_03b_q2():
-    keys = [k for k in BUILTINS]
-    if keys and all(k == k.upper() for k in keys) and run("1 2 swap") != [2, 1]:
-        return "BUILTINS は大文字で登録されている。引くときに word.upper() を通すこと"
+    if "SWAP" in WORDS and run("1 2 swap") != [2, 1]:
+        return "WORDS は大文字で登録されている。forth_eval は大文字にそろえて evaluate に渡す"
     return ""
 
 
@@ -390,6 +389,7 @@ _BY_ERROR = [
 
 # 上のどれにも当てはまらないときの、項目ごとの手がかり
 _HINTS = {
+    ("01", "q0"): "greet は 'Hello, ' + name + suffix を return する。apply_twice は func(func(x)) を return する",
     ("01", "q1"): "x <= y なら y。そうでなければ tarai を3回呼んで、その結果でまた tarai を呼ぶ",
     ("01", "q1b"): "呼び出し回数ではなく、現れた (x, y, z) の種類を数える。set に入れること",
     ("01", "q2"): "OPS は演算子から関数への表。calc は表から引いて呼ぶだけにする",
@@ -402,16 +402,19 @@ _HINTS = {
     ("02", "q2"): "隣り合う2語を zip(toks, toks[1:]) で取り出し、Counter に足す",
     ("02", "q2b"): "回数の多い順、同数なら語の辞書順。sorted のキーを (-回数, 語) にする",
     ("02", "q3"): "random.choices の weights に回数を渡す。次が無い語なら止める",
-    ("02", "q4"): "数なら積む、ワードなら WORDS から引いてスタックを渡して呼ぶ",
+    ("02", "q4"): "数なら積む、ワードなら WORDS から引いてスタックを渡して呼ぶ。@word は WORDS に入れて func をそのまま返す",
+    ("02", "q4b"): "@word('DUP') のように登録する。関数はスタック s を受け取り、s.append / s.pop で組み替える",
     ("02", "b1"): "回数を 1/温度 乗して重みにする。低温ほど差が開く",
     ("02", "b2"): "鍵を2語の組にする。それ以外は bigram と同じ",
-    ("03a", "q1"): "logits の最後の位置を取り、topk で上位を出す",
+    ("03a", "q1"): "スコアを温度で割り、最大値を引いて exp を取り、合計で割る",
+    ("03a", "q1b"): "next_scores は高い順。スコアを softmax に渡し、ID を tok.decode で文字列に戻す",
     ("03a", "q2"): "毎回いちばん確率の高い1語を選び、入力の末尾に足してもう一度通す",
-    ("03a", "q3"): "logits を温度で割ってから top-k を残し、softmax して1語引く",
+    ("03a", "q3"): "scores の先頭 k 件を残し、softmax で確率にして random.choices で1語引く",
     ("03a", "q4"): "chat テンプレートを通してから生成し、応答の部分だけ切り出す",
-    ("03b", "q1"): "数なら積む、+ - * / なら2つ取り出して結果を積む。順序に注意",
-    ("03b", "q2"): "BUILTINS はワード名から関数への表。スタックを引数に取る",
-    ("03b", "q3"): ": と ; の間を USER_WORDS に覚え、呼ばれたらその並びを実行する",
+    ("03b", "q1"): "evaluate は、WORDS にあれば呼ぶ・数なら積む・それ以外は ValueError。word は WORDS に入れて func を返す。- * / も登録する。順序に注意",
+    ("03b", "q2"): "@word('DUP') のように大文字の名前で登録する。関数はスタックを受け取り、append / pop で組み替える",
+    ("03b", "q3"): "tokens.index(';', i) で ; の位置を探し、名前 tokens[i+1] と本体のスライスを切り出す",
+    ("03b", "q3b"): "USER_WORDS[word] は本体のリスト。forth_eval(stack, 本体) を呼ぶだけ (自分を呼ぶ再帰)",
     ("03b", "q4"): "1行ずつ処理して結果を文字列で返す。スタックとワードは行をまたいで残す",
     ("03b", "b1"): "真は -1、偽は 0",
     ("03b", "b2"): "IF の位置から対応する ELSE / THEN を探す。入れ子は数を数えて対応づける",
