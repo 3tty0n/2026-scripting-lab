@@ -37,14 +37,15 @@ jobs:
           python-version: '3.12'
       - name: Install JS deps
         run: npm ci
-      - name: Install pandoc and TeX for handouts
+      - name: Install pandoc and TeX for handouts and Beamer
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc texlive-xetex texlive-lang-japanese librsvg2-bin
+          sudo apt-get install -y pandoc texlive-xetex texlive-luatex texlive-lang-japanese \
+            texlive-latex-recommended texlive-latex-extra librsvg2-bin poppler-utils
       - name: Build JupyterLite
         run: npx slidekit-jupyter-lite
-      - name: Build handouts (PDF)
-        run: make handouts
+      - name: Build handouts and Beamer (PDF)
+        run: make pdfs
       - name: Build site
         run: npm run build
       - name: Upload artifact

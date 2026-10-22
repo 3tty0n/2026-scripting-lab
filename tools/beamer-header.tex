@@ -1,0 +1,29 @@
+\usetheme{default}
+\usecolortheme{default}
+\usepackage{xcolor}
+\definecolor{courseaccent}{HTML}{A02B0C}
+\definecolor{courserule}{HTML}{C4BCAB}
+\setbeamercolor{structure}{fg=courseaccent}
+\setbeamercolor{frametitle}{fg=courseaccent}
+\setbeamercolor{framesubtitle}{fg=gray}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\small}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill\insertframenumber/\inserttotalframenumber\hspace{2em}\vspace{1ex}}
+\setbeamertemplate{itemize items}[circle]
+\renewcommand{\arraystretch}{1.2}
+\AtBeginEnvironment{longtable}{\small}
+\newcommand{\codesize}{\footnotesize}
+\fvset{fontsize=\codesize}
+% 図は高さを抑えて、同じフレームの文章と一緒に収める。キャプションの「Figure 1:」は付けない
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>0.8\linewidth 0.8\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>0.30\textheight 0.30\textheight\else\Gin@nat@height\fi}
+\makeatother
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setbeamertemplate{caption}{\centering\scriptsize\insertcaption\par}
+\setlength{\parskip}{0pt}
+% 長いコードの行は、はみ出さずに折り返す
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}

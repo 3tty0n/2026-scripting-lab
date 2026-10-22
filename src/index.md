@@ -20,6 +20,7 @@ Python の基礎を簡潔に学びます。動的言語としての特徴も学�
 [Colab で開く](gist:01_basics.ipynb)
 [スライド](01-basics/)
 [ハンドアウト](01-basics/handout.pdf)
+[Beamer](01-basics/beamer.pdf)
 [.ipynb を保存](exercises/01_basics.ipynb)
 
 ## 02
@@ -32,6 +33,7 @@ Python の基礎を簡潔に学びます。動的言語としての特徴も学�
 [Colab で開く](gist:02_text.ipynb)
 [スライド](02-text/)
 [ハンドアウト](02-text/handout.pdf)
+[Beamer](02-text/beamer.pdf)
 [.ipynb を保存](exercises/02_text.ipynb)
 
 ## 03 総合演習
@@ -50,6 +52,7 @@ API キーなど特別な準備は不要です。
 [Colab で開く](gist:03a_llm.ipynb)
 [スライド](03a-llm/)
 [ハンドアウト](03a-llm/handout.pdf)
+[Beamer](03a-llm/beamer.pdf)
 [.ipynb を保存](exercises/03a_llm.ipynb)
 
 ### Forth インタプリタの実装 {B}
@@ -61,6 +64,7 @@ API キーなど特別な準備は不要です。
 [Colab で開く](gist:03b_forth.ipynb)
 [スライド](03b-forth/)
 [ハンドアウト](03b-forth/handout.pdf)
+[Beamer](03b-forth/beamer.pdf)
 [.ipynb を保存](exercises/03b_forth.ipynb)
 
 ## 提出
