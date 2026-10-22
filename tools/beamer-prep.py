@@ -62,7 +62,9 @@ def convert_dsl(text, root):
             out.append(':::::: {.columns}')
             for col, w in zip(cols, weights):
                 out.append(f'::::: {{.column width="{96 * w / total:.0f}%"}}')
-                out += [r'\renewcommand{\codesize}{\scriptsize}', ''] + col
+                if len(set(weights)) == 1:      # 同じ幅の段は狭いので、コードの字を小さくする
+                    out += [r'\renewcommand{\codesize}{\scriptsize}', '']
+                out += col
                 out.append(':::::')
             out.append('::::::')
             cols = None

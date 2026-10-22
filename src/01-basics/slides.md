@@ -18,43 +18,38 @@ Scripting Languages / Dynamic Languages / 01
 | 3. 関数を包む | 本体を変えずに機能を足す | デコレータ | 3 |
 | 4. 表に登録する | 文字列から関数を実行する | 登録デコレータ | 4 |
 
-```python
-def square(x):
-    return x * x
-
-f = square          # 関数も値なので、変数に代入できる
-f(5)                # ==> 25
-```
+- 今日のゴール: 関数を「部品」として、変数や辞書に入れて使えるようになる
+- 流れ: 関数を書く → 関数を辞書に入れる → 関数を包む → 文字列から呼ぶ
+- 各スライドの右側に、コードの読み方を書いてある
 
 ---
 
 ## 復習: Python の書き方
 ### 0. 復習
 
-::: hstack wrap
-- 動的型付け
-  - 型宣言不要、実行時に型が決定 (runtime type, 動的型)
-- 副作用 (side effect)
-  - 変数に別の型の値も代入可能
-- コレクション (標準データ構造) 操作
-  - リスト (list): `append`, `pop`, etc.
-  - 辞書 (dictionary): `get`, `set`, etc.
-    - キーによる辞書の参照も可能
-|||
+::: hstack wrap 3 2
 ```python
 n, name, flag = 42, "Alice", True
 x = 10
-x = "文字列"        # 型を持つのは値
+x = "文字列"
 
 xs = [3, 1, 4]
 xs.append(9)
 xs.pop()
 
 d = {"a": 1}
-d.get("z", 0)       # 無いキーでも落ちない
+d.get("z", 0)
 
 [x**2 for x in range(5) if x % 2 == 0]
 ```
+|||
+**コードの読み方**
+
+- 1 行目: 数・文字列・真偽値を、まとめて変数に入れる
+- `x` には、あとから別の種類の値も入れ直せる
+- `xs`: リスト。`append` で後ろに足し、`pop` で後ろから取り出す
+- `d`: 辞書。`get("z", 0)` は "z" を探し、無ければ 0 を返す (エラーにならない)
+- 最後の行: 0〜4 のうち偶数の 2 乗を並べる。結果は `[0, 4, 16]`
 :::
 
 ---
@@ -62,12 +57,7 @@ d.get("z", 0)       # 無いキーでも落ちない
 ## 復習: リストと繰り返し処理・例外
 ### 0. 復習
 
-- リスト: 順番を持つ値の集まり
-
-- リストを操作する便利な関数
-  - `enumerate`: 添字と値を得る
-  - `zip`: 2つのリストの対応する値を得る
-
+::: hstack wrap 3 2
 ```python
 xs = [3, 1, 4]
 xs.append(9)        # [3, 1, 4, 9]
@@ -76,9 +66,9 @@ names = ["Alice", "Bob"]
 scores = ["73", "92"]
 
 for i, name in enumerate(names):
-    pass
+    print(i, name)
 for a, b in zip(names, scores):
-    pass
+    print(a, b)
 
 s = "1234"
 try:
@@ -88,39 +78,42 @@ except ValueError:
 
 print(n)
 ```
+|||
+**コードの読み方**
+
+- `enumerate`: 「何番目か」と値を、一緒に取り出す。`0 Alice` / `1 Bob`
+- `zip`: 2 つのリストを、同じ位置どうしで組にする。`Alice 73` / `Bob 92`
+- `try` / `except`: 数に変えられなければ、`n = 0` にする
+- `"1234"` は数に変えられるので、`n` は `1234`
+:::
 
 ---
 
 ## 復習: 辞書
 ### 0. 復習
 
-- 辞書: 名前から値を引く対応表
-- 繰り返し処理などで使用
-- この後、**値に関数を入れた辞書**を使う
-
+::: hstack wrap 3 2
 ```python
 score = {"alice": 80, "bob": 92}
-score["bob"]       # 92
+score["bob"]
 score.get("carol", 0)
 ```
+|||
+**コードの読み方**
+
+- 辞書は「名前 → 値」の対応表
+- `score["bob"]` は 92
+- `score.get("carol", 0)`: carol は表に無いので 0
+:::
+
+- この後、**値に関数を入れた辞書**を使う
 
 ---
 
 ## 関数: 名前を付けた処理のまとまり
 ### 1. 関数を書く
 
-::: hstack wrap 1 2
-- 関数の定義:
-```text
-def 関数名(引数名1, 引数名2, ...):
-    関数ボディ   # インデントはスペース4つ
-    ...
-    return     # 値を返す
-```
-|||
-- 名前付き引数を指定可能: `def 関数名(名前1=デフォルト値): ...`
-- `return` が無い関数は `None` を返す
-
+::: hstack wrap 3 2
 ```python
 def greet(name, suffix="!"):
     return "Hello, " + name + suffix
@@ -128,6 +121,14 @@ def greet(name, suffix="!"):
 greet("Alice")
 greet(name="Bob", suffix=".")
 ```
+|||
+**コードの読み方**
+
+- `def` で関数を作る。かっこの中が、受け取る値 (引数)
+- `return` が、返す値。`return` が無ければ `None` を返す
+- `suffix="!"` は、省略したときの値 (デフォルト値)
+- `greet("Alice")` は `"Hello, Alice!"`
+- `greet(name="Bob", suffix=".")` は `"Hello, Bob."`
 :::
 
 ---
@@ -135,39 +136,37 @@ greet(name="Bob", suffix=".")
 ## 関数は自分自身も呼べる (再帰)
 ### 1. 関数を書く
 
-- 同じ形の、より小さい問題へ分ける
-- **止まる条件を先に書く**。無いと永遠に呼び続ける
-
+::: hstack wrap 3 2
 ```python
 def fib(n):
-    if n <= 1:                         # 止まる条件
+    if n <= 1:
         return n
-    return fib(n - 1) + fib(n - 2)     # 自分を呼ぶ
+    return fib(n - 1) + fib(n - 2)
 
 fib(10)    # ==> 55
 ```
+|||
+**コードの読み方**
 
-```text
-fib(4) ─ fib(3) ─ fib(2) ─ fib(1), fib(0)
-       │        └ fib(1)
-       └ fib(2) ─ fib(1), fib(0)
-```
+- `fib(n)` は、n 番目のフィボナッチ数 (0, 1, 1, 2, 3, 5, 8 ...)。前の 2 つを足していく
+- `n <= 1` なら、そのまま `n` を返して終わり (**止まる条件**)
+- それ以外は、`fib(n - 1)` と `fib(n - 2)` を足す。自分自身を 2 回呼んでいる
+- 止まる条件が無いと、永遠に呼び続ける
+:::
 
-> 同じ `fib(2)` が何度も計算されている。後で効いてくる
+> 同じ `fib(2)` などが、何度も計算されている。後で効いてくる
 
 ---
 
 ## 関数の中から、外の変数を書き換えて呼び出しを数える
 ### 1. 関数を書く
 
-- 関数の中で代入した変数は、ふつう**その関数だけの変数**
-- 外の変数を書き換えるには `global` の宣言が要る
-
+::: hstack wrap 3 2
 ```python
 CALLS = 0
 
 def fib(n):
-    global CALLS          # 外の CALLS を書き換える宣言
+    global CALLS
     CALLS += 1
     if n <= 1:
         return n
@@ -175,8 +174,16 @@ def fib(n):
 
 CALLS = 0
 fib(10)
-print(CALLS)              # 177 回呼ばれた
+print(CALLS)    # 177
 ```
+|||
+**コードの読み方**
+
+- `CALLS` は、呼ばれた回数を数える変数
+- 関数の中で `CALLS += 1` だけ書くと、外の `CALLS` ではなく、関数だけの変数になってしまう
+- `global CALLS` と書くと、「外の `CALLS` を使う」という宣言になる
+- `fib` が呼ばれるたびに 1 増える。`fib(10)` では 177 回
+:::
 
 ---
 
@@ -195,8 +202,9 @@ tarai(x, y, z) = y                           (x <= y のとき)
 | `tarai(10, 5, 0)` | 343,073 回 |
 | `tarai(12, 6, 0)` | 12,604,861 回 |
 
+- 読み方: `x` が `y` 以下なら `y` を返して終わり。そうでなければ、`tarai` を 3 回呼び、その 3 つの結果でもう一度 `tarai` を呼ぶ
 - 形は `fib` と同じ: 止まる条件 → 自分を呼ぶ
-- 引数は小さい整数なのに、1,260万回も呼ばれる
+- 引数は小さい整数なのに、1,260 万回も呼ばれる
 - **同じ引数の組が何度も現れる**。これを後で減らす
 
 ---
@@ -204,31 +212,34 @@ tarai(x, y, z) = y                           (x <= y のとき)
 ## 関数は値なので、変数に入れたり、渡したりできる
 ### 2. 関数を値にする
 
-- 関数は数や文字列と同じ「値」
-- 変数に代入でき、引数にも渡せる
-
+::: hstack wrap 3 2
 ```python
 def square(x):
     return x * x
 
-f = square          # 変数に代入できる
-f(5)                # ==> 25
+f = square
+f(5)                    # ==> 25
 
 def apply_twice(func, x):
-    return func(func(x))      # 関数を引数に受け取る
+    return func(func(x))
 
-apply_twice(square, 3)        # ==> 81
+apply_twice(square, 3)  # ==> 81
 ```
+|||
+**コードの読み方**
+
+- `f = square`: 関数 `square` を、`f` という別の名前でも呼べるようにする
+- `f(5)` は `square(5)` と同じで 25
+- `apply_twice(func, x)`: 受け取った関数 `func` を、`x` に 2 回かける
+- `apply_twice(square, 3)` は `square(square(3))` = `square(9)` = 81
+:::
 
 ---
 
 ## 辞書に関数を入れると、名前で呼び分けられる
 ### 2. 関数を値にする — 課題2
 
-- 名前 (`"add"` など) から、関数を引く辞書
-- `if` を並べずに済み、演算を足すときは辞書に1行足すだけ
-
-::: hstack wrap
+::: hstack wrap 1 1
 ```python
 def calc(op, a, b):
     if op == "add":
@@ -241,60 +252,63 @@ def calc(op, a, b):
 |||
 ```python
 import operator
-OPS = {"add": operator.add, "sub": operator.sub, "mul": operator.mul}
+OPS = {"add": operator.add,
+       "sub": operator.sub,
+       "mul": operator.mul}
 
 def calc(op, a, b):
     if op not in OPS:
-        raise ValueError(f"知らない演算: {op}")
+        raise ValueError(op)
     return OPS[op](a, b)
 
-calc("add", 2, 3)  # 5
+calc("add", 2, 3)    # 5
 ```
 :::
+
+- 左: 演算が増えるたびに `elif` が増える
+- 右: `OPS` は「名前 → 関数」の表。`OPS[op]` で関数を取り出し、`(a, b)` で呼ぶ
+- `operator.add` は、`+` と同じ働きをする関数。表に 1 行足すだけで演算を増やせる
+- 表に無い名前は、`ValueError` (エラー) にする
 
 ---
 
 ## デコレータ: 関数を包んで、機能を足す
 ### 3. 関数を包む
 
-- `logged`: 関数を受け取り、ログを出す関数で**包んで**返す
-- `@logged` は `add = logged(add)` の短い書き方
-- 元の関数 `add` の中身は書き換えない
-- `*args`: 受け取った引数を、そのまま元の関数へ渡すための書き方
-
-::: hstack wrap
+::: hstack wrap 3 2
 ```python
 def logged(func):
     def wrapper(*args):
-        print(f"{func.__name__}{args}")  # 前に表示
-        return func(*args)               # 元を呼ぶ
+        print(f"{func.__name__}{args}")
+        return func(*args)
     return wrapper
 
 def add(a, b):
     return a + b
+
 add = logged(add)
+add(2, 3)    # add(2, 3) と表示され、5 を返す
 ```
 |||
-```python
-@logged
-def add(a, b):
-    return a + b
+**コードの読み方**
 
-add(2, 3)  # ログ出力 + 5
-```
+1. `logged` は、関数 `func` を受け取る
+2. 中で、新しい関数 `wrapper` を作る。`wrapper` は「名前と引数を表示する → 元の `func` を呼ぶ」
+3. `wrapper` を返す
+4. `add = logged(add)` で、`add` が「表示つきの add」に入れ替わる
+5. `*args` は、受け取った引数をそのまま元の関数へ渡すための書き方
 :::
 
-> `wrapper` が外側の `func` を覚えている仕組み (クロージャ) は付録。「そういうものだ」で進めてよい
+- `add = logged(add)` は、`def add` の上に `@logged` と書いても同じ意味
+- 元の関数 `add` の中身は書き換えない
+- 外側の `func` を `wrapper` が覚えている仕組み (クロージャ) は付録。「そういうものだ」で進めてよい
 
 ---
 
 ## デコレータによる計算結果の再利用
 ### 3. 関数を包む — 課題3
 
-- `cache`: 引数ごとに、結果を覚えておく辞書
-  - 一度計算した引数なら、覚えた答えを返す
-  - 関数本体は変えず、呼び出しだけを包む
-
+::: hstack wrap 3 2
 ```python
 def memo(func):
     cache = {}
@@ -312,6 +326,16 @@ def tarai(x, y, z):
                  tarai(y-1, z, x),
                  tarai(z-1, x, y))
 ```
+|||
+**コードの読み方**
+
+1. `cache = {}`: 計算結果を書きとめる空のメモ帳 (辞書)
+2. 引数 `args` が、メモ帳に無ければ、元の関数を呼んで、答えを書きとめる
+3. メモ帳にあれば、元の関数は呼ばずに、書きとめた答えを返す
+4. `@memo` を付けると、`tarai` の呼び出しが、すべてメモ帳を通る
+
+- `tarai` の中身は変えていない
+:::
 
 ---
 
@@ -334,35 +358,7 @@ def tarai(x, y, z):
 ## 関数を定義と同時に、表へ登録する
 ### 4. 表に登録する — 課題4
 
-- `@command("shout")` を付けた関数が、`COMMANDS` に登録される
-- 形は写して使ってよい: 名前を受け取り、関数を登録して、そのまま返す
-
-```python
-COMMANDS = {}
-
-def command(name):
-    def deco(func):
-        COMMANDS[name] = func
-        return func          # 包まずに、そのまま返す
-    return deco
-
-@command("shout")
-def shout(text):
-    return text.upper() + "!!"
-```
-
-> 関数の定義位置がそのままコマンド表になる
-
----
-
-## 文字列による命令実行
-### 4. 表に登録する — 課題4
-
-- 先頭の語を命令、残りを引数として解釈
-- 辞書にない命令へのエラー
-- 文字列から処理系を動かす最小の骨格
-
-::: hstack wrap
+::: hstack wrap 3 2
 ```python
 COMMANDS = {}
 
@@ -377,15 +373,38 @@ def shout(text):
     return text.upper() + "!!"
 ```
 |||
+**コードの読み方**
+
+- `COMMANDS = {}`: 「命令の名前 → 関数」の表。最初は空
+- `@command("shout")` を関数の上に書くと、その関数が `"shout"` という名前で表に入る
+- 登録しても、関数は元のまま使える
+- `command` の書き方は、**写して使ってよい**。名前を受け取り、関数を表に入れて、そのまま返す
+:::
+
+> 関数の定義位置がそのままコマンド表になる
+
+---
+
+## 文字列による命令実行
+### 4. 表に登録する — 課題4
+
+::: hstack wrap 3 2
 ```python
 def run(line):
     name, *args = line.split()
     if name not in COMMANDS:
-        raise ValueError(f"知らない命令: {name}")
+        raise ValueError(name)
     return COMMANDS[name](*args)
 
 run("shout hello")    # 'HELLO!!'
 ```
+|||
+**コードの読み方**
+
+1. `"shout hello".split()` は `["shout", "hello"]`
+2. `name, *args = ...`: 先頭を `name` に、残りを `args` に入れる
+3. 表に無い名前なら、エラーにする
+4. あれば、`COMMANDS["shout"]("hello")`。つまり `shout("hello")` を呼ぶ
 :::
 
 ![文字列から命令を実行する流れ](../assets/diagrams/lexer-command.svg)

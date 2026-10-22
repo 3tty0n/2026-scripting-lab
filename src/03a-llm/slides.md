@@ -17,8 +17,9 @@ Scripting Languages / Transformer / 03-A
 | 3. 選んでつなぐ | どう文章を伸ばすか | greedy、温度、top-k |
 | 4. 会話にする | なぜ対話が続いて見えるか | テンプレート、履歴 |
 
-モデルの内部をすべて理解する前に、入出力を確かめる。
-自分で書くのは、リスト・`math`・`random` だけの普通の Python である。
+- モデルの内部をすべて理解する前に、入出力を確かめる
+- 自分で書くのは、リスト・`math`・`random` だけの普通の Python
+- 各スライドの右側に、コードの読み方を書いてある
 
 ---
 
@@ -55,14 +56,20 @@ Scripting Languages / Transformer / 03-A
 ノートブックの先頭のセルが、モデルを読み込んで次の道具を用意する。
 中身は PyTorch だが、**自分で PyTorch を書く必要はない**。
 
+::: hstack wrap 3 2
 ```python
-tok                      # 文字列 <-> トークンID を変換する
-encode("むかしむかし")     # [..., ...]   ID の整数リスト
-next_scores(ids)         # [(ID, スコア), ...]  スコアの高い順に100件
+tok
+encode("むかしむかし")
+next_scores(ids)
 ```
+|||
+**道具の読み方**
 
-- `encode` は文字列を、ID のリストへ変える
-- `next_scores` は、ID のリストを渡すと、次の候補とスコアを返す
+- `tok`: 文字列とトークンID を、相互に変換する
+- `encode(...)`: 文字列を、ID (整数) のリストにする
+- `next_scores(ids)`: ID のリストを渡すと、次の候補を `[(ID, スコア), ...]` で返す。スコアの高い順に 100 件
+:::
+
 - 以降は、この3つと普通の Python だけで進める
 
 ---
@@ -70,10 +77,10 @@ next_scores(ids)         # [(ID, スコア), ...]  スコアの高い順に100�
 ## 言語モデルの入力: 文字列 (トークンIDの列)
 ### 1. 表現する
 
-- トークンは単語とも1文字とも限らない
-- トークナイザが文字列を分割し、各部分を整数IDへ変える
-- モデルが受け取るのは文字列ではなくIDの列
+- トークンは、単語とも1文字とも限らない
+- モデルが受け取るのは、文字列ではなく ID (整数) の列
 
+::: hstack wrap 3 2
 ```python
 text = "言語モデルを動かす"
 ids = encode(text)
@@ -82,6 +89,13 @@ pieces = tok.convert_ids_to_tokens(ids)
 print(ids)
 print(pieces)
 ```
+|||
+**コードの読み方**
+
+1. `encode(text)`: 文字列を ID のリストに変える
+2. `convert_ids_to_tokens(ids)`: 各 ID が、どんな文字列の断片かを見る
+3. `print` で、ID のリストと、断片のリストを見比べる
+:::
 
 ![トークナイザの入出力](../assets/diagrams/lexer-tokenizer.svg)
 
@@ -90,9 +104,7 @@ print(pieces)
 ## 言語モデルの出力: 次の候補すべてのスコア
 ### 2. 予測する
 
-`next_scores` は、次のトークンの候補を **(ID, スコア) の組のリスト**で返す。
-スコアの高い順に並んでいる。
-
+::: hstack wrap 3 2
 ```python
 scores = next_scores(encode("日本の首都は"))
 
@@ -101,28 +113,37 @@ print(scores[:3])
 print(tok.decode([scores[0][0]]))
 # '東京'
 ```
+|||
+**コードの読み方**
 
-- 先頭の `scores[0]` がもっともスコアの高い候補
-- ID は `tok.decode([ID])` で文字列に戻せる
-- スコアは**確率ではない**。比べる前に確率へ直す
+1. `next_scores(...)` は、次に来るトークンの候補を、`(ID, スコア)` の組のリストで返す
+2. 高い順に並んでいるので、先頭 `scores[0]` が、もっともスコアの高い候補
+3. `scores[0][0]` は、その ID。`tok.decode([...])` で文字列に戻すと「東京」
+4. スコアは**確率ではない**。比べる前に、確率に直す
+:::
 
 ---
 
 ## スコアは確率ではないので、softmax で確率に直す
-### 2. 予測する
+### 2. 予測する — 課題1
 
+::: hstack wrap 3 2
 ```python
 import math
 
 scores = [3.0, 1.0]
-exps = [math.exp(s) for s in scores]     # 大きいほど、より大きく
-probs = [e / sum(exps) for e in exps]    # 合計で割って、合計を1にする
-print(probs)                             # [0.88, 0.12]
+exps = [math.exp(s) for s in scores]
+probs = [e / sum(exps) for e in exps]
+print(probs)    # [0.88, 0.12]
 ```
+|||
+**コードの読み方**
 
-- 手順は3つ: `exp` を取る → 合計で割る → 確率のリスト
-- 確率は0以上で、合計が1になる
-- スコアが大きいと `math.exp` があふれる。**先に最大値を引く**と確率は変わらずに安全
+1. `math.exp(s)`: スコアが大きいほど、より大きな正の数にする
+2. `e / sum(exps)`: 全体の合計で割る。これで合計が 1 になり、確率として読める
+3. スコア 3.0 は約 88%、1.0 は約 12%
+- スコアが大きすぎると `math.exp` があふれるので、先に最大値を引く (確率は変わらない)
+:::
 
 > 課題1: `softmax(scores, temperature)` を書く
 
@@ -131,6 +152,7 @@ print(probs)                             # [0.88, 0.12]
 ## 確率にすると、上位の候補を観察できる
 ### 2. 予測する
 
+::: hstack wrap 3 2
 ```python
 scores = next_scores(encode("日本の首都は"))
 probs = softmax([s for _, s in scores])
@@ -138,10 +160,14 @@ probs = softmax([s for _, s in scores])
 for (token_id, _), prob in list(zip(scores, probs))[:5]:
     print(tok.decode([token_id]), prob)
 ```
+|||
+**コードの読み方**
 
-- `zip` で ID と確率を対にして、先頭の5件を見る
-- `scores` は高い順に並んでいるので、並べ替えは要らない
-- まず候補を観察すると、選び方の違いが理解しやすい
+1. `[s for _, s in scores]`: (ID, スコア) の組から、スコアだけを取り出す
+2. `softmax(...)` で、確率のリストにする
+3. `zip(scores, probs)`: 候補と確率を、同じ位置どうしで組にする
+4. 先頭の 5 件について、トークンの文字列と確率を表示する
+:::
 
 > モデルは文章ではなく、まず「次の1トークンの分布」を返す
 
@@ -150,11 +176,19 @@ for (token_id, _), prob in list(zip(scores, probs))[:5]:
 ## greedy: 最大の候補だけを選ぶ方法
 ### 3. 選んでつなぐ
 
+::: hstack wrap 3 2
 ```python
 scores = next_scores(ids)
-next_id = scores[0][0]      # 先頭がいちばん高い
-ids.append(next_id)         # 末尾に連結する
+next_id = scores[0][0]
+ids.append(next_id)
 ```
+|||
+**コードの読み方**
+
+1. 今の ID のリスト `ids` を渡して、次の候補を得る
+2. 先頭 (いちばんスコアの高い候補) の ID を、`next_id` にする
+3. `ids` の末尾に足す
+:::
 
 1. 現在のID列をモデルへ渡す
 2. 最大のスコアを持つIDを選ぶ
@@ -184,21 +218,27 @@ ids.append(next_id)         # 末尾に連結する
 ## 温度は候補間の差を、top-kは候補の数を変える
 ### 3. 選んでつなぐ
 
+::: hstack wrap 3 2
 ```python
 import random
 
-top = scores[:k]                                   # 上位 k 件だけ残す
-probs = softmax([s for _, s in top], temperature)  # 温度で割って確率に
-next_id = random.choices([i for i, _ in top],
-                         weights=probs)[0]         # 確率に比例して1つ引く
+top = scores[:k]
+probs = softmax([s for _, s in top], temperature)
+next_id = random.choices(
+    [i for i, _ in top], weights=probs)[0]
 ```
+|||
+**コードの読み方**
+
+1. `scores[:k]`: 上位 `k` 件だけを残す
+2. `softmax(..., temperature)`: 温度で割ってから、確率にする
+3. `random.choices(..., weights=probs)`: 確率に比例して 1 つ選ぶ (第2回と同じ)
+:::
 
 | 操作 | 小さくする | 大きくする |
 |---|---|---|
 | 温度 | 上位へ強く偏る | 候補間の差が縮む |
 | `k` | 安全な候補に絞る | 低確率の候補も残す |
-
-第2回の `random.choices` と同じ形。温度は、スコアを割る数として現れる
 
 ---
 
@@ -226,10 +266,13 @@ next_id = random.choices([i for i, _ in top],
 ## 会話では役割を示す記号も入力へ含める
 ### 4. 会話にする
 
+::: hstack wrap 3 2
 ```python
 messages = [
-    {"role": "system", "content": "簡潔に答えてください。"},
-    {"role": "user", "content": "日本の首都は？"},
+    {"role": "system",
+     "content": "簡潔に答えてください。"},
+    {"role": "user",
+     "content": "日本の首都は？"},
 ]
 
 prompt = tok.apply_chat_template(
@@ -238,9 +281,14 @@ prompt = tok.apply_chat_template(
     add_generation_prompt=True,
 )
 ```
+|||
+**コードの読み方**
 
-`apply_chat_template` は役割と発言をモデル用の文字列へ変換する。
-生成は、この `prompt` の続きを `encode` して作るだけ。
+1. `messages`: 発言のリスト。`role` は話し手 (`system` は指示、`user` は質問)
+2. `apply_chat_template`: 発言を、モデルが読む 1 つの文字列に並べ直す
+3. 最後に「次は assistant の番」という印が付く
+4. 生成は、この `prompt` の続きを作るだけ
+:::
 
 ---
 
