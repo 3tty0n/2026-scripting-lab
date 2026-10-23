@@ -13,9 +13,10 @@ credit: "担当: 伊澤 侑祐 (情報科学科、助教、yizawa _at_ tmu.ac.jp
 
 ## 06
 
-### Python 入門
+### 動的言語としての Python の基礎
 
-Python の基礎を簡潔に学びます。動的言語としての特徴も学習します。
+スクリプト言語は動的型付け言語 (動的言語) のサブセットです。
+スクリプト言語の理解を深めるために、動的言語の基礎を Python を通して学びます。
 
 [Colab で開く](gist:06_basics.ipynb)
 [スライド (PDF)](06-basics/06-basics-beamer.pdf)
