@@ -1,9 +1,8 @@
 ---
 title: スクリプト言語演習 2026 (TMU)
 kicker: Scripting Languages · 2026
-heading: スクリプト言語演習 (CS, EECS) 2026
-subtitle: Python 演習 全3回
-credit: "担当: 伊澤 侑祐 (情報科学科、助教、yizawa _at_ tmu.ac.jp)"
+heading: スクリプト言語演習 2026
+credit: "担当: 佐藤、草野、伊澤、大久保"
 ---
 
 課題は **Google Colab** で進めます。
