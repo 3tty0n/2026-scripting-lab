@@ -32,7 +32,7 @@ function doPost(e) {
     var total   = Number(d.total || 0);
     var results = d.results || {};
 
-    if (['06', '07', '08a', '08b'].indexOf(task) < 0) {
+    if (['06', '07', '08a', '08'].indexOf(task) < 0) {
       return json({ok: false, error: '不明な課題: ' + task});
     }
 

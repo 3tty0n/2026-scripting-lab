@@ -18,54 +18,31 @@ credit: "担当: 伊澤 侑祐 (情報科学科、助教、yizawa _at_ tmu.ac.jp
 Python の基礎を簡潔に学びます。動的言語としての特徴も学習します。
 
 [Colab で開く](gist:06_basics.ipynb)
-[スライド](06-basics/)
-[ハンドアウト](06-basics/handout.pdf)
-[Beamer](06-basics/06-basics-beamer.pdf)
+[スライド (PDF)](06-basics/06-basics-beamer.pdf)
 [.ipynb を保存](exercises/06_basics.ipynb)
 
 ## 07
 
 ### テキスト処理: 文章生成と計算
 
-1回目で勉強した内容を少し発展させます。
+第6回で勉強した内容を少し発展させます。
 テキストのトーカナイズ (字句解析) から文章生成と計算まで行います。
 
 [Colab で開く](gist:07_text.ipynb)
-[スライド](07-text/)
-[ハンドアウト](07-text/handout.pdf)
-[Beamer](07-text/07-text-beamer.pdf)
+[スライド (PDF)](07-text/07-text-beamer.pdf)
 [.ipynb を保存](exercises/07_text.ipynb)
 
-## 08 総合演習
+## 08
 
-A と B は**どちらか一方**だけ実施します。担当教員の指示に従ってください。
-
-### 言語モデルの仕組みと実装 {A}
-
-小さな言語モデルを使用したチャットアプリを実装します。
-0.7B の Transformer を Colab に読み込んで、生成ループを実装します。
-API キーなど特別な準備は不要です。
-
-この回はモデルを動かすので Colab が基本です。
-`ランタイムのタイプを変更 → T4 GPU` にすると速くなります。
-
-[Colab で開く](gist:08a_llm.ipynb)
-[スライド](08a-llm/)
-[ハンドアウト](08a-llm/handout.pdf)
-[Beamer](08a-llm/08a-llm-beamer.pdf)
-[.ipynb を保存](exercises/08a_llm.ipynb)
-
-### Forth インタプリタの実装 {B}
+### 簡易インタプリタの実装
 
 スタックベース言語 Forth のインタプリタを作ります。
 第7回の逆ポーランド電卓に `: 名前 … ;` を足して
 **実行中に語彙を増やせる**ようにすると、電卓が言語になります。
 
-[Colab で開く](gist:08b_forth.ipynb)
-[スライド](08b-forth/)
-[ハンドアウト](08b-forth/handout.pdf)
-[Beamer](08b-forth/08b-forth-beamer.pdf)
-[.ipynb を保存](exercises/08b_forth.ipynb)
+[Colab で開く](gist:08_forth.ipynb)
+[スライド (PDF)](08-forth/08-forth-beamer.pdf)
+[.ipynb を保存](exercises/08_forth.ipynb)
 
 ## 提出
 
@@ -84,13 +61,10 @@ API キーなど特別な準備は不要です。
     下のリンクから、このページの中で Jupyter が立ち上がります (JupyterLite)。
     <strong>書いた内容はそのブラウザにだけ残るので、作業を中断した時や提出前に必ず
     <code>File → Download</code> で <code>.ipynb</code> を保存してください。</strong>
-    第8回A は WebGPU 対応ブラウザ (Chrome / Edge / Chromium) でモデルを動かします
-    (初回だけダウンロード)。
   </p>
   <div class="links">
     <a data-release="06-basics" href="jupyter-lite/notebooks/index.html?path=06_basics.ipynb">第6回</a>
     <a data-release="07-text" href="jupyter-lite/notebooks/index.html?path=07_text.ipynb">第7回</a>
-    <a data-release="08a-llm" href="jupyter-lite/notebooks/index.html?path=08a_llm_webllm.ipynb">第8回A (WebLLM 版)</a>
-    <a data-release="08b-forth" href="jupyter-lite/notebooks/index.html?path=08b_forth.ipynb">第8回B</a>
+    <a data-release="08-forth" href="jupyter-lite/notebooks/index.html?path=08_forth.ipynb">第8回</a>
   </div>
 </details>

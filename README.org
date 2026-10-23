@@ -1,7 +1,8 @@
 #+TITLE: スクリプト言語演習 (Python) 全3回
 #+OPTIONS: toc:nil num:nil
 
-学部2・3年生向け。スライド (reveal.js) と課題ノートブック (Jupyter/Colab)。
+学部2・3年生向け。スライド (Beamer の PDF) と課題ノートブック (Jupyter/Colab)。
+公開ページに出すスライドは Beamer の PDF だけ (Reveal のページは CI で消す)。
 公開ページ: https://3tty0n.github.io/2026-scripting-lab/
 
 * 構成
@@ -10,10 +11,10 @@
 |--------+---------------------------+------------------+-----------------------------|
 | 第6回  | Python入門 (Pythonic中心) | =src/06-basics/= | =exercises/06_basics.ipynb= |
 | 第7回  | テキスト処理の基本と応用  | =src/07-text/=   | =exercises/07_text.ipynb=   |
-| 第8回A | 言語モデル入門            | =src/08a-llm/=   | =exercises/08a_llm.ipynb=   |
-| 第8回B | インタプリタ実装入門      | =src/08b-forth/= | =exercises/08b_forth.ipynb= |
+| 第8回 | インタプリタ実装入門      | =src/08-forth/= | =exercises/08_forth.ipynb= |
 
-第6・7回は共通。第8回は A か B のどちらか。
+第8回は簡易インタプリタ (Forth)。
+言語モデルの回 (=src/08a-llm/=、=exercises/08a_llm.ipynb=) は予備として残し、=release.yaml= で非公開にしている。
 
 90分の目安: スライド 20分、課題 60分、まとめ 10分。
 基本課題までで十分。発展は宿題。
@@ -27,7 +28,7 @@
 | =06_basics.ipynb= | =c3f350eac43bfaceee52c4e46211acf8= |
 | =07_text.ipynb=   | =b22ee21987175a8a41d05effd8a58deb= |
 | =08a_llm.ipynb=   | =1c0f3cf4d3f4fb2f30354677156e75ea= |
-| =08b_forth.ipynb= | =97852f1114d1b445a903b5a641f07ce7= |
+| =08_forth.ipynb= | =97852f1114d1b445a903b5a641f07ce7= |
 
 リンク: =https://colab.research.google.com/gist/3tty0n/<id>/<ファイル名>=
 
@@ -227,7 +228,7 @@ make handouts                    # 全4回
 ** Beamer (PDF スライド)
 
 同じ =slides.md= から、Beamer のスライド PDF も生成する (pandoc + LuaLaTeX)。
-Web のスライドと内容がずれない。レジュメ (A4) と一緒に作るなら =make pdfs=。
+公開ページに載るのはこの PDF (CI は =make beamer=)。レジュメ (A4) と一緒に作るなら =make pdfs=。
 
 #+begin_src sh
 tools/build-beamer.sh 06-basics    # 1回分 → src/06-basics/06-basics-beamer.pdf

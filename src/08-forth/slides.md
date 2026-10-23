@@ -1,4 +1,4 @@
-Scripting Languages / Dynamic Languages / 08-B
+Scripting Languages / Dynamic Languages / 08
 
 # Forthインタプリタの仕組み
 

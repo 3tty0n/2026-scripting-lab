@@ -22,7 +22,7 @@ TASK_OF = {
     "07_text.ipynb": "07",
     "08a_llm.ipynb": "08a",
     "08a_llm_webllm.ipynb": "08a_web",
-    "08b_forth.ipynb": "08b",
+    "08_forth.ipynb": "08",
 }
 
 BASE = "https://3tty0n.github.io/2026-scripting-lab/grading"

@@ -2,7 +2,8 @@
 06-basics: public
 07-text: public
   # released_at: 2027-04-01T10:30:00+09:00
-08a-llm: public
+08a-llm: private
   # released_at: 2027-04-01T10:30:00+09:00
-08b-forth: public
+08-forth: public
   # released_at: 2027-04-01T10:30:00+09:00
+08a-llm-webllm: private

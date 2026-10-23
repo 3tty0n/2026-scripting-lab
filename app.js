@@ -105,7 +105,7 @@ def grade(nb_text, checks_src, prelude_src, notebook_src, filename, task):
                        "facts": list(ns.get("_FACTS", []))}, ensure_ascii=False)
 `;
 
-const CHECK_FILES = {'06':'06_basics','07':'07_text','08a':'08a_llm','08b':'08b_forth'};
+const CHECK_FILES = {'06':'06_basics','07':'07_text','08a':'08a_llm','08':'08_forth'};
 const cache = {};
 
 async function grab(path){

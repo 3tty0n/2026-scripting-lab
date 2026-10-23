@@ -20,7 +20,7 @@ TASKS = {
     "06": "06_basics",
     "07": "07_text",
     "08a": "08a_llm",
-    "08b": "08b_forth",
+    "08": "08_forth",
     "08a_web": "08a_llm_webllm",
 }
 

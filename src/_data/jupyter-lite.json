@@ -2,12 +2,14 @@
   "contents": [
     "exercises/06_basics.ipynb",
     "exercises/07_text.ipynb",
-    "exercises/08b_forth.ipynb",
-    "exercises/08a_llm_webllm.ipynb",
+    "exercises/08_forth.ipynb",
     "grading/autograde.py",
     "grading/contracts.py",
     "grading/notebook.py",
-    { "from": "grading/checks", "to": "checks" }
+    {
+      "from": "grading/checks",
+      "to": "checks"
+    }
   ],
   "fetch": [
     {

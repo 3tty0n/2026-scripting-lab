@@ -1,4 +1,4 @@
-DECKS := 06-basics 07-text 08a-llm 08b-forth
+DECKS := 06-basics 07-text 08-forth
 HANDOUTS := $(DECKS:%=src/%/handout.pdf)
 BEAMERS := $(foreach d,$(DECKS),src/$(d)/$(d)-beamer.pdf)
 

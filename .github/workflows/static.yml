@@ -44,10 +44,15 @@ jobs:
             texlive-latex-recommended texlive-latex-extra librsvg2-bin poppler-utils
       - name: Build JupyterLite
         run: npx slidekit-jupyter-lite
-      - name: Build handouts and Beamer (PDF)
-        run: make pdfs
+      - name: Build Beamer (PDF)
+        run: make beamer
       - name: Build site
         run: npm run build
+      - name: Publish slides as Beamer PDF only (drop the Reveal pages)
+        run: |
+          for d in _site/*/; do
+            if [ -f "$d/slides.md" ]; then rm -f "$d/index.html" "$d/slides.md" "$d/handout.pdf"; fi
+          done
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

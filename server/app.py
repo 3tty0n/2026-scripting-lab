@@ -42,7 +42,7 @@ from sandbox import grade_notebook          # noqa: E402
 from grading.grade import load_checks       # noqa: E402
 
 DB_PATH = pathlib.Path(__file__).resolve().parent / "progress.db"
-TASKS = ("06", "07", "08a", "08b")
+TASKS = ("06", "07", "08a", "08")
 MAX_UPLOAD = 8 * 1024 * 1024
 COOKIE = "sid"
 _lock = threading.Lock()
@@ -146,7 +146,7 @@ PAGE = """<!DOCTYPE html>
 </div>
 <script>
 let task = new URLSearchParams(location.search).get('task') || '06';
-const TASKS = ['06','07','08a','08b'];
+const TASKS = ['06','07','08a','08'];
 
 function tabs(){
   document.getElementById('tabs').innerHTML = TASKS.map(t =>
@@ -238,7 +238,7 @@ SUBMIT_PAGE = """<!DOCTYPE html>
   <option value="06">第6回 Python の関数とデコレータ</option>
   <option value="07">第7回 テキスト処理と文章生成</option>
   <option value="08a">第8回A 言語モデルの仕組みと実装</option>
-  <option value="08b">第8回B Forth インタプリタの実装</option>
+  <option value="08">第8回 Forth インタプリタの実装</option>
 </select>
 
 <label for="label">名前 (任意。空でもよい)</label>
