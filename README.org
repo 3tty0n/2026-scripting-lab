@@ -8,12 +8,12 @@
 
 | 回     | テーマ                    | スライド         | 課題                        |
 |--------+---------------------------+------------------+-----------------------------|
-| 第1回  | Python入門 (Pythonic中心) | =src/01-basics/= | =exercises/01_basics.ipynb= |
-| 第2回  | テキスト処理の基本と応用  | =src/02-text/=   | =exercises/02_text.ipynb=   |
-| 第3回A | 言語モデル入門            | =src/03a-llm/=   | =exercises/03a_llm.ipynb=   |
-| 第3回B | インタプリタ実装入門      | =src/03b-forth/= | =exercises/03b_forth.ipynb= |
+| 第6回  | Python入門 (Pythonic中心) | =src/06-basics/= | =exercises/06_basics.ipynb= |
+| 第7回  | テキスト処理の基本と応用  | =src/07-text/=   | =exercises/07_text.ipynb=   |
+| 第8回A | 言語モデル入門            | =src/08a-llm/=   | =exercises/08a_llm.ipynb=   |
+| 第8回B | インタプリタ実装入門      | =src/08b-forth/= | =exercises/08b_forth.ipynb= |
 
-第1・2回は共通。第3回は A か B のどちらか。
+第6・7回は共通。第8回は A か B のどちらか。
 
 90分の目安: スライド 20分、課題 60分、まとめ 10分。
 基本課題までで十分。発展は宿題。
@@ -24,10 +24,10 @@
 
 | ファイル          | Gist                               |
 |-------------------+------------------------------------|
-| =01_basics.ipynb= | =c3f350eac43bfaceee52c4e46211acf8= |
-| =02_text.ipynb=   | =b22ee21987175a8a41d05effd8a58deb= |
-| =03a_llm.ipynb=   | =1c0f3cf4d3f4fb2f30354677156e75ea= |
-| =03b_forth.ipynb= | =97852f1114d1b445a903b5a641f07ce7= |
+| =06_basics.ipynb= | =c3f350eac43bfaceee52c4e46211acf8= |
+| =07_text.ipynb=   | =b22ee21987175a8a41d05effd8a58deb= |
+| =08a_llm.ipynb=   | =1c0f3cf4d3f4fb2f30354677156e75ea= |
+| =08b_forth.ipynb= | =97852f1114d1b445a903b5a641f07ce7= |
 
 リンク: =https://colab.research.google.com/gist/3tty0n/<id>/<ファイル名>=
 
@@ -50,22 +50,22 @@ npm run serve
 
 http://127.0.0.1:8000/jupyter-lite/lab/index.html
 
-中身の指定は =src/_data/jupyter-lite.json=。第3回A の torch 版は含めず WebLLM 版だけ入れる。
+中身の指定は =src/_data/jupyter-lite.json=。第8回A の torch 版は含めず WebLLM 版だけ入れる。
 
 提出は kibaco。=grade.html= へのアップロードは提出ではない。
 
 * 採点
 
 #+begin_src sh
-python3 grading/grade.py 01 提出物/yamada.ipynb
-python3 grading/grade.py 01 提出物/ --csv 結果.csv
-python3 grading/grade.py 01 --check-setup
+python3 grading/grade.py 06 提出物/yamada.ipynb
+python3 grading/grade.py 06 提出物/ --csv 結果.csv
+python3 grading/grade.py 06 --check-setup
 #+end_src
 
 kibaco の一括ダウンロードの zip や、学生ごとのフォルダもそのまま渡せる。
 
 #+begin_src sh
-python3 grading/grade.py 01 kibaco一括.zip --csv 結果.csv
+python3 grading/grade.py 06 kibaco一括.zip --csv 結果.csv
 #+end_src
 
 確認セルを直したら =python3 grading/build_checks.py=。
@@ -73,10 +73,10 @@ python3 grading/grade.py 01 kibaco一括.zip --csv 結果.csv
 =--check-setup= は配布版が 0 点、模範解答が満点になることを確かめる。
 担当者向けの当日の手順は =instructor/README.md=。
 
-第3回A は 1件 1〜2分。タイムアウトを伸ばす。
+第8回A は 1件 1〜2分。タイムアウトを伸ばす。
 
 #+begin_src sh
-python3 grading/grade.py 03a 提出物/ --csv 結果.csv --check-timeout 300
+python3 grading/grade.py 08a 提出物/ --csv 結果.csv --check-timeout 300
 #+end_src
 
 * フレームワーク
@@ -85,14 +85,14 @@ python3 grading/grade.py 03a 提出物/ --csv 結果.csv --check-timeout 300
 このリポジトリでは =vendor/slidekit= に同梱し、npm は GitHub を見ない
 (=file:vendor/slidekit=)。
 =src/<回>/= が 1 デッキ。=slides.md= があれば Reveal、PDF だけならその置き場。
-=03a-llm-webllm= だけ =deck.yaml= で =code: webllm= を指定している。
+=08a-llm-webllm= だけ =deck.yaml= で =code: webllm= を指定している。
 コース固有の中身は =src/= と =assets/diagrams/= と =slidekit.config.js= の追加コピー。
 
 * 編集
 
 スライドの中身は =src/<回>/slides.md=。壳 HTML は触らない。
 サイト全体は slidekit でビルドする (=src/= → =_site/=)。
-公開 URL は従来どおり =/01-basics/= など (ソースだけ =src/= 配下)。
+公開 URL は従来どおり =/06-basics/= など (ソースだけ =src/= 配下)。
 
 #+begin_src sh
 npm ci
@@ -123,7 +123,7 @@ sh tools/serve.sh
 | =###= | =##= 直上または直下に置くと赤サブタイトル |
 | =~...~= / 引用 | 注釈ブロック (=note=) |
 | =```python= ... =```= | 実行可能な Ace セル (Pyodide)。ページ内で状態共有 |
-| =```js= / =```javascript= | 第3回A WebLLM デッキでは実行可能セル |
+| =```js= / =```javascript= | 第8回A WebLLM デッキでは実行可能セル |
 | その他のフェンス | ハイライトのみ (実行なし) |
 
 コードセルは右上の ▶、または =Command-Enter= / =Ctrl-Enter= で実行。
@@ -217,7 +217,7 @@ long_name = something_very_long(...)
 同じ =slides.md= から、印刷用の A4 PDF を生成する。
 
 #+begin_src sh
-tools/build-handout.sh 01-basics
+tools/build-handout.sh 06-basics
 make handouts                    # 全4回
 #+end_src
 
@@ -230,7 +230,7 @@ make handouts                    # 全4回
 Web のスライドと内容がずれない。レジュメ (A4) と一緒に作るなら =make pdfs=。
 
 #+begin_src sh
-tools/build-beamer.sh 01-basics    # 1回分 → src/01-basics/01-basics-beamer.pdf
+tools/build-beamer.sh 06-basics    # 1回分 → src/06-basics/06-basics-beamer.pdf
 make beamer                        # 全4回
 make pdfs                          # レジュメ (A4) と Beamer を一度に
 #+end_src
@@ -240,7 +240,7 @@ make pdfs                          # レジュメ (A4) と Beamer を一度に
 - =::: hstack= は Beamer の段組みになる。1枚に収まらないフレームは、自動で次のページへ続く
   (検出に =pdftotext= を使う。無ければ続きの処理は行わない)
 - 見た目は =tools/beamer-header.tex=、変換は =tools/beamer-prep.py=
-- 出力は =src/<回>/<回>-beamer.pdf= (例: =01-basics-beamer.pdf=。ダウンロードしても名前が重ならない)。
+- 出力は =src/<回>/<回>-beamer.pdf= (例: =06-basics-beamer.pdf=。ダウンロードしても名前が重ならない)。
   git には入れず、CI が作って公開する
 
 Git hook (=tools/install-hooks.sh=) を入れると:

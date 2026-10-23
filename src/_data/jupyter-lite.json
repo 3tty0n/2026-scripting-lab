@@ -1,9 +1,9 @@
 {
   "contents": [
-    "exercises/01_basics.ipynb",
-    "exercises/02_text.ipynb",
-    "exercises/03b_forth.ipynb",
-    "exercises/03a_llm_webllm.ipynb",
+    "exercises/06_basics.ipynb",
+    "exercises/07_text.ipynb",
+    "exercises/08b_forth.ipynb",
+    "exercises/08a_llm_webllm.ipynb",
     "grading/autograde.py",
     "grading/contracts.py",
     "grading/notebook.py",

@@ -1,6 +1,6 @@
 #!/bin/sh
 # usage: tools/build-beamer.sh DECK [OUTPUT.pdf]   (既定の出力: src/DECK/DECK-beamer.pdf)
-# slides.md (Reveal 用 DSL) から Beamer の PDF を作る。DECK は 01-basics または src/01-basics。
+# slides.md (Reveal 用 DSL) から Beamer の PDF を作る。DECK は 06-basics または src/06-basics。
 # Web のスライドと同じ slides.md から作るので、内容がずれない。
 set -eu
 cd "$(dirname "$0")/.."

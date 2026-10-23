@@ -17,11 +17,11 @@ import urllib.request
 
 BASE_URL = "https://3tty0n.github.io/2026-scripting-lab/grading/checks"
 TASKS = {
-    "01": "01_basics",
-    "02": "02_text",
-    "03a": "03a_llm",
-    "03b": "03b_forth",
-    "03a_web": "03a_llm_webllm",
+    "06": "06_basics",
+    "07": "07_text",
+    "08a": "08a_llm",
+    "08b": "08b_forth",
+    "08a_web": "08a_llm_webllm",
 }
 
 _cache = {}

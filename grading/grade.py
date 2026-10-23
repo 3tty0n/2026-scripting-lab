@@ -2,9 +2,9 @@
 """提出された .ipynb を自動採点する。
 
 使い方:
-    python3 grading/grade.py 01 提出物/*.ipynb
-    python3 grading/grade.py 02 提出物/ --csv 結果.csv
-    python3 grading/grade.py 02 kibaco一括.zip --csv 結果.csv
+    python3 grading/grade.py 06 提出物/*.ipynb
+    python3 grading/grade.py 07 提出物/ --csv 結果.csv
+    python3 grading/grade.py 07 kibaco一括.zip --csv 結果.csv
 
 ディレクトリと zip は中のフォルダもたどる (kibaco の一括ダウンロードをそのまま渡せる)。
 
@@ -29,10 +29,10 @@ sys.path.insert(0, str(HERE))
 from notebook import parse, FormatError      # noqa: E402
 
 TASKS = {
-    "01": "01_basics",
-    "02": "02_text",
-    "03a": "03a_llm",
-    "03b": "03b_forth",
+    "06": "06_basics",
+    "07": "07_text",
+    "08a": "08a_llm",
+    "08b": "08b_forth",
 }
 
 
@@ -259,7 +259,7 @@ def check_setup(task):
     """配布状態のノートブックが 0 点、模範解答が満点なら、採点器は正しく動いている。
 
     模範解答は instructor/solutions/ (Pages には出さない)。
-    第3回A の模範解答はモデルを読み込むので、torch が無ければ飛ばす。
+    第8回A の模範解答はモデルを読み込むので、torch が無ければ飛ばす。
     """
     nb = HERE.parent / "exercises" / f"{TASKS[task]}.ipynb"
     if not nb.exists():
@@ -276,7 +276,7 @@ def check_setup(task):
     print("\n正常: 白紙は 0 点")
 
     sol = HERE.parent / "instructor" / "solutions" / f"{TASKS[task]}_solution.ipynb"
-    if task == "03a" and importlib.util.find_spec("torch") is None:
+    if task == "08a" and importlib.util.find_spec("torch") is None:
         print(f"torch が無いので {sol.name} は確かめない")
         return 0
     r = grade(sol, task)

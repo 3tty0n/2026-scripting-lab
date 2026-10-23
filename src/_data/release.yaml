@@ -1,8 +1,8 @@
 # 公開 / 非公開 / 時限公開
-01-basics: public
-02-text: public
+06-basics: public
+07-text: public
   # released_at: 2027-04-01T10:30:00+09:00
-03a-llm: public
+08a-llm: public
   # released_at: 2027-04-01T10:30:00+09:00
-03b-forth: public
+08b-forth: public
   # released_at: 2027-04-01T10:30:00+09:00

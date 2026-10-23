@@ -28,3 +28,4 @@ exercises/solutions/
 
 # Eleventy
 node_modules/
+/autograde.py

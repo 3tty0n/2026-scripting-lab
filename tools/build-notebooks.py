@@ -18,11 +18,11 @@ import sys
 import nbformat
 
 TASK_OF = {
-    "01_basics.ipynb": "01",
-    "02_text.ipynb": "02",
-    "03a_llm.ipynb": "03a",
-    "03a_llm_webllm.ipynb": "03a_web",
-    "03b_forth.ipynb": "03b",
+    "06_basics.ipynb": "06",
+    "07_text.ipynb": "07",
+    "08a_llm.ipynb": "08a",
+    "08a_llm_webllm.ipynb": "08a_web",
+    "08b_forth.ipynb": "08b",
 }
 
 BASE = "https://3tty0n.github.io/2026-scripting-lab/grading"

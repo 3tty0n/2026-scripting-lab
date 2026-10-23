@@ -21,7 +21,7 @@
 学生のコードを実行するので、server/sandbox.py の制限つきで動かす。
 外に公開するなら Docker (server/Dockerfile) を使うこと。
 
-第3回A はモデルの読み込みが要る。GPU か Apple Silicon の載った機械で動かすこと
+第8回A はモデルの読み込みが要る。GPU か Apple Silicon の載った機械で動かすこと
 (Mac Studio なら MPS が使われる)。1件あたり1〜2分かかるので、
 同時に走らせる数を --jobs で絞ってある。
 """
@@ -42,7 +42,7 @@ from sandbox import grade_notebook          # noqa: E402
 from grading.grade import load_checks       # noqa: E402
 
 DB_PATH = pathlib.Path(__file__).resolve().parent / "progress.db"
-TASKS = ("01", "02", "03a", "03b")
+TASKS = ("06", "07", "08a", "08b")
 MAX_UPLOAD = 8 * 1024 * 1024
 COOKIE = "sid"
 _lock = threading.Lock()
@@ -145,8 +145,8 @@ PAGE = """<!DOCTYPE html>
 <div id="table"></div>
 </div>
 <script>
-let task = new URLSearchParams(location.search).get('task') || '01';
-const TASKS = ['01','02','03a','03b'];
+let task = new URLSearchParams(location.search).get('task') || '06';
+const TASKS = ['06','07','08a','08b'];
 
 function tabs(){
   document.getElementById('tabs').innerHTML = TASKS.map(t =>
@@ -235,10 +235,10 @@ SUBMIT_PAGE = """<!DOCTYPE html>
 
 <label for="task">どの回か</label>
 <select id="task">
-  <option value="01">第1回 Python の関数とデコレータ</option>
-  <option value="02">第2回 テキスト処理と文章生成</option>
-  <option value="03a">第3回A 言語モデルの仕組みと実装</option>
-  <option value="03b">第3回B Forth インタプリタの実装</option>
+  <option value="06">第6回 Python の関数とデコレータ</option>
+  <option value="07">第7回 テキスト処理と文章生成</option>
+  <option value="08a">第8回A 言語モデルの仕組みと実装</option>
+  <option value="08b">第8回B Forth インタプリタの実装</option>
 </select>
 
 <label for="label">名前 (任意。空でもよい)</label>
@@ -287,7 +287,7 @@ $('#drop').ondrop = e => { e.preventDefault(); $('#drop').classList.remove('on')
 $('#go').onclick = async () => {
   $('#go').disabled = true;
   $('#go').textContent = '採点しています...';
-  $('#out').innerHTML = '<p class="note">第3回A はモデルの読み込みがあるので数分かかります。'
+  $('#out').innerHTML = '<p class="note">第8回A はモデルの読み込みがあるので数分かかります。'
                       + 'このページを閉じないでください。</p>';
   try{
     const res = await fetch('/api/submit', {
@@ -378,7 +378,7 @@ class Handler(BaseHTTPRequestHandler):
                               cookie=sid if fresh else None)
 
         if path == "/api/results":
-            task = params.get("task", "01")
+            task = params.get("task", "06")
             if task not in TASKS:
                 return self._json(400, {"error": "不明な課題"})
             rows = load_all(task)
@@ -420,7 +420,7 @@ class Handler(BaseHTTPRequestHandler):
             # 本文は JSON。notebook は .ipynb の中身をそのまま文字列で入れる
             try:
                 d = json.loads(raw)
-                task = d.get("task", "01")
+                task = d.get("task", "06")
                 label = (str(d.get("label") or d.get("student") or "")).strip()[:40]
                 nb = d["notebook"].encode("utf-8")
                 assert task in TASKS, "不明な課題"
@@ -429,7 +429,7 @@ class Handler(BaseHTTPRequestHandler):
 
             sid, fresh = self._sid(d.get("student_id"))
 
-            # 同時に走る採点の数を絞る (第3回A はモデルを読むので重い)
+            # 同時に走る採点の数を絞る (第8回A はモデルを読むので重い)
             with _slots:
                 self.log_message("採点開始 sid=%s task=%s (%d bytes)",
                                  sid[:8], task, len(nb))

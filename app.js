@@ -105,7 +105,7 @@ def grade(nb_text, checks_src, prelude_src, notebook_src, filename, task):
                        "facts": list(ns.get("_FACTS", []))}, ensure_ascii=False)
 `;
 
-const CHECK_FILES = {'01':'01_basics','02':'02_text','03a':'03a_llm','03b':'03b_forth'};
+const CHECK_FILES = {'06':'06_basics','07':'07_text','08a':'08a_llm','08b':'08b_forth'};
 const cache = {};
 
 async function grab(path){
@@ -155,7 +155,7 @@ function pick(f){
   r.readAsText(f);
 }
 function syncTask(){
-  const llm = $('#task').value === '03a';
+  const llm = $('#task').value === '08a';
   $('#llm-note').style.display = llm ? 'block' : 'none';
   $('#drop').style.opacity = llm ? .4 : 1;
   $('#drop').style.pointerEvents = llm ? 'none' : 'auto';

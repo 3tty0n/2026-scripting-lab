@@ -11,32 +11,32 @@ credit: "担当: 伊澤 侑祐 (情報科学科、助教、yizawa _at_ tmu.ac.jp
 `ファイル → ドライブにコピーを保存` で自分の控えを作ってから書き始めてください。
 書き終えたら `ファイル → .ipynb をダウンロード` で保存して kibaco に提出します。
 
-## 01
+## 06
 
 ### Python 入門
 
 Python の基礎を簡潔に学びます。動的言語としての特徴も学習します。
 
-[Colab で開く](gist:01_basics.ipynb)
-[スライド](01-basics/)
-[ハンドアウト](01-basics/handout.pdf)
-[Beamer](01-basics/01-basics-beamer.pdf)
-[.ipynb を保存](exercises/01_basics.ipynb)
+[Colab で開く](gist:06_basics.ipynb)
+[スライド](06-basics/)
+[ハンドアウト](06-basics/handout.pdf)
+[Beamer](06-basics/06-basics-beamer.pdf)
+[.ipynb を保存](exercises/06_basics.ipynb)
 
-## 02
+## 07
 
 ### テキスト処理: 文章生成と計算
 
 1回目で勉強した内容を少し発展させます。
 テキストのトーカナイズ (字句解析) から文章生成と計算まで行います。
 
-[Colab で開く](gist:02_text.ipynb)
-[スライド](02-text/)
-[ハンドアウト](02-text/handout.pdf)
-[Beamer](02-text/02-text-beamer.pdf)
-[.ipynb を保存](exercises/02_text.ipynb)
+[Colab で開く](gist:07_text.ipynb)
+[スライド](07-text/)
+[ハンドアウト](07-text/handout.pdf)
+[Beamer](07-text/07-text-beamer.pdf)
+[.ipynb を保存](exercises/07_text.ipynb)
 
-## 03 総合演習
+## 08 総合演習
 
 A と B は**どちらか一方**だけ実施します。担当教員の指示に従ってください。
 
@@ -49,23 +49,23 @@ API キーなど特別な準備は不要です。
 この回はモデルを動かすので Colab が基本です。
 `ランタイムのタイプを変更 → T4 GPU` にすると速くなります。
 
-[Colab で開く](gist:03a_llm.ipynb)
-[スライド](03a-llm/)
-[ハンドアウト](03a-llm/handout.pdf)
-[Beamer](03a-llm/03a-llm-beamer.pdf)
-[.ipynb を保存](exercises/03a_llm.ipynb)
+[Colab で開く](gist:08a_llm.ipynb)
+[スライド](08a-llm/)
+[ハンドアウト](08a-llm/handout.pdf)
+[Beamer](08a-llm/08a-llm-beamer.pdf)
+[.ipynb を保存](exercises/08a_llm.ipynb)
 
 ### Forth インタプリタの実装 {B}
 
 スタックベース言語 Forth のインタプリタを作ります。
-第2回の逆ポーランド電卓に `: 名前 … ;` を足して
+第7回の逆ポーランド電卓に `: 名前 … ;` を足して
 **実行中に語彙を増やせる**ようにすると、電卓が言語になります。
 
-[Colab で開く](gist:03b_forth.ipynb)
-[スライド](03b-forth/)
-[ハンドアウト](03b-forth/handout.pdf)
-[Beamer](03b-forth/03b-forth-beamer.pdf)
-[.ipynb を保存](exercises/03b_forth.ipynb)
+[Colab で開く](gist:08b_forth.ipynb)
+[スライド](08b-forth/)
+[ハンドアウト](08b-forth/handout.pdf)
+[Beamer](08b-forth/08b-forth-beamer.pdf)
+[.ipynb を保存](exercises/08b_forth.ipynb)
 
 ## 提出
 
@@ -84,13 +84,13 @@ API キーなど特別な準備は不要です。
     下のリンクから、このページの中で Jupyter が立ち上がります (JupyterLite)。
     <strong>書いた内容はそのブラウザにだけ残るので、作業を中断した時や提出前に必ず
     <code>File → Download</code> で <code>.ipynb</code> を保存してください。</strong>
-    第3回A は WebGPU 対応ブラウザ (Chrome / Edge / Chromium) でモデルを動かします
+    第8回A は WebGPU 対応ブラウザ (Chrome / Edge / Chromium) でモデルを動かします
     (初回だけダウンロード)。
   </p>
   <div class="links">
-    <a data-release="01-basics" href="jupyter-lite/notebooks/index.html?path=01_basics.ipynb">第1回</a>
-    <a data-release="02-text" href="jupyter-lite/notebooks/index.html?path=02_text.ipynb">第2回</a>
-    <a data-release="03a-llm" href="jupyter-lite/notebooks/index.html?path=03a_llm_webllm.ipynb">第3回A (WebLLM 版)</a>
-    <a data-release="03b-forth" href="jupyter-lite/notebooks/index.html?path=03b_forth.ipynb">第3回B</a>
+    <a data-release="06-basics" href="jupyter-lite/notebooks/index.html?path=06_basics.ipynb">第6回</a>
+    <a data-release="07-text" href="jupyter-lite/notebooks/index.html?path=07_text.ipynb">第7回</a>
+    <a data-release="08a-llm" href="jupyter-lite/notebooks/index.html?path=08a_llm_webllm.ipynb">第8回A (WebLLM 版)</a>
+    <a data-release="08b-forth" href="jupyter-lite/notebooks/index.html?path=08b_forth.ipynb">第8回B</a>
   </div>
 </details>

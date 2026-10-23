@@ -1,4 +1,4 @@
-Scripting Languages / Dynamic Languages / 01
+Scripting Languages / Dynamic Languages / 06
 
 # Python 入門: 関数と辞書
 

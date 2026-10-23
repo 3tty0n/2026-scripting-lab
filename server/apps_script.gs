@@ -14,7 +14,7 @@
  * ---- 送る側 ----
  * 提出物を手元で一括採点して、その結果をここへ送る。
  *
- *   python3 grading/grade.py 01 提出物/ --post https://script.google.com/.../exec
+ *   python3 grading/grade.py 06 提出物/ --post https://script.google.com/.../exec
  *
  * 送られるのは点数だけで、学生のコードは送らない。
  * 採点しているのは grading/grade.py なので、数字は自動採点の結果そのもの。
@@ -32,7 +32,7 @@ function doPost(e) {
     var total   = Number(d.total || 0);
     var results = d.results || {};
 
-    if (['01', '02', '03a', '03b'].indexOf(task) < 0) {
+    if (['06', '07', '08a', '08b'].indexOf(task) < 0) {
       return json({ok: false, error: '不明な課題: ' + task});
     }
 
@@ -56,7 +56,7 @@ function doPost(e) {
 
 /** ブラウザで開いたときの簡易ダッシュボード */
 function doGet(e) {
-  var task = (e && e.parameter && e.parameter.task) || '01';
+  var task = (e && e.parameter && e.parameter.task) || '06';
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(sheetName(task));
   if (!sheet) return HtmlService.createHtmlOutput('<p>まだ誰も送ってきていません</p>');

@@ -1,4 +1,4 @@
-Scripting Languages / Transformer / 03-A (ブラウザ版)
+Scripting Languages / Transformer / 08-A (ブラウザ版)
 
 # 言語モデルの仕組みと実装
 
@@ -46,13 +46,13 @@ Scripting Languages / Transformer / 03-A (ブラウザ版)
 
 ---
 
-## 第2回との共通点
+## 第7回との共通点
 
 - 次の語の予測と、選んでつなげるループ
 - 回数の表を学習済みの関数へ置き換えた点
-- 第2回と同じ温度の利用
+- 第7回と同じ温度の利用
 
-| | 第2回：マルコフ連鎖 | 今日：言語モデル |
+| | 第7回：マルコフ連鎖 | 今日：言語モデル |
 |---|---|---|
 | 次の語の予測 | `table[word]` を引く | `model(文脈)` を呼ぶ |
 | 予測の中身 | 数えた回数の表 | 学習した重み |
@@ -121,7 +121,7 @@ print("作ったトークン数:", completion_tokens(reply))
 
 - 毎回選ぶ、確率が最大のトークン
 - 温度 0 でランダム性を消すのが一番簡単な方法
-- 第2回の `pick_next` を `argmax` に置き換えた形
+- 第7回の `pick_next` を `argmax` に置き換えた形
 
 ```python
 print(ask("好きな食べ物は", temperature=0))

@@ -5,7 +5,7 @@
 #     -v "$HOME/.cache/huggingface:/cache/huggingface" \
 #     scoring
 #
-# 第3回A を採点するなら、モデルのキャッシュを渡しておくと毎回落とさずに済む。
+# 第8回A を採点するなら、モデルのキャッシュを渡しておくと毎回落とさずに済む。
 # GPU を使うなら --gpus all を足す (Apple Silicon の MPS はコンテナからは使えないので、
 # Mac Studio では Docker を挟まず直接動かすこと)。
 FROM python:3.13-slim
@@ -13,7 +13,7 @@ FROM python:3.13-slim
 RUN useradd -m -u 1000 grader
 WORKDIR /app
 
-# 第3回A を採点しないなら、この2行は消してよい (イメージが 2GB 以上小さくなる)
+# 第8回A を採点しないなら、この2行は消してよい (イメージが 2GB 以上小さくなる)
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir transformers
 

@@ -1,4 +1,4 @@
-Scripting Languages / Transformer / 03-A
+Scripting Languages / Transformer / 08-A
 
 # 言語モデルの仕組みと簡易チャットシステム
 
@@ -34,7 +34,7 @@ Scripting Languages / Transformer / 03-A
 
 ---
 
-## 第2回の「次の語を引く機械」を「会話」に発展させる
+## 第7回の「次の語を引く機械」を「会話」に発展させる
 ### 全体像
 
 | | マルコフ連鎖 | 言語モデル |
@@ -232,7 +232,7 @@ next_id = random.choices(
 
 1. `scores[:k]`: 上位 `k` 件だけを残す
 2. `softmax(..., temperature)`: 温度で割ってから、確率にする
-3. `random.choices(..., weights=probs)`: 確率に比例して 1 つ選ぶ (第2回と同じ)
+3. `random.choices(..., weights=probs)`: 確率に比例して 1 つ選ぶ (第7回と同じ)
 :::
 
 | 操作 | 小さくする | 大きくする |
