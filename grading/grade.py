@@ -21,10 +21,14 @@ import linecache
 import os
 import pathlib
 import signal
+import tempfile
 import sys
 import traceback
+import warnings
 
 HERE = pathlib.Path(__file__).resolve().parent
+os.environ.setdefault("MPLBACKEND", "Agg")  # グラフの課題を画面なしで採点する
+warnings.filterwarnings("ignore", message=".*non-interactive")  # 画面なしでの plt.show()
 sys.path.insert(0, str(HERE))
 from notebook import parse, FormatError      # noqa: E402
 
@@ -33,6 +37,9 @@ TASKS = {
     "07": "07_text",
     "08a": "08a_llm",
     "08": "08_forth",
+    "e05": "eecs05_python",
+    "e06": "eecs06_data",
+    "e07": "eecs07_forth",
 }
 
 
@@ -140,6 +147,18 @@ def run_notebook(nb_path, cell_timeout):
 
 
 def grade(nb_path, task, cell_timeout=60, check_timeout=120):
+    """学生が書き出すファイル (CSV など) が手元に散らからないよう、一時フォルダの中で採点する"""
+    nb_path = pathlib.Path(nb_path).resolve()
+    old = os.getcwd()
+    with tempfile.TemporaryDirectory() as tmp:
+        os.chdir(tmp)
+        try:
+            return _grade(nb_path, task, cell_timeout, check_timeout)
+        finally:
+            os.chdir(old)
+
+
+def _grade(nb_path, task, cell_timeout, check_timeout):
     checks = load_checks(task)
     try:
         ns, cell_errors = run_notebook(nb_path, cell_timeout)

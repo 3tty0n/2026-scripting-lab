@@ -1,4 +1,4 @@
-DECKS := 06-basics 07-text 08-forth
+DECKS := 06-basics 07-text 08-forth eecs05-python eecs06-data eecs07-forth
 HANDOUTS := $(DECKS:%=src/%/handout.pdf)
 BEAMERS := $(foreach d,$(DECKS),src/$(d)/$(d)-beamer.pdf)
 

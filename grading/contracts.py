@@ -358,6 +358,7 @@ _PROBES = {
     ("07", "q1"): _probe_02_q1,
     ("07", "q3"): _probe_02_q3,
     ("08", "q2"): _probe_03b_q2,
+    ("e07", "q2"): _probe_03b_q2,
 }
 
 # 例外の種類から言えること。どの課題でも同じ
@@ -403,6 +404,27 @@ _HINTS = {
     ("08", "q4"): "1行ずつ処理して結果を文字列で返す。スタックとワードは行をまたいで残す",
     ("08", "b1"): "真は -1、偽は 0",
     ("08", "b2"): "IF の位置から対応する ELSE / THEN を探す。入れ子は数を数えて対応づける",
+    ("e06", "q1"): "v < 4.5 なら '低い'、elif v <= 5.5 なら '正常'、else で '高い' を return する",
+    ("e06", "q2"): "total = total + v で足し、if v > biggest: biggest = v。biggest は values[0] から始める",
+    ("e06", "q3"): "while value < limit: の中で value を 2 倍し、count を 1 増やす",
+    ("e06", "q4"): "if x in counts: で 1 増やし、else: で counts[x] = 1 にする",
+    ("e06", "q5"): "記号なら b = stack.pop()、a = stack.pop()、stack.append(OPS[t](a, b))。数なら stack.append(int(t))",
+    ("e06", "b1"): "COLOR に無い色は ValueError。(10 * d1 + d2) * 10 ** d3 を返す",
+    ("e06", "b2"): "sorted(set(a) & set(b)) を返す",
+    ("e07", "q1"): "WORDS にあれば WORDS[token](stack) で呼ぶ・数なら int(token) を積む。- * / は a - b のように順序に注意",
+    ("e07", "q2"): "関数はスタックを受け取り、append / pop で組み替える。覗くだけなら stack[-1]",
+    ("e07", "q3"): "name は tokens[i + 1].upper()、body は tokens[i + 2:j]",
+    ("e07", "q4"): "USER_WORDS[word] は本体のリスト。forth_eval(stack, 本体) を呼ぶだけ",
+    ("e07", "q5"): "bye なら break。成功したら str(stack)、失敗したら 'error: ' + str(e) を outputs に足す。スタックは行をまたいで残す",
+    ("e07", "b1"): "真は -1、偽は 0",
+    ("e07", "b2"): "IF なら split_if で分け、stack.pop() が 0 以外なら yes、0 なら no を forth_eval に渡して continue",
+    ("e05", "q1"): "current は v / r、power は v ** 2 / r を return する",
+    ("e05", "q2"): "np.mean, np.max, np.min の結果を、平均・最大・最小の順に return する",
+    ("e05", "q3"): "np.array(...) で配列にしてから計算し、配列のまま return する",
+    ("e05", "q4"): "np.savetxt(path, np.column_stack([t, v]), delimiter=',') で書き、np.loadtxt(path, delimiter=',', unpack=True) を return する",
+    ("e05", "q5"): "fig, ax = plt.subplots() → ax.plot(t, v) → set_xlabel / set_ylabel / set_title → return fig, ax",
+    ("e05", "b1"): "ax.plot に label= を付けて 2 回描き、ax.legend() を呼ぶ",
+    ("e05", "b2"): "np.convolve(v, np.ones(n) / n, mode='valid') を return する",
 }
 
 

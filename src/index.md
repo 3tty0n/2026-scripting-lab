@@ -21,7 +21,7 @@ credit: "担当: 佐藤、草野、伊澤、大久保"
 [スライド (PDF)](06-basics/06-basics-beamer.pdf)
 [.ipynb を保存](exercises/06_basics.ipynb)
 
-## 07
+## CS 07
 
 ### テキスト処理: 文章生成と計算
 
@@ -32,7 +32,7 @@ credit: "担当: 佐藤、草野、伊澤、大久保"
 [スライド (PDF)](07-text/07-text-beamer.pdf)
 [.ipynb を保存](exercises/07_text.ipynb)
 
-## 08
+## CS 08
 
 ### 簡易インタプリタの実装
 
@@ -43,6 +43,37 @@ credit: "担当: 佐藤、草野、伊澤、大久保"
 [Colab で開く](gist:08_forth.ipynb)
 [スライド (PDF)](08-forth/08-forth-beamer.pdf)
 [.ipynb を保存](exercises/08_forth.ipynb)
+
+## EECS 05
+
+### Python の使い方・数値計算・グラフ
+
+Colab での Python の使い方から始め、numpy で数値を計算し、
+ファイルの読み書きと matplotlib でのグラフ作成までを学びます。
+
+[Colab で開く](gist:eecs05_python.ipynb)
+[スライド (PDF)](eecs05-python/eecs05-python-beamer.pdf)
+[.ipynb を保存](exercises/eecs05_python.ipynb)
+
+## EECS 06
+
+### データ構造・繰り返し・分岐
+
+リスト・辞書・`for`・`while`・`if` を使って、データを数えたり判定したりします。
+
+[Colab で開く](gist:eecs06_data.ipynb)
+[スライド (PDF)](eecs06-data/eecs06-data-beamer.pdf)
+[.ipynb を保存](exercises/eecs06_data.ipynb)
+
+## EECS 07
+
+### 簡易インタプリタの実装
+
+スタックと「記号 → 関数」の表を使って、小さな言語 Forth のインタプリタを作ります。
+
+[Colab で開く](gist:eecs07_forth.ipynb)
+[スライド (PDF)](eecs07-forth/eecs07-forth-beamer.pdf)
+[.ipynb を保存](exercises/eecs07_forth.ipynb)
 
 ## 提出
 
@@ -63,8 +94,11 @@ credit: "担当: 佐藤、草野、伊澤、大久保"
     <code>File → Download</code> で <code>.ipynb</code> を保存してください。</strong>
   </p>
   <div class="links">
-    <a data-release="06-basics" href="jupyter-lite/notebooks/index.html?path=06_basics.ipynb">第6回</a>
-    <a data-release="07-text" href="jupyter-lite/notebooks/index.html?path=07_text.ipynb">第7回</a>
-    <a data-release="08-forth" href="jupyter-lite/notebooks/index.html?path=08_forth.ipynb">第8回</a>
+    <a data-release="06-basics" href="jupyter-lite/notebooks/index.html?path=06_basics.ipynb">CS 第6回</a>
+    <a data-release="07-text" href="jupyter-lite/notebooks/index.html?path=07_text.ipynb">CS 第7回</a>
+    <a data-release="08-forth" href="jupyter-lite/notebooks/index.html?path=08_forth.ipynb">CS 第8回</a>
+    <a data-release="eecs05-python" href="jupyter-lite/notebooks/index.html?path=eecs05_python.ipynb">EECS 第5回</a>
+    <a data-release="eecs06-data" href="jupyter-lite/notebooks/index.html?path=eecs06_data.ipynb">EECS 第6回</a>
+    <a data-release="eecs07-forth" href="jupyter-lite/notebooks/index.html?path=eecs07_forth.ipynb">EECS 第7回</a>
   </div>
 </details>

@@ -21,6 +21,9 @@ TASKS = {
     "07": "07_text",
     "08a": "08a_llm",
     "08": "08_forth",
+    "e05": "eecs05_python",
+    "e06": "eecs06_data",
+    "e07": "eecs07_forth",
     "08a_web": "08a_llm_webllm",
 }
 

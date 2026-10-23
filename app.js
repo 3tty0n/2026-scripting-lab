@@ -105,7 +105,7 @@ def grade(nb_text, checks_src, prelude_src, notebook_src, filename, task):
                        "facts": list(ns.get("_FACTS", []))}, ensure_ascii=False)
 `;
 
-const CHECK_FILES = {'06':'06_basics','07':'07_text','08a':'08a_llm','08':'08_forth'};
+const CHECK_FILES = {'06':'06_basics','07':'07_text','08a':'08a_llm','08':'08_forth','e05':'eecs05_python','e06':'eecs06_data','e07':'eecs07_forth'};
 const cache = {};
 
 async function grab(path){
@@ -181,6 +181,8 @@ $('#go').onclick = async () => {
   try{
     const [checks, prelude, nbmod] = await Promise.all(
       [loadChecks(task), loadPrelude(), grab('grading/notebook.py')]);
+    // EECS 第5回は numpy と matplotlib を使う
+    if(task === 'e05') await pyodide.loadPackage(['numpy', 'matplotlib']);
     const t0 = performance.now();
     const raw = pyodide.globals.get('grade')(content, checks, prelude, nbmod, fname, task);
     const d = JSON.parse(raw);

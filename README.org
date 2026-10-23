@@ -7,13 +7,18 @@
 
 * 構成
 
-| 回     | テーマ                    | スライド         | 課題                        |
-|--------+---------------------------+------------------+-----------------------------|
-| 第6回  | Python入門 (Pythonic中心) | =src/06-basics/= | =exercises/06_basics.ipynb= |
-| 第7回  | テキスト処理の基本と応用  | =src/07-text/=   | =exercises/07_text.ipynb=   |
-| 第8回 | インタプリタ実装入門      | =src/08-forth/= | =exercises/08_forth.ipynb= |
+CS と EECS で 3 回ずつ。採点の回の指定は CS が =06= / =07= / =08=、EECS が =e05= / =e06= / =e07=。
 
-第8回は簡易インタプリタ (Forth)。
+| コース | 回     | テーマ                               | スライド              | 課題                             |
+|--------+--------+--------------------------------------+-----------------------+----------------------------------|
+| CS     | 第6回  | Python入門 (関数と辞書)              | =src/06-basics/=      | =exercises/06_basics.ipynb=      |
+| CS     | 第7回  | テキスト処理の基本と応用             | =src/07-text/=        | =exercises/07_text.ipynb=        |
+| CS     | 第8回  | インタプリタ実装入門                 | =src/08-forth/=       | =exercises/08_forth.ipynb=       |
+| EECS   | 第5回  | Python の使い方・数値計算・入出力・グラフ | =src/eecs05-python/=  | =exercises/eecs05_python.ipynb=  |
+| EECS   | 第6回  | データ構造・繰り返し・分岐           | =src/eecs06-data/=    | =exercises/eecs06_data.ipynb=    |
+| EECS   | 第7回  | 簡易インタプリタの実装 (CS 第8回が土台) | =src/eecs07-forth/=   | =exercises/eecs07_forth.ipynb=   |
+
+CS 第8回は簡易インタプリタ (Forth)。
 言語モデルの回 (=src/08a-llm/=、=exercises/08a_llm.ipynb=) は予備として残し、=release.yaml= で非公開にしている。
 
 90分の目安: スライド 20分、課題 60分、まとめ 10分。
@@ -29,6 +34,9 @@
 | =07_text.ipynb=   | =b22ee21987175a8a41d05effd8a58deb= |
 | =08a_llm.ipynb=   | =1c0f3cf4d3f4fb2f30354677156e75ea= |
 | =08_forth.ipynb= | =97852f1114d1b445a903b5a641f07ce7= |
+| =eecs05_python.ipynb= | =8c60f3fd7403471488a774ebafd4447d= |
+| =eecs06_data.ipynb=   | =f4342c37db64d30fef3e3dffcd2500c8= |
+| =eecs07_forth.ipynb=  | =c49a00703ad45c9a9634045b224e7c38= |
 
 リンク: =https://colab.research.google.com/gist/3tty0n/<id>/<ファイル名>=
 

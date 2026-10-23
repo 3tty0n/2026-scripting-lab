@@ -42,7 +42,7 @@ from sandbox import grade_notebook          # noqa: E402
 from grading.grade import load_checks       # noqa: E402
 
 DB_PATH = pathlib.Path(__file__).resolve().parent / "progress.db"
-TASKS = ("06", "07", "08a", "08")
+TASKS = ("06", "07", "08a", "08", "e05", "e06", "e07")
 MAX_UPLOAD = 8 * 1024 * 1024
 COOKIE = "sid"
 _lock = threading.Lock()
@@ -146,11 +146,11 @@ PAGE = """<!DOCTYPE html>
 </div>
 <script>
 let task = new URLSearchParams(location.search).get('task') || '06';
-const TASKS = ['06','07','08a','08'];
+const TASKS = ['06','07','08','e05','e06','e07'];
 
 function tabs(){
   document.getElementById('tabs').innerHTML = TASKS.map(t =>
-    `<a href="?task=${t}" class="${t===task?'on':''}">第${t}回</a>`).join('');
+    `<a href="?task=${t}" class="${t===task?'on':''}">${t.startsWith('e') ? 'EECS 第' + Number(t.slice(1)) : 'CS 第' + Number(t)}回</a>`).join('');
 }
 
 function render(rows, qids){
@@ -235,10 +235,16 @@ SUBMIT_PAGE = """<!DOCTYPE html>
 
 <label for="task">どの回か</label>
 <select id="task">
-  <option value="06">第6回 Python の関数とデコレータ</option>
+  <optgroup label="CS">
+  <option value="06">第6回 Python の関数と辞書</option>
   <option value="07">第7回 テキスト処理と文章生成</option>
-  <option value="08a">第8回A 言語モデルの仕組みと実装</option>
   <option value="08">第8回 Forth インタプリタの実装</option>
+  </optgroup>
+  <optgroup label="EECS">
+  <option value="e05">第5回 Python の使い方・数値計算・グラフ</option>
+  <option value="e06">第6回 データ構造・繰り返し・分岐</option>
+  <option value="e07">第7回 簡易インタプリタの実装</option>
+  </optgroup>
 </select>
 
 <label for="label">名前 (任意。空でもよい)</label>

@@ -23,6 +23,9 @@ TASK_OF = {
     "08a_llm.ipynb": "08a",
     "08a_llm_webllm.ipynb": "08a_web",
     "08_forth.ipynb": "08",
+    "eecs05_python.ipynb": "e05",
+    "eecs06_data.ipynb": "e06",
+    "eecs07_forth.ipynb": "e07",
 }
 
 BASE = "https://3tty0n.github.io/2026-scripting-lab/grading"

@@ -1,0 +1,101 @@
+"""自動採点の検査項目。ノートブックの確認セルと同じ内容。
+
+grading/grade.py が読み込み、学生の名前空間に対して実行する。
+このファイルは exercises/*.ipynb の確認セルから生成されている。
+手で書き換えず、ノートブック側を直すこと。
+"""
+
+CHECKS = [
+    ('q1', '電圧の判定', 15, [
+        "need('check_voltage', arity=1)",
+        '',
+        "assert check_voltage(3.3) == '低い'",
+        "assert check_voltage(5.0) == '正常'",
+        "assert check_voltage(6.0) == '高い'",
+        "assert check_voltage(4.5) == '正常', 'ちょうど 4.5 は正常 (4.5 以上)'",
+        "assert check_voltage(5.5) == '正常', 'ちょうど 5.5 は正常 (5.5 以下)'",
+        "assert check_voltage(4.49) == '低い'",
+        "assert check_voltage(5.51) == '高い'",
+        "print('OK')",
+    ]),
+    ('q2', '合計と最大', 20, [
+        "need('total_and_max', arity=1)",
+        '',
+        'assert total_and_max([3, 1, 4]) == (8, 4)',
+        'assert total_and_max([7]) == (7, 7)',
+        "assert total_and_max([-5, -2]) == (-7, -2), 'マイナスだけのリストでも最大が正しいこと (biggest は先頭から始める)'",
+        'assert total_and_max([]) == (0, None)',
+        'assert abs(total_and_max([3.3, 5.0, 4.8])[0] - 13.1) < 1e-9',
+        "holds('合計と最大が組み込み関数と同じ',",
+        '      lambda a, b, c: total_and_max([a, b, c]) == (a + b + c, max(a, b, c)), ints(3))',
+        "_t = tags('total_and_max')",
+        "assert not ({'calls:sum', 'calls:max'} & _t), 'sum / max を使わず、for で 1 つずつ足すこと'",
+        "print('OK')",
+    ]),
+    ('q3', '2 倍の回数', 15, [
+        "need('count_doublings', arity=2)",
+        '',
+        'assert count_doublings(1, 100) == 7',
+        'assert count_doublings(3, 10) == 2',
+        "assert count_doublings(50, 10) == 0, '最初から limit 以上なら 0'",
+        "assert count_doublings(1, 8) == 3, 'ちょうど届いたら止める (条件は value < limit)'",
+        'assert count_doublings(1, 1) == 0',
+        'assert count_doublings(1, 1024) == 10',
+        "print('OK')",
+    ]),
+    ('q4', '辞書で数える', 20, [
+        "need('count_items', arity=1)",
+        '',
+        "assert count_items(['R', 'C', 'R']) == {'R': 2, 'C': 1}",
+        'assert count_items([]) == {}',
+        'assert count_items([5, 5, 5]) == {5: 3}',
+        "assert count_items(list('abracadabra')) == {'a': 5, 'b': 2, 'r': 2, 'c': 1, 'd': 1}",
+        "holds('回数の合計は要素の数と同じ',",
+        '      lambda a, b, c: sum(count_items([a, b, c, a]).values()) == 4, ints(3, lo=0, hi=3))',
+        "unchanged('count_items', ['R', 'C', 'R'])",
+        "print('OK')",
+    ]),
+    ('q5', '逆ポーランド電卓', 15, [
+        "need('rpn', arity=1)",
+        "need('OPS', kind=dict)",
+        '',
+        "assert rpn('3 4 +') == 7",
+        "assert rpn('10 3 -') == 7, '先に取り出すのが右側の値 (10 3 - は 10 - 3)'",
+        "assert rpn('2 3 4 * +') == 14",
+        "assert rpn('5') == 5",
+        "assert rpn('1 2 + 3 *') == 9",
+        "holds('a b - は a - b', lambda a, b: rpn(f'{a} {b} -') == a - b, ints(2, lo=0, hi=50))",
+        '# 関数を辞書に足すだけで、新しい記号が使えること',
+        "OPS['max'] = max",
+        "assert rpn('3 9 max') == 9, '記号は OPS から引いて呼ぶこと'",
+        "del OPS['max']",
+        "print('OK')",
+    ]),
+    ('b1', 'カラーコード', 10, [
+        "need('resistance', arity=1)",
+        '',
+        "assert resistance(['茶', '黒', '赤']) == 1000",
+        "assert resistance(['黄', '紫', '橙']) == 47000",
+        "assert resistance(['赤', '赤', '黒']) == 22",
+        'try:',
+        "    resistance(['茶', '金', '赤'])",
+        'except ValueError:',
+        '    pass',
+        'else:',
+        "    raise AssertionError('表に無い色は ValueError を出すこと')",
+        "print('OK')",
+    ]),
+    ('b2', '両方にある部品', 5, [
+        "need('common_parts', arity=2)",
+        '',
+        "r = common_parts(['R1', 'C1', 'R2'], ['R2', 'L1', 'R1'])",
+        "assert isinstance(r, list), '並べたリストで返すこと (sorted を使う)'",
+        "assert r == ['R1', 'R2']",
+        "assert common_parts(['R1', 'R1'], ['R1']) == ['R1'], '同じ名前は 1 つにまとめること'",
+        "assert common_parts(['C1'], ['L1']) == []",
+        "print('OK')",
+    ]),
+]
+
+# 本文は行ごとの文字列のリスト。grade.py が改行で連結して実行する。
+# 満点: 100

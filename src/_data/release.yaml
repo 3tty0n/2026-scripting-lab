@@ -7,3 +7,6 @@
 08-forth: public
   # released_at: 2027-04-01T10:30:00+09:00
 08a-llm-webllm: private
+eecs05-python: public
+eecs06-data: public
+eecs07-forth: public
