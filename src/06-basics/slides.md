@@ -4,7 +4,7 @@ Scripting Languages / Dynamic Languages / 06
 
 ### スクリプト言語演習
 
-伊澤 侑祐
+佐藤 正平、草野 翼、伊澤 侑祐、大久保 寛
 
 ---
 
