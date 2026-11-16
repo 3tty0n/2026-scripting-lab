@@ -8,7 +8,7 @@
   - Colab: cellView "form" (折りたたみフォーム)
 
 使い方:
-    python3 tools/build-notebooks.py            # exercises/ と exercises/solutions/
+    python3 tools/build-notebooks.py            # exercises/
     python3 tools/build-notebooks.py exercises/ # 指定ディレクトリだけ
 """
 import argparse
@@ -43,8 +43,9 @@ if not pathlib.Path('autograde.py').exists():
     except Exception as e:
         print('取得できませんでした:', e)
 
-from autograde import check, score
+from autograde import check, score, setup
 TASK = '{task}'
+setup(globals())
 """
 
 HIDDEN_MD = {
@@ -89,7 +90,7 @@ def fix_notebook(path):
 
 def main(argv):
     ap = argparse.ArgumentParser()
-    ap.add_argument("dirs", nargs="*", default=["exercises", "exercises/solutions"])
+    ap.add_argument("dirs", nargs="*", default=["exercises"])
     args = ap.parse_args(argv)
     changed = 0
     for d in args.dirs:
